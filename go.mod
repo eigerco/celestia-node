@@ -358,7 +358,7 @@ replace (
 	github.com/hashicorp/go-metrics => ../hashicorp-go-metrics
 	github.com/ipfs/boxo => ../boxo
 	//github.com/lib/pq => ../pq
-	github.com/libp2p/go-libp2p => ../go-libp2p
+	github.com/libp2p/go-libp2p => github.com/0x19/go-libp2p v0.32.0
 	github.com/libp2p/go-libp2p-pubsub => github.com/0x19/go-libp2p-pubsub v0.9.3-wasm
 	//github.com/libp2p/go-nat => ../go-nat
 	//github.com/libp2p/go-netroute => ../go-netroute
