@@ -348,7 +348,8 @@ replace (
 	github.com/bgentry/speakeasy => ../speakeasy
 	github.com/chzyer/readline => ../readline
 	//github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.18.1-sdk-v0.46.14
-	github.com/cosmos/cosmos-sdk => ../cosmos-sdk
+	github.com/cosmos/cosmos-sdk => github.com/0x19/cosmos-sdk v1.18.1-sdk-v0.46.14-wasm2
+	//github.com/cosmos/cosmos-sdk => ../cosmos-sdk
 	github.com/cosmos/ibc-go/v6 => github.com/0x19/ibc-go/v6 v6.2.0-wasm
 	//github.com/cosmos/ibc-go/v6 => ../ibc-go
 	//github.com/ethereum/go-ethereum => ../go-ethereum
