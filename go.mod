@@ -356,7 +356,7 @@ replace (
 	//github.com/go-kit/log => ../log
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/hashicorp/go-metrics => ../hashicorp-go-metrics
-	github.com/ipfs/boxo => ../boxo
+	github.com/ipfs/boxo => github.com/0x19/boxo v0.13.1-wasm-wtf
 	//github.com/lib/pq => ../pq
 	github.com/libp2p/go-libp2p => github.com/0x19/go-libp2p v0.32.0
 	github.com/libp2p/go-libp2p-pubsub => github.com/0x19/go-libp2p-pubsub v0.9.3-wasm
