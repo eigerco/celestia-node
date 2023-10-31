@@ -359,11 +359,11 @@ replace (
 	github.com/ipfs/boxo => ../boxo
 	github.com/lib/pq => ../pq
 	github.com/libp2p/go-libp2p => ../go-libp2p
-	github.com/libp2p/go-libp2p-pubsub => ../go-libp2p-pubsub
-	github.com/libp2p/go-nat => ../go-nat
-	github.com/libp2p/go-netroute => ../go-netroute
-	github.com/prometheus/procfs => ../procfs
-	github.com/spf13/afero => ../afero
+	github.com/libp2p/go-libp2p-pubsub => github.com/0x19/go-libp2p-pubsub v0.9.3-wasm
+	//github.com/libp2p/go-nat => ../go-nat
+	//github.com/libp2p/go-netroute => ../go-netroute
+	//github.com/prometheus/procfs => ../procfs
+	//github.com/spf13/afero => ../afero
 	// broken goleveldb needs to be replaced for the cosmos-sdk and celestia-app
 	// github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	github.com/syndtr/goleveldb => github.com/0x19/goleveldb v1.0.1
