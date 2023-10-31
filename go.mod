@@ -365,7 +365,8 @@ replace (
 	github.com/prometheus/procfs => ../procfs
 	github.com/spf13/afero => ../afero
 	// broken goleveldb needs to be replaced for the cosmos-sdk and celestia-app
-	github.com/syndtr/goleveldb => ../goleveldb
+	// github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+	github.com/syndtr/goleveldb => github.com/0x19/goleveldb v1.0.1
 	//github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
 	github.com/tendermint/tendermint => github.com/0x19/celestia-core v1.29.0-wasm
 	//github.com/tendermint/tendermint => ../celestia-core
