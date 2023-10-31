@@ -82,6 +82,7 @@ require (
 	github.com/consensys/gnark-crypto v0.12.1 // indirect
 	github.com/crate-crypto/go-kzg-4844 v0.7.0 // indirect
 	github.com/ethereum/c-kzg-4844 v0.4.0 // indirect
+	github.com/hashicorp/go-metrics v0.5.1 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/supranational/blst v0.3.11 // indirect
 	go.uber.org/mock v0.3.0 // indirect
@@ -103,7 +104,6 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
-	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.122 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
@@ -344,13 +344,18 @@ require (
 )
 
 replace (
+	github.com/armon/go-metrics => ../go-metrics
 	github.com/bgentry/speakeasy => ../speakeasy
 	github.com/chzyer/readline => ../readline
-	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.18.1-sdk-v0.46.14
+	//github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.18.1-sdk-v0.46.14
+	github.com/cosmos/cosmos-sdk => ../cosmos-sdk
+	github.com/cosmos/ibc-go/v6 => github.com/0x19/ibc-go/v6 v6.2.0-wasm
+	//github.com/cosmos/ibc-go/v6 => ../ibc-go
 	github.com/ethereum/go-ethereum => ../go-ethereum
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20230824094345-537c012aa403
 	github.com/go-kit/log => ../log
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	github.com/hashicorp/go-metrics => ../hashicorp-go-metrics
 	github.com/ipfs/boxo => ../boxo
 	github.com/lib/pq => ../pq
 	github.com/libp2p/go-libp2p => ../go-libp2p
@@ -361,6 +366,9 @@ replace (
 	github.com/spf13/afero => ../afero
 	// broken goleveldb needs to be replaced for the cosmos-sdk and celestia-app
 	github.com/syndtr/goleveldb => ../goleveldb
-	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
+	//github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
+	github.com/tendermint/tendermint => github.com/0x19/celestia-core v1.29.0-wasm
+	//github.com/tendermint/tendermint => ../celestia-core
 	go.uber.org/fx => ../fx
+
 )
