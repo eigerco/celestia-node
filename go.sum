@@ -218,6 +218,8 @@ github.com/0x19/go-libp2p-pubsub v0.9.3-wasm h1:GEoSPeWudWezYdwgGvHwwPZPZ58PDERR
 github.com/0x19/go-libp2p-pubsub v0.9.3-wasm/go.mod h1:RYA7aM9jIic5VV47WXu4GkcRxRhrdElWf8xtyli+Dzc=
 github.com/0x19/goleveldb v1.0.1 h1:EQBk+3We6iUWW/M1JuKPqwv6Qx4cydH29Kdgf6jJW9w=
 github.com/0x19/goleveldb v1.0.1/go.mod h1:RRCYJbIwD5jmqPI9XoAFR0OcDxqUctll6zUj/+B4S48=
+github.com/0x19/hashicorp-go-metrics v0.5.1-wasm h1:UWTaQ5aDgFdHodjOBTLWDNpjwNzCbhavkaCKniN4lg8=
+github.com/0x19/hashicorp-go-metrics v0.5.1-wasm/go.mod h1:KEjodfebIOuBYSAe/bHTm+HChmKSxAOXPBieMLYozDE=
 github.com/0x19/ibc-go/v6 v6.2.0-wasm h1:mTqzdhYazmsvfvYXdMfdMydyQ3itlZfqTtsI4alns70=
 github.com/0x19/ibc-go/v6 v6.2.0-wasm/go.mod h1:ISgY34cu0h7ktvmjEnjj0frWAjE7E4wEMTd+DBXdiAU=
 github.com/0x19/uber-fx v1.20.1 h1:Y/UbGl5Ksvuv9f1e2osiZerybWomQFT35SRx5X7LQR0=
