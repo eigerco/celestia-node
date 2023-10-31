@@ -226,6 +226,8 @@ github.com/0x19/ibc-go/v6 v6.2.0-wasm h1:mTqzdhYazmsvfvYXdMfdMydyQ3itlZfqTtsI4al
 github.com/0x19/ibc-go/v6 v6.2.0-wasm/go.mod h1:ISgY34cu0h7ktvmjEnjj0frWAjE7E4wEMTd+DBXdiAU=
 github.com/0x19/readline v1.5.1-wasm h1:ooipO38z/HsJats3H0ZHKNCojivzW9TJdaFtl6gIF7Q=
 github.com/0x19/readline v1.5.1-wasm/go.mod h1:Eh+b79XXUwfKfcPLepksvw2tcLE/Ct21YObkaSkeBlk=
+github.com/0x19/speakeasy v0.1.0-wasm h1:J3/5vCAo+mXeO6OPo32lRK6pMiLL4arKfu6lAJPrl+0=
+github.com/0x19/speakeasy v0.1.0-wasm/go.mod h1:O1cYeWf1Ak1GmByJxClTNA51JEZHyuhIDcAm49hru9U=
 github.com/0x19/uber-fx v1.20.1 h1:Y/UbGl5Ksvuv9f1e2osiZerybWomQFT35SRx5X7LQR0=
 github.com/0x19/uber-fx v1.20.1/go.mod h1:iSYNbHf2y55acNCwCXKx7LbWb5WG1Bnue5RDXz1OREg=
 github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 h1:/vQbFIOMbk2FiG/kXiLl8BRyzTWDw7gX/Hz7Dd5eDMs=

@@ -345,7 +345,7 @@ require (
 
 replace (
 	//github.com/armon/go-metrics => ../go-metrics
-	github.com/bgentry/speakeasy => ../speakeasy
+	github.com/bgentry/speakeasy => github.com/0x19/speakeasy v0.1.0-wasm
 	github.com/chzyer/readline => github.com/0x19/readline v1.5.1-wasm
 	//github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.18.1-sdk-v0.46.14
 	github.com/cosmos/cosmos-sdk => github.com/0x19/cosmos-sdk v1.18.1-sdk-v0.46.14-wasm2
