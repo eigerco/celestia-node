@@ -370,6 +370,6 @@ replace (
 	//github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
 	github.com/tendermint/tendermint => github.com/0x19/celestia-core v1.29.0-wasm
 	//github.com/tendermint/tendermint => ../celestia-core
-	go.uber.org/fx => ../fx
+	go.uber.org/fx => github.com/0x19/uber-fx v1.20.1
 
 )
