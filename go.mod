@@ -344,20 +344,20 @@ require (
 )
 
 replace (
-	github.com/armon/go-metrics => ../go-metrics
+	//github.com/armon/go-metrics => ../go-metrics
 	github.com/bgentry/speakeasy => ../speakeasy
 	github.com/chzyer/readline => ../readline
 	//github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.18.1-sdk-v0.46.14
 	github.com/cosmos/cosmos-sdk => ../cosmos-sdk
 	github.com/cosmos/ibc-go/v6 => github.com/0x19/ibc-go/v6 v6.2.0-wasm
 	//github.com/cosmos/ibc-go/v6 => ../ibc-go
-	github.com/ethereum/go-ethereum => ../go-ethereum
+	//github.com/ethereum/go-ethereum => ../go-ethereum
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20230824094345-537c012aa403
-	github.com/go-kit/log => ../log
+	//github.com/go-kit/log => ../log
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/hashicorp/go-metrics => ../hashicorp-go-metrics
 	github.com/ipfs/boxo => ../boxo
-	github.com/lib/pq => ../pq
+	//github.com/lib/pq => ../pq
 	github.com/libp2p/go-libp2p => ../go-libp2p
 	github.com/libp2p/go-libp2p-pubsub => github.com/0x19/go-libp2p-pubsub v0.9.3-wasm
 	//github.com/libp2p/go-nat => ../go-nat
