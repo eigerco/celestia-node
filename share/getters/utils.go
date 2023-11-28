@@ -6,7 +6,8 @@ import (
 	"time"
 
 	logging "github.com/ipfs/go-log/v2"
-	"go.opentelemetry.io/otel"
+
+	"github.com/celestiaorg/celestia-node/otel"
 )
 
 var (
@@ -16,9 +17,9 @@ var (
 	errOperationNotSupported = errors.New("operation is not supported")
 )
 
-// ctxWithSplitTimeout will split timeout stored in context by splitFactor and return the result if
+// CtxWithSplitTimeout will split timeout stored in context by splitFactor and return the result if
 // it is greater than minTimeout. minTimeout == 0 will be ignored, splitFactor <= 0 will be ignored
-func ctxWithSplitTimeout(
+func CtxWithSplitTimeout(
 	ctx context.Context,
 	splitFactor int,
 	minTimeout time.Duration,

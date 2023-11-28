@@ -1,8 +1,11 @@
+//go:build bridge_full
+
 package core
 
 import (
 	"bytes"
 	"context"
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	"testing"
 	"time"
 
@@ -47,7 +50,7 @@ func TestListener(t *testing.T) {
 	t.Cleanup(subs.Cancel)
 
 	// create one block to store as Head in local store and then unsubscribe from block events
-	fetcher, _ := createCoreFetcher(t, DefaultTestConfig())
+	fetcher, _ := createCoreFetcher(t, testing2.DefaultTestConfig())
 	eds := createEdsPubSub(ctx, t)
 	// create Listener and start listening
 	cl := createListener(ctx, t, fetcher, ps0, eds, createStore(t))
@@ -79,7 +82,7 @@ func TestListenerWithNonEmptyBlocks(t *testing.T) {
 	ps0, _ := createMocknetWithTwoPubsubEndpoints(ctx, t)
 
 	// create one block to store as Head in local store and then unsubscribe from block events
-	cfg := DefaultTestConfig()
+	cfg := testing2.DefaultTestConfig()
 	fetcher, cctx := createCoreFetcher(t, cfg)
 	eds := createEdsPubSub(ctx, t)
 

@@ -1,6 +1,10 @@
+//go:build testing
+
 package nodebuilder
 
 import (
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -15,7 +19,6 @@ import (
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/header/headertest"
 	"github.com/celestiaorg/celestia-node/libs/fxutil"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 )
@@ -54,7 +57,7 @@ func TestNodeWithConfig(t *testing.T, tp node.Type, cfg *Config, opts ...fx.Opti
 	// in fact, we don't need core.Client in tests, but Bridge requires is a valid one
 	// or fails otherwise with failed attempt to connect with custom build client
 	if tp == node.Bridge {
-		cctx := core.StartTestNode(t)
+		cctx := testing2.StartTestNode(t)
 		opts = append(opts,
 			fxutil.ReplaceAs(cctx.Client, new(core.Client)),
 		)

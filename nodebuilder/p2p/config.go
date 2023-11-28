@@ -2,12 +2,11 @@ package p2p
 
 import (
 	"fmt"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"time"
 
 	"github.com/libp2p/go-libp2p/core/peer"
 	ma "github.com/multiformats/go-multiaddr"
-
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 const defaultRoutingRefreshPeriod = time.Minute

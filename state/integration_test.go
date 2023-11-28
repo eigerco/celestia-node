@@ -3,6 +3,7 @@ package state
 import (
 	"context"
 	"encoding/json"
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	"os"
 	"testing"
 
@@ -22,7 +23,6 @@ import (
 	blobtypes "github.com/celestiaorg/celestia-app/x/blob/types"
 	libhead "github.com/celestiaorg/go-header"
 
-	"github.com/celestiaorg/celestia-node/core"
 	"github.com/celestiaorg/celestia-node/header"
 )
 
@@ -46,8 +46,8 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	}
 	s.T().Log("setting up integration test suite")
 
-	cfg := core.DefaultTestConfig()
-	s.cctx = core.StartTestNodeWithConfig(s.T(), cfg)
+	cfg := testing2.DefaultTestConfig()
+	s.cctx = testing2.StartTestNodeWithConfig(s.T(), cfg)
 	s.accounts = cfg.Accounts
 
 	signer := blobtypes.NewKeyringSigner(s.cctx.Keyring, s.accounts[0], s.cctx.ChainID)

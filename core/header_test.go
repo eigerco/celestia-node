@@ -1,7 +1,9 @@
-package core
+package core_test
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/core"
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,8 +19,8 @@ func TestMakeExtendedHeaderForEmptyBlock(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
-	client := StartTestNode(t).Client
-	fetcher := NewBlockFetcher(client)
+	client := testing2.StartTestNode(t).Client
+	fetcher := core.NewBlockFetcher(client)
 
 	sub, err := fetcher.SubscribeNewBlockEvent(ctx)
 	require.NoError(t, err)
@@ -31,7 +33,7 @@ func TestMakeExtendedHeaderForEmptyBlock(t *testing.T) {
 	comm, val, err := fetcher.GetBlockInfo(ctx, &height)
 	require.NoError(t, err)
 
-	eds, err := extendBlock(b.Data, b.Header.Version.App)
+	eds, err := core.ExtendBlock(b.Data, b.Header.Version.App)
 	require.NoError(t, err)
 
 	headerExt, err := header.MakeExtendedHeader(&b.Header, comm, val, eds)

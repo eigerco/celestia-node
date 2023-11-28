@@ -2,13 +2,12 @@ package gateway
 
 import (
 	"context"
-
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
 
 	"github.com/celestiaorg/celestia-node/api/gateway"
 	headerServ "github.com/celestiaorg/celestia-node/nodebuilder/header"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	shareServ "github.com/celestiaorg/celestia-node/nodebuilder/share"
 	stateServ "github.com/celestiaorg/celestia-node/nodebuilder/state"
 )

@@ -3,7 +3,7 @@ package header
 import (
 	"encoding/hex"
 	"fmt"
-
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
 
@@ -12,7 +12,6 @@ import (
 	"github.com/celestiaorg/go-header/store"
 	"github.com/celestiaorg/go-header/sync"
 
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 )
 

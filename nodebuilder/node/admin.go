@@ -1,8 +1,9 @@
+//go:build !wasm
+
 package node
 
 import (
 	"context"
-
 	"github.com/cristalhq/jwt"
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	logging "github.com/ipfs/go-log/v2"
@@ -17,7 +18,7 @@ type module struct {
 	signer jwt.Signer
 }
 
-func newModule(tp Type, signer jwt.Signer) Module {
+func NewModule(tp Type, signer jwt.Signer) Module {
 	return &module{
 		tp:     tp,
 		signer: signer,

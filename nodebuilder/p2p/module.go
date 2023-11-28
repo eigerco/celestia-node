@@ -1,18 +1,18 @@
 package p2p
 
 import (
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/libp2p/go-libp2p/core/metrics"
 	"go.uber.org/fx"
 
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/share/ipld"
 )
 
 var log = logging.Logger("module/p2p")
 
 // ConstructModule collects all the components and services related to p2p.
-func ConstructModule(tp node.Type, cfg *Config) fx.Option {
+func ConstructModule(tp node.Type, cfg *Config) (fx.Option, error) {
 	// sanitize config values before constructing module
 	cfgErr := cfg.Validate()
 
@@ -41,19 +41,9 @@ func ConstructModule(tp node.Type, cfg *Config) fx.Option {
 
 	switch tp {
 	case node.Full, node.Bridge:
-		return fx.Module(
-			"p2p",
-			baseComponents,
-			fx.Provide(blockstoreFromEDSStore),
-			fx.Provide(infiniteResources),
-		)
+		return bridgeFullModule(baseComponents)
 	case node.Light:
-		return fx.Module(
-			"p2p",
-			baseComponents,
-			fx.Provide(blockstoreFromDatastore),
-			fx.Provide(autoscaleResources),
-		)
+		return lightModule(baseComponents)
 	default:
 		panic("invalid node type")
 	}

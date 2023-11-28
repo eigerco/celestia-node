@@ -34,7 +34,7 @@ type ShareAvailability struct {
 	//  Related to #483
 	// TODO: Striped locks? :D
 	dsLk sync.RWMutex
-	ds   *autobatch.Datastore
+	DS   *autobatch.Datastore
 }
 
 // NewShareAvailability creates a new light Availability.
@@ -54,7 +54,7 @@ func NewShareAvailability(
 	return &ShareAvailability{
 		getter: getter,
 		params: params,
-		ds:     autoDS,
+		DS:     autoDS,
 	}
 }
 
@@ -68,10 +68,10 @@ func (la *ShareAvailability) SharesAvailable(ctx context.Context, header *header
 	}
 
 	// do not sample over Root that has already been sampled
-	key := rootKey(dah)
+	key := RootKey(dah)
 
 	la.dsLk.RLock()
-	exists, err := la.ds.Has(ctx, key)
+	exists, err := la.DS.Has(ctx, key)
 	la.dsLk.RUnlock()
 	if err != nil || exists {
 		return err
@@ -133,7 +133,7 @@ func (la *ShareAvailability) SharesAvailable(ctx context.Context, header *header
 	}
 
 	la.dsLk.Lock()
-	err = la.ds.Put(ctx, key, []byte{})
+	err = la.DS.Put(ctx, key, []byte{})
 	la.dsLk.Unlock()
 	if err != nil {
 		log.Errorw("storing root of successful SharesAvailable request to disk", "err", err)
@@ -141,11 +141,11 @@ func (la *ShareAvailability) SharesAvailable(ctx context.Context, header *header
 	return nil
 }
 
-func rootKey(root *share.Root) datastore.Key {
+func RootKey(root *share.Root) datastore.Key {
 	return datastore.NewKey(root.String())
 }
 
 // Close flushes all queued writes to disk.
 func (la *ShareAvailability) Close(ctx context.Context) error {
-	return la.ds.Flush(ctx)
+	return la.DS.Flush(ctx)
 }

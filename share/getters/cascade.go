@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/celestiaorg/celestia-node/otel/attribute"
+	"github.com/celestiaorg/celestia-node/otel/trace"
 
 	"github.com/celestiaorg/rsmt2d"
 
@@ -52,7 +52,7 @@ func (cg *CascadeGetter) GetShare(
 		return get.GetShare(ctx, header, row, col)
 	}
 
-	return cascadeGetters(ctx, cg.getters, get)
+	return CascadeGetters(ctx, cg.getters, get)
 }
 
 // GetEDS gets a full EDS from any of registered share.Getters in cascading order.
@@ -66,7 +66,7 @@ func (cg *CascadeGetter) GetEDS(
 		return get.GetEDS(ctx, header)
 	}
 
-	return cascadeGetters(ctx, cg.getters, get)
+	return CascadeGetters(ctx, cg.getters, get)
 }
 
 // GetSharesByNamespace gets NamespacedShares from any of registered share.Getters in cascading
@@ -85,7 +85,7 @@ func (cg *CascadeGetter) GetSharesByNamespace(
 		return get.GetSharesByNamespace(ctx, header, namespace)
 	}
 
-	return cascadeGetters(ctx, cg.getters, get)
+	return CascadeGetters(ctx, cg.getters, get)
 }
 
 // cascade implements a cascading retry algorithm for getting a value from multiple sources.
@@ -96,7 +96,7 @@ func (cg *CascadeGetter) GetSharesByNamespace(
 //   - Context is canceled
 //
 // NOTE: New source attempts after interval do suspend running sources in progress.
-func cascadeGetters[V any](
+func CascadeGetters[V any](
 	ctx context.Context,
 	getters []share.Getter,
 	get func(context.Context, share.Getter) (V, error),
@@ -125,7 +125,7 @@ func cascadeGetters[V any](
 
 		// we split the timeout between left getters
 		// once async cascadegetter is implemented, we can remove this
-		getCtx, cancel := ctxWithSplitTimeout(ctx, len(getters)-i, 0)
+		getCtx, cancel := CtxWithSplitTimeout(ctx, len(getters)-i, 0)
 		val, getErr := get(getCtx, getter)
 		cancel()
 		if getErr == nil {

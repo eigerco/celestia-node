@@ -1,3 +1,5 @@
+//go:build bridge_full
+
 package shrexnd
 
 import (

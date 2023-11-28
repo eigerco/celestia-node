@@ -1,6 +1,7 @@
-package light
+package light_test
 
 import (
+	"github.com/celestiaorg/celestia-node/share/availability/light"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,7 +17,7 @@ func TestSampleSquare(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		ss, err := SampleSquare(tt.width, tt.samples)
+		ss, err := light.SampleSquare(tt.width, tt.samples)
 		assert.NoError(t, err)
 		assert.Len(t, ss, tt.samples)
 		// check points are within width

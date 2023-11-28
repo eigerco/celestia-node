@@ -1,9 +1,12 @@
-package getters
+package getters_test
 
 import (
 	"context"
 	"encoding/binary"
 	"errors"
+	"fmt"
+	"github.com/celestiaorg/celestia-app/pkg/da"
+	"github.com/celestiaorg/celestia-node/share/getters"
 	"testing"
 	"time"
 
@@ -53,7 +56,7 @@ func TestShrexGetter(t *testing.T) {
 	sub := new(headertest.Subscriber)
 	peerManager, err := testManager(ctx, clHost, sub)
 	require.NoError(t, err)
-	getter := NewShrexGetter(edsClient, ndClient, peerManager)
+	getter := getters.NewShrexGetter(edsClient, ndClient, peerManager)
 	require.NoError(t, getter.Start(ctx))
 
 	t.Run("ND_Available, total data size > 1mb", func(t *testing.T) {
@@ -366,4 +369,63 @@ func TestAddToNamespace(t *testing.T) {
 			}
 		})
 	}
+}
+
+// GetterTest provides a testing SingleEDSGetter and the root of the EDS it holds.
+func GetterTest(t *testing.T) (share.Getter, *header.ExtendedHeader) {
+	eds := edstest.RandEDS(t, 8)
+	dah, err := share.NewRoot(eds)
+	eh := headertest.RandExtendedHeaderWithRoot(t, dah)
+	require.NoError(t, err)
+	return &SingleEDSGetter{
+		EDS: eds,
+	}, eh
+}
+
+// SingleEDSGetter contains a single EDS where data is retrieved from.
+// Its primary use is testing, and GetSharesByNamespace is not supported.
+type SingleEDSGetter struct {
+	EDS *rsmt2d.ExtendedDataSquare
+}
+
+// GetShare gets a share from a kept EDS if exist and if the correct root is given.
+func (seg *SingleEDSGetter) GetShare(
+	_ context.Context,
+	header *header.ExtendedHeader,
+	row, col int,
+) (share.Share, error) {
+	err := seg.checkRoot(header.DAH)
+	if err != nil {
+		return nil, err
+	}
+	return seg.EDS.GetCell(uint(row), uint(col)), nil
+}
+
+// GetEDS returns a kept EDS if the correct root is given.
+func (seg *SingleEDSGetter) GetEDS(
+	_ context.Context,
+	header *header.ExtendedHeader,
+) (*rsmt2d.ExtendedDataSquare, error) {
+	err := seg.checkRoot(header.DAH)
+	if err != nil {
+		return nil, err
+	}
+	return seg.EDS, nil
+}
+
+// GetSharesByNamespace returns NamespacedShares from a kept EDS if the correct root is given.
+func (seg *SingleEDSGetter) GetSharesByNamespace(context.Context, *header.ExtendedHeader, share.Namespace,
+) (share.NamespacedShares, error) {
+	panic("SingleEDSGetter: GetSharesByNamespace is not implemented")
+}
+
+func (seg *SingleEDSGetter) checkRoot(root *share.Root) error {
+	dah, err := da.NewDataAvailabilityHeader(seg.EDS)
+	if err != nil {
+		return err
+	}
+	if !root.Equals(&dah) {
+		return fmt.Errorf("unknown EDS: have %s, asked %s", dah.String(), root.String())
+	}
+	return nil
 }

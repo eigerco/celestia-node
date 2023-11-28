@@ -1,9 +1,10 @@
-package getters
+package getters_test
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/share/getters"
 	"testing"
 	"time"
 
@@ -99,7 +100,7 @@ func Test_ErrorContains(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(t,
 				tt.want,
-				ErrorContains(tt.args.err, tt.args.target),
+				getters.ErrorContains(tt.args.err, tt.args.target),
 				"ErrorContains(%v, %v)", tt.args.err, tt.args.target)
 		})
 	}
@@ -207,7 +208,7 @@ func Test_ctxWithSplitTimeout(t *testing.T) {
 					ctx, cancel = context.WithTimeout(ctx, tt.args.ctxTimeout)
 				}
 				t.Cleanup(cancel)
-				got, _ := ctxWithSplitTimeout(ctx, sf, tt.args.minTimeout)
+				got, _ := getters.CtxWithSplitTimeout(ctx, sf, tt.args.minTimeout)
 				dl, ok := got.Deadline()
 				// in case no deadline is found in ctx or not expected to be found, check both cases apply at the
 				// same time

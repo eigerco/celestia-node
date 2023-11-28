@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	"testing"
 	"time"
 
@@ -13,7 +14,7 @@ func TestRemoteClient_Status(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	t.Cleanup(cancel)
 
-	client := StartTestNode(t).Client
+	client := testing2.StartTestNode(t).Client
 	status, err := client.Status(ctx)
 	require.NoError(t, err)
 	require.NotNil(t, status)
@@ -23,7 +24,7 @@ func TestRemoteClient_StartBlockSubscription_And_GetBlock(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	t.Cleanup(cancel)
 
-	client := StartTestNode(t).Client
+	client := testing2.StartTestNode(t).Client
 	eventChan, err := client.Subscribe(ctx, newBlockSubscriber, newDataSignedBlockQuery)
 	require.NoError(t, err)
 

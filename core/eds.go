@@ -1,11 +1,8 @@
 package core
 
 import (
-	"context"
-	"errors"
 	"fmt"
 
-	"github.com/filecoin-project/dagstore"
 	"github.com/tendermint/tendermint/types"
 
 	"github.com/celestiaorg/celestia-app/app"
@@ -15,15 +12,12 @@ import (
 	"github.com/celestiaorg/celestia-app/pkg/wrapper"
 	"github.com/celestiaorg/nmt"
 	"github.com/celestiaorg/rsmt2d"
-
-	"github.com/celestiaorg/celestia-node/share"
-	"github.com/celestiaorg/celestia-node/share/eds"
 )
 
-// extendBlock extends the given block data, returning the resulting
+// ExtendBlock extends the given block data, returning the resulting
 // ExtendedDataSquare (EDS). If there are no transactions in the block,
 // nil is returned in place of the eds.
-func extendBlock(data types.Data, appVersion uint64, options ...nmt.Option) (*rsmt2d.ExtendedDataSquare, error) {
+func ExtendBlock(data types.Data, appVersion uint64, options ...nmt.Option) (*rsmt2d.ExtendedDataSquare, error) {
 	if app.IsEmptyBlock(data, appVersion) {
 		return nil, nil
 	}
@@ -48,17 +42,4 @@ func extendShares(s [][]byte, options ...nmt.Option) (*rsmt2d.ExtendedDataSquare
 		appconsts.DefaultCodec(),
 		wrapper.NewConstructor(uint64(squareSize),
 			options...))
-}
-
-// storeEDS will only store extended block if it is not empty and doesn't already exist.
-func storeEDS(ctx context.Context, hash share.DataHash, eds *rsmt2d.ExtendedDataSquare, store *eds.Store) error {
-	if eds == nil {
-		return nil
-	}
-	err := store.Put(ctx, hash, eds)
-	if errors.Is(err, dagstore.ErrShardExists) {
-		// block with given root already exists, return nil
-		return nil
-	}
-	return err
 }

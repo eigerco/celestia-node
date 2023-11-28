@@ -3,6 +3,7 @@ package nodebuilder
 import (
 	"context"
 	"crypto/rand"
+	nodebuilder "github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"testing"
 
 	"github.com/libp2p/go-libp2p/core/crypto"
@@ -10,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	nodebuilder "github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 )

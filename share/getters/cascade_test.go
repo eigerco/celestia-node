@@ -1,8 +1,9 @@
-package getters
+package getters_test
 
 import (
 	"context"
 	"errors"
+	getters2 "github.com/celestiaorg/celestia-node/share/getters"
 	"strings"
 	"testing"
 
@@ -24,10 +25,10 @@ func TestCascadeGetter(t *testing.T) {
 	headers := make([]*header.ExtendedHeader, gettersN)
 	getters := make([]share.Getter, gettersN)
 	for i := range headers {
-		getters[i], headers[i] = TestGetter(t)
+		getters[i], headers[i] = GetterTest(t)
 	}
 
-	getter := NewCascadeGetter(getters)
+	getter := getters2.NewCascadeGetter(getters)
 	t.Run("GetShare", func(t *testing.T) {
 		for _, eh := range headers {
 			sh, err := getter.GetShare(ctx, eh, 0, 0)
@@ -73,31 +74,31 @@ func TestCascade(t *testing.T) {
 
 	t.Run("SuccessFirst", func(t *testing.T) {
 		getters := []share.Getter{successGetter, timeoutGetter, immediateFailGetter}
-		_, err := cascadeGetters(ctx, getters, get)
+		_, err := getters2.CascadeGetters(ctx, getters, get)
 		assert.NoError(t, err)
 	})
 
 	t.Run("SuccessSecond", func(t *testing.T) {
 		getters := []share.Getter{immediateFailGetter, successGetter}
-		_, err := cascadeGetters(ctx, getters, get)
+		_, err := getters2.CascadeGetters(ctx, getters, get)
 		assert.NoError(t, err)
 	})
 
 	t.Run("SuccessSecondAfterFirst", func(t *testing.T) {
 		getters := []share.Getter{timeoutGetter, successGetter}
-		_, err := cascadeGetters(ctx, getters, get)
+		_, err := getters2.CascadeGetters(ctx, getters, get)
 		assert.NoError(t, err)
 	})
 
 	t.Run("SuccessAfterMultipleTimeouts", func(t *testing.T) {
 		getters := []share.Getter{timeoutGetter, immediateFailGetter, timeoutGetter, timeoutGetter, successGetter}
-		_, err := cascadeGetters(ctx, getters, get)
+		_, err := getters2.CascadeGetters(ctx, getters, get)
 		assert.NoError(t, err)
 	})
 
 	t.Run("Error", func(t *testing.T) {
 		getters := []share.Getter{immediateFailGetter, timeoutGetter, immediateFailGetter}
-		_, err := cascadeGetters(ctx, getters, get)
+		_, err := getters2.CascadeGetters(ctx, getters, get)
 		assert.Error(t, err)
 		assert.Equal(t, strings.Count(err.Error(), "\n"), 2)
 	})
@@ -106,14 +107,14 @@ func TestCascade(t *testing.T) {
 		ctx, cancel := context.WithCancel(ctx)
 		cancel()
 		getters := []share.Getter{ctxGetter, ctxGetter, ctxGetter}
-		_, err := cascadeGetters(ctx, getters, get)
+		_, err := getters2.CascadeGetters(ctx, getters, get)
 		assert.Error(t, err)
 		assert.Equal(t, strings.Count(err.Error(), "\n"), 0)
 	})
 
 	t.Run("Single", func(t *testing.T) {
 		getters := []share.Getter{successGetter}
-		_, err := cascadeGetters(ctx, getters, get)
+		_, err := getters2.CascadeGetters(ctx, getters, get)
 		assert.NoError(t, err)
 	})
 }

@@ -2,6 +2,7 @@ package nodebuilder
 
 import (
 	"fmt"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"os"
 	"path/filepath"
 
@@ -14,8 +15,6 @@ import (
 
 	"github.com/celestiaorg/celestia-node/libs/fslock"
 	"github.com/celestiaorg/celestia-node/libs/utils"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 )
 
 // PrintKeyringInfo whether to print keyring information during init.
@@ -190,11 +189,12 @@ func initDir(path string) error {
 func generateKeys(cfg Config, ksPath string) error {
 	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
 
-	if cfg.State.KeyringBackend == keyring.BackendTest {
-		log.Warn("Detected plaintext keyring backend. For elevated security properties, consider using" +
-			" the `file` keyring backend.")
-	}
-	ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, ksPath, os.Stdin, encConf.Codec)
+	//if cfg.State.KeyringBackend == keyring.BackendTest {
+	//	log.Warn("Detected plaintext keyring backend. For elevated security properties, consider using" +
+	//		" the `file` keyring backend.")
+	//}
+	//ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, ksPath, os.Stdin, encConf.Codec)
+	ring, err := keyring.New(app.Name, "memory", ksPath, os.Stdin, encConf.Codec) // FIXME hardcoded memory for now
 	if err != nil {
 		return err
 	}
@@ -226,6 +226,6 @@ func generateKeys(cfg Config, ksPath string) error {
 // generateNewKey generates and returns a new key on the given keyring called
 // "my_celes_key".
 func generateNewKey(ring keyring.Keyring) (*keyring.Record, string, error) {
-	return ring.NewMnemonic(state.DefaultAccountName, keyring.English, sdk.GetConfig().GetFullBIP44Path(),
+	return ring.NewMnemonic(DefaultAccountName, keyring.English, sdk.GetConfig().GetFullBIP44Path(),
 		keyring.DefaultBIP39Passphrase, hd.Secp256k1)
 }

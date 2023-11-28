@@ -2,6 +2,7 @@ package nodebuilder
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -14,7 +15,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/celestiaorg/celestia-node/header/headertest"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/share"
 )
 

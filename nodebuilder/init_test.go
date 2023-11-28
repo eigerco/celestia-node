@@ -1,6 +1,7 @@
 package nodebuilder
 
 import (
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"os"
 	"testing"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/celestiaorg/celestia-app/app/encoding"
 
 	"github.com/celestiaorg/celestia-node/libs/fslock"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 func TestInit(t *testing.T) {

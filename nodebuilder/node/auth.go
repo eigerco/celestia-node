@@ -11,9 +11,9 @@ import (
 
 var SecretName = keystore.KeyName("jwt-secret.jwt")
 
-// secret returns the node's JWT secret if it exists, or generates
+// Secret returns the node's JWT secret if it exists, or generates
 // and saves a new one if it does not.
-func secret(ks keystore.Keystore) (jwt.Signer, error) {
+func Secret(ks keystore.Keystore) (jwt.Signer, error) {
 	// if key already exists, use it
 	if pk, ok := existing(ks); ok {
 		return jwt.NewHS256(pk)

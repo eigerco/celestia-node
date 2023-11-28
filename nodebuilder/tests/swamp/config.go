@@ -1,17 +1,16 @@
 package swamp
 
 import (
+	"github.com/celestiaorg/celestia-node/core/testing"
 	"time"
 
 	"github.com/celestiaorg/celestia-app/test/util/testnode"
-
-	"github.com/celestiaorg/celestia-node/core"
 )
 
 // DefaultConfig creates a celestia-app instance with a block time of around
 // 100ms
 func DefaultConfig() *testnode.Config {
-	cfg := core.DefaultTestConfig()
+	cfg := testing.DefaultTestConfig()
 	// timeout commit lower than this tend to be flakier
 	cfg.TmConfig.Consensus.TimeoutCommit = 200 * time.Millisecond
 	return cfg

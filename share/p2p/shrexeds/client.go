@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/share/lighteds"
 	"io"
 	"net"
 	"time"
@@ -17,7 +18,6 @@ import (
 	"github.com/celestiaorg/rsmt2d"
 
 	"github.com/celestiaorg/celestia-node/share"
-	"github.com/celestiaorg/celestia-node/share/eds"
 	"github.com/celestiaorg/celestia-node/share/p2p"
 	pb "github.com/celestiaorg/celestia-node/share/p2p/shrexeds/pb"
 )
@@ -28,7 +28,7 @@ type Client struct {
 	protocolID protocol.ID
 	host       host.Host
 
-	metrics *p2p.Metrics
+	//metrics *p2p.Metrics
 }
 
 // NewClient creates a new ShrEx/EDS client.
@@ -56,7 +56,7 @@ func (c *Client) RequestEDS(
 	}
 	log.Debugw("client: eds request to peer failed", "peer", peer.String(), "hash", dataHash.String(), "error", err)
 	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
-		c.metrics.ObserveRequests(ctx, 1, p2p.StatusTimeout)
+		//c.metrics.ObserveRequests(ctx, 1, p2p.StatusTimeout)
 		return nil, err
 	}
 	// some net.Errors also mean the context deadline was exceeded, but yamux/mocknet do not
@@ -64,7 +64,7 @@ func (c *Client) RequestEDS(
 	var ne net.Error
 	if errors.As(err, &ne) && ne.Timeout() {
 		if deadline, _ := ctx.Deadline(); deadline.Before(time.Now()) {
-			c.metrics.ObserveRequests(ctx, 1, p2p.StatusTimeout)
+			//c.metrics.ObserveRequests(ctx, 1, p2p.StatusTimeout)
 			return nil, context.DeadlineExceeded
 		}
 	}
@@ -117,7 +117,7 @@ func (c *Client) doRequest(
 	if err != nil {
 		// server closes the stream here if we are rate limited
 		if errors.Is(err, io.EOF) {
-			c.metrics.ObserveRequests(ctx, 1, p2p.StatusRateLimited)
+			//c.metrics.ObserveRequests(ctx, 1, p2p.StatusRateLimited)
 			return nil, p2p.ErrNotFound
 		}
 		stream.Reset() //nolint:errcheck
@@ -129,14 +129,14 @@ func (c *Client) doRequest(
 		// reset stream deadlines to original values, since read deadline was changed during status read
 		c.setStreamDeadlines(ctx, stream)
 		// use header and ODS bytes to construct EDS and verify it against dataHash
-		eds, err := eds.ReadEDS(ctx, stream, dataHash)
+		eds, err := lighteds.ReadEDS(ctx, stream, dataHash)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read eds from ods bytes: %w", err)
 		}
-		c.metrics.ObserveRequests(ctx, 1, p2p.StatusSuccess)
+		//c.metrics.ObserveRequests(ctx, 1, p2p.StatusSuccess)
 		return eds, nil
 	case pb.Status_NOT_FOUND:
-		c.metrics.ObserveRequests(ctx, 1, p2p.StatusNotFound)
+		//c.metrics.ObserveRequests(ctx, 1, p2p.StatusNotFound)
 		return nil, p2p.ErrNotFound
 	case pb.Status_INVALID:
 		log.Debug("client: invalid request")
@@ -144,7 +144,7 @@ func (c *Client) doRequest(
 	case pb.Status_INTERNAL:
 		fallthrough
 	default:
-		c.metrics.ObserveRequests(ctx, 1, p2p.StatusInternalErr)
+		//c.metrics.ObserveRequests(ctx, 1, p2p.StatusInternalErr)
 		return nil, p2p.ErrInvalidResponse
 	}
 }

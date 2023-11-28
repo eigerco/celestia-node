@@ -2,13 +2,12 @@ package nodebuilder
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/celestiaorg/celestia-node/core"
 	coremodule "github.com/celestiaorg/celestia-node/nodebuilder/core"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 )
 

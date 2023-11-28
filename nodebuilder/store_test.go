@@ -2,6 +2,7 @@ package nodebuilder
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"strconv"
 	"testing"
 	"time"
@@ -14,7 +15,6 @@ import (
 	"github.com/celestiaorg/nmt"
 	"github.com/celestiaorg/rsmt2d"
 
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/celestia-node/share/eds"
 	"github.com/celestiaorg/celestia-node/share/eds/edstest"

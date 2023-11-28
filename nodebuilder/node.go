@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"strings"
+	"time"
 
 	"github.com/cristalhq/jwt"
 	"github.com/ipfs/boxo/blockservice"
@@ -19,16 +21,7 @@ import (
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/celestiaorg/celestia-node/api/gateway"
-	"github.com/celestiaorg/celestia-node/api/rpc"
-	"github.com/celestiaorg/celestia-node/nodebuilder/blob"
-	"github.com/celestiaorg/celestia-node/nodebuilder/das"
-	"github.com/celestiaorg/celestia-node/nodebuilder/fraud"
-	"github.com/celestiaorg/celestia-node/nodebuilder/header"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-	"github.com/celestiaorg/celestia-node/nodebuilder/share"
-	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 )
 
 var (
@@ -52,8 +45,8 @@ type Node struct {
 	AdminSigner   jwt.Signer
 
 	// rpc components
-	RPCServer     *rpc.Server     // not optional
-	GatewayServer *gateway.Server `optional:"true"`
+	//RPCServer     *rpc.Server     // not optional TODO disable rpc only for wasm
+	//GatewayServer *gateway.Server `optional:"true"` TODO disable gateway only for wasm
 
 	// p2p components
 	Host         host.Host
@@ -64,13 +57,13 @@ type Node struct {
 	// p2p protocols
 	PubSub *pubsub.PubSub
 	// services
-	ShareServ  share.Module  // not optional
-	HeaderServ header.Module // not optional
-	StateServ  state.Module  // not optional
-	FraudServ  fraud.Module  // not optional
-	BlobServ   blob.Module   // not optional
-	DASer      das.Module    // not optional
-	AdminServ  node.Module   // not optional
+	//ShareServ  share.Module  // not optional TODO disable gateway only for wasm
+	//HeaderServ header.Module // not optional TODO disable gateway only for wasm
+	//StateServ  state.Module  // not optional TODO disable gateway only for wasm
+	//FraudServ  fraud.Module  // not optional TODO disable gateway only for wasm
+	//BlobServ   blob.Module   // not optional TODO disable gateway only for wasm
+	//DASer      das.Module    // not optional TODO disable gateway only for wasm
+	//AdminServ  node.Module   // not optional TODO disable gateway only for wasm
 
 	// start and stop control ref internal fx.App lifecycle funcs to be called from Start and Stop
 	start, stop lifecycleFunc
@@ -89,13 +82,18 @@ func New(tp node.Type, network p2p.Network, store Store, options ...fx.Option) (
 // NewWithConfig assembles a new Node with the given type 'tp' over Store 'store' and a custom
 // config.
 func NewWithConfig(tp node.Type, network p2p.Network, store Store, cfg *Config, options ...fx.Option) (*Node, error) {
-	opts := append([]fx.Option{ConstructModule(tp, network, cfg, store)}, options...)
+	mod, err := ConstructModule(tp, network, cfg, store)
+	if err != nil {
+		return nil, err
+	}
+	opts := append([]fx.Option{mod}, options...)
 	return newNode(opts...)
 }
 
 // Start launches the Node and all its components and services.
 func (n *Node) Start(ctx context.Context) error {
-	to := n.Config.Node.StartupTimeout
+	//to := n.Config.Node.StartupTimeout
+	to := time.Second * 20 // TODO hardcoded
 	ctx, cancel := context.WithTimeout(ctx, to)
 	defer cancel()
 
@@ -141,7 +139,8 @@ func (n *Node) Run(ctx context.Context) error {
 // Canceling the given context earlier 'ctx' unblocks the Stop and aborts graceful shutdown forcing
 // remaining Modules/Services to close immediately.
 func (n *Node) Stop(ctx context.Context) error {
-	to := n.Config.Node.ShutdownTimeout
+	//to := n.Config.Node.ShutdownTimeout
+	to := time.Second * 20 // TODO hardcoded
 	ctx, cancel := context.WithTimeout(ctx, to)
 	defer cancel()
 

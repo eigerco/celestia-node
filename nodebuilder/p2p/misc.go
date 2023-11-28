@@ -2,6 +2,7 @@ package p2p
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"time"
 
 	"github.com/ipfs/go-datastore"
@@ -10,8 +11,6 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/host/peerstore/pstoreds" //nolint:staticcheck
 	"github.com/libp2p/go-libp2p/p2p/net/conngater"
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
-
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 // connManagerConfig configures connection manager.

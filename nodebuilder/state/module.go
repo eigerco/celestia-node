@@ -2,7 +2,7 @@ package state
 
 import (
 	"context"
-
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
 
@@ -10,7 +10,6 @@ import (
 	"github.com/celestiaorg/celestia-node/libs/fxutil"
 	"github.com/celestiaorg/celestia-node/nodebuilder/core"
 	modfraud "github.com/celestiaorg/celestia-node/nodebuilder/fraud"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/state"
 )
 

@@ -5,11 +5,10 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-
-	"github.com/celestiaorg/nmt"
 	"github.com/celestiaorg/rsmt2d"
 
 	"github.com/celestiaorg/celestia-node/header"
+	"github.com/celestiaorg/nmt"
 )
 
 var (

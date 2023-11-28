@@ -4,6 +4,8 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"net"
 	"sync"
 	"testing"
@@ -31,7 +33,6 @@ import (
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	coremodule "github.com/celestiaorg/celestia-node/nodebuilder/core"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 	"github.com/celestiaorg/celestia-node/share/eds"
@@ -78,7 +79,7 @@ func NewSwamp(t *testing.T, options ...Option) *Swamp {
 	// Now, we are making an assumption that consensus mechanism is already tested out
 	// so, we are not creating bridge nodes with each one containing its own core client
 	// instead we are assigning all created BNs to 1 Core from the swamp
-	cctx := core.StartTestNodeWithConfig(t, ic)
+	cctx := testing2.StartTestNodeWithConfig(t, ic)
 	swp := &Swamp{
 		t:             t,
 		cfg:           ic,

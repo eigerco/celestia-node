@@ -1,7 +1,9 @@
-package core
+package core_test
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/core"
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	"testing"
 	"time"
 
@@ -14,8 +16,8 @@ func TestBlockFetcher_GetBlock_and_SubscribeNewBlockEvent(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	t.Cleanup(cancel)
 
-	client := StartTestNode(t).Client
-	fetcher := NewBlockFetcher(client)
+	client := testing2.StartTestNode(t).Client
+	fetcher := core.NewBlockFetcher(client)
 
 	// generate some blocks
 	newBlockChan, err := fetcher.SubscribeNewBlockEvent(ctx)
@@ -45,8 +47,8 @@ func TestBlockFetcherHeaderValues(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	t.Cleanup(cancel)
 
-	client := StartTestNode(t).Client
-	fetcher := NewBlockFetcher(client)
+	client := testing2.StartTestNode(t).Client
+	fetcher := core.NewBlockFetcher(client)
 
 	// generate some blocks
 	newBlockChan, err := fetcher.SubscribeNewBlockEvent(ctx)

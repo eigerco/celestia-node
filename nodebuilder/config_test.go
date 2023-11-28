@@ -2,13 +2,12 @@ package nodebuilder
 
 import (
 	"bytes"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"testing"
 
 	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 // TestConfigWriteRead tests that the configs for all node types can be encoded to and from TOML.

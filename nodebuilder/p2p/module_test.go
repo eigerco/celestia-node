@@ -2,6 +2,7 @@ package p2p
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"testing"
 
 	"github.com/ipfs/go-datastore"
@@ -10,7 +11,6 @@ import (
 	"go.uber.org/fx/fxtest"
 
 	"github.com/celestiaorg/celestia-node/libs/keystore"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 func testModule(tp node.Type) fx.Option {

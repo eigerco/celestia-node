@@ -3,7 +3,7 @@ package p2p
 import (
 	"encoding/hex"
 
-	"github.com/ipfs/go-blockservice"
+	"github.com/ipfs/boxo/blockservice"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	hst "github.com/libp2p/go-libp2p/core/host"
 	"go.uber.org/fx"

@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/celestiaorg/celestia-node/otel/attribute"
+	"github.com/celestiaorg/celestia-node/otel/trace"
 
 	"github.com/celestiaorg/rsmt2d"
 
@@ -31,61 +29,6 @@ const (
 	defaultMinRequestTimeout = time.Minute // should be >= shrexeds server write timeout
 	defaultMinAttemptsCount  = 3
 )
-
-var meter = otel.Meter("shrex/getter")
-
-type metrics struct {
-	edsAttempts metric.Int64Histogram
-	ndAttempts  metric.Int64Histogram
-}
-
-func (m *metrics) recordEDSAttempt(ctx context.Context, attemptCount int, success bool) {
-	if m == nil {
-		return
-	}
-	if ctx.Err() != nil {
-		ctx = context.Background()
-	}
-	m.edsAttempts.Record(ctx, int64(attemptCount),
-		metric.WithAttributes(
-			attribute.Bool("success", success)))
-}
-
-func (m *metrics) recordNDAttempt(ctx context.Context, attemptCount int, success bool) {
-	if m == nil {
-		return
-	}
-	if ctx.Err() != nil {
-		ctx = context.Background()
-	}
-	m.ndAttempts.Record(ctx, int64(attemptCount),
-		metric.WithAttributes(
-			attribute.Bool("success", success)))
-}
-
-func (sg *ShrexGetter) WithMetrics() error {
-	edsAttemptHistogram, err := meter.Int64Histogram(
-		"getters_shrex_eds_attempts_per_request",
-		metric.WithDescription("Number of attempts per shrex/eds request"),
-	)
-	if err != nil {
-		return err
-	}
-
-	ndAttemptHistogram, err := meter.Int64Histogram(
-		"getters_shrex_nd_attempts_per_request",
-		metric.WithDescription("Number of attempts per shrex/nd request"),
-	)
-	if err != nil {
-		return err
-	}
-
-	sg.metrics = &metrics{
-		edsAttempts: edsAttemptHistogram,
-		ndAttempts:  ndAttemptHistogram,
-	}
-	return nil
-}
 
 // ShrexGetter is a share.Getter that uses the shrex/eds and shrex/nd protocol to retrieve shares.
 type ShrexGetter struct {
@@ -153,18 +96,18 @@ func (sg *ShrexGetter) GetEDS(ctx context.Context, header *header.ExtendedHeader
 				"hash", dah.String(),
 				"err", getErr,
 				"finished (s)", time.Since(start))
-			sg.metrics.recordEDSAttempt(ctx, attempt, false)
+			//sg.metrics.recordEDSAttempt(ctx, attempt, false)
 			return nil, errors.Join(err, getErr)
 		}
 
 		reqStart := time.Now()
-		reqCtx, cancel := ctxWithSplitTimeout(ctx, sg.minAttemptsCount-attempt+1, sg.minRequestTimeout)
+		reqCtx, cancel := CtxWithSplitTimeout(ctx, sg.minAttemptsCount-attempt+1, sg.minRequestTimeout)
 		eds, getErr := sg.edsClient.RequestEDS(reqCtx, dah.Hash(), peer)
 		cancel()
 		switch {
 		case getErr == nil:
 			setStatus(peers.ResultSynced)
-			sg.metrics.recordEDSAttempt(ctx, attempt, true)
+			//sg.metrics.recordEDSAttempt(ctx, attempt, true)
 			return eds, nil
 		case errors.Is(getErr, context.DeadlineExceeded),
 			errors.Is(getErr, context.Canceled):
@@ -218,7 +161,7 @@ func (sg *ShrexGetter) GetSharesByNamespace(
 
 	for {
 		if ctx.Err() != nil {
-			sg.metrics.recordNDAttempt(ctx, attempt, false)
+			//sg.metrics.recordNDAttempt(ctx, attempt, false)
 			return nil, errors.Join(err, ctx.Err())
 		}
 		attempt++
@@ -230,12 +173,12 @@ func (sg *ShrexGetter) GetSharesByNamespace(
 				"namespace", namespace.String(),
 				"err", getErr,
 				"finished (s)", time.Since(start))
-			sg.metrics.recordNDAttempt(ctx, attempt, false)
+			//sg.metrics.recordNDAttempt(ctx, attempt, false)
 			return nil, errors.Join(err, getErr)
 		}
 
 		reqStart := time.Now()
-		reqCtx, cancel := ctxWithSplitTimeout(ctx, sg.minAttemptsCount-attempt+1, sg.minRequestTimeout)
+		reqCtx, cancel := CtxWithSplitTimeout(ctx, sg.minAttemptsCount-attempt+1, sg.minRequestTimeout)
 		nd, getErr := sg.ndClient.RequestND(reqCtx, dah, namespace, peer)
 		cancel()
 		switch {

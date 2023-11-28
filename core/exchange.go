@@ -1,9 +1,15 @@
+//go:build bridge_full
+
 package core
 
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/share"
+	"github.com/celestiaorg/rsmt2d"
+	"github.com/filecoin-project/dagstore"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -111,7 +117,7 @@ func (ce *Exchange) Get(ctx context.Context, hash libhead.Hash) (*header.Extende
 	adder := ipld.NewProofsAdder(int(block.Data.SquareSize))
 	defer adder.Purge()
 
-	eds, err := extendBlock(block.Data, block.Header.Version.App, nmt.NodeVisitor(adder.VisitFn()))
+	eds, err := ExtendBlock(block.Data, block.Header.Version.App, nmt.NodeVisitor(adder.VisitFn()))
 	if err != nil {
 		return nil, fmt.Errorf("extending block data for height %d: %w", &block.Height, err)
 	}
@@ -156,7 +162,7 @@ func (ce *Exchange) getExtendedHeaderByHeight(ctx context.Context, height *int64
 	adder := ipld.NewProofsAdder(int(b.Data.SquareSize))
 	defer adder.Purge()
 
-	eds, err := extendBlock(b.Data, b.Header.Version.App, nmt.NodeVisitor(adder.VisitFn()))
+	eds, err := ExtendBlock(b.Data, b.Header.Version.App, nmt.NodeVisitor(adder.VisitFn()))
 	if err != nil {
 		return nil, fmt.Errorf("extending block data for height %d: %w", b.Header.Height, err)
 	}
@@ -172,4 +178,17 @@ func (ce *Exchange) getExtendedHeaderByHeight(ctx context.Context, height *int64
 		return nil, fmt.Errorf("storing EDS to eds.Store for block height %d: %w", b.Header.Height, err)
 	}
 	return eh, nil
+}
+
+// storeEDS will only store extended block if it is not empty and doesn't already exist.
+func storeEDS(ctx context.Context, hash share.DataHash, eds *rsmt2d.ExtendedDataSquare, store *eds.Store) error {
+	if eds == nil {
+		return nil
+	}
+	err := store.Put(ctx, hash, eds)
+	if errors.Is(err, dagstore.ErrShardExists) {
+		// block with given root already exists, return nil
+		return nil
+	}
+	return err
 }

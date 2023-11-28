@@ -1,12 +1,13 @@
+//go:build !wasm
+
 package rpc
 
 import (
 	"context"
-
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"go.uber.org/fx"
 
 	"github.com/celestiaorg/celestia-node/api/rpc"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 func ConstructModule(tp node.Type, cfg *Config) fx.Option {

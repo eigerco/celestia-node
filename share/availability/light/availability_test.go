@@ -1,8 +1,13 @@
-package light
+package light_test
 
 import (
 	"context"
 	_ "embed"
+	"github.com/celestiaorg/celestia-node/header"
+	"github.com/celestiaorg/celestia-node/share/availability/light"
+	"github.com/celestiaorg/celestia-node/share/getters"
+	"github.com/ipfs/boxo/blockservice"
+	"github.com/ipfs/go-datastore"
 	"strconv"
 	"testing"
 
@@ -22,10 +27,10 @@ func TestSharesAvailableCaches(t *testing.T) {
 
 	getter, eh := GetterWithRandSquare(t, 16)
 	dah := eh.DAH
-	avail := TestAvailability(getter)
+	avail := AvailabilityTest(getter)
 
 	// cache doesn't have dah yet
-	has, err := avail.ds.Has(ctx, rootKey(dah))
+	has, err := avail.DS.Has(ctx, light.RootKey(dah))
 	assert.NoError(t, err)
 	assert.False(t, has)
 
@@ -33,7 +38,7 @@ func TestSharesAvailableCaches(t *testing.T) {
 	assert.NoError(t, err)
 
 	// is now cached
-	has, err = avail.ds.Has(ctx, rootKey(dah))
+	has, err = avail.DS.Has(ctx, light.RootKey(dah))
 	assert.NoError(t, err)
 	assert.True(t, has)
 }
@@ -43,7 +48,7 @@ func TestSharesAvailableHitsCache(t *testing.T) {
 	defer cancel()
 
 	getter, _ := GetterWithRandSquare(t, 16)
-	avail := TestAvailability(getter)
+	avail := AvailabilityTest(getter)
 
 	bServ := ipld.NewMemBlockservice()
 	dah := availability_test.RandFillBS(t, 16, bServ)
@@ -54,11 +59,11 @@ func TestSharesAvailableHitsCache(t *testing.T) {
 	require.Error(t, err)
 
 	// cache doesn't have dah yet, since it errored
-	has, err := avail.ds.Has(ctx, rootKey(dah))
+	has, err := avail.DS.Has(ctx, light.RootKey(dah))
 	assert.NoError(t, err)
 	assert.False(t, has)
 
-	err = avail.ds.Put(ctx, rootKey(dah), []byte{})
+	err = avail.DS.Put(ctx, light.RootKey(dah), []byte{})
 	require.NoError(t, err)
 
 	// should hit cache after putting
@@ -71,7 +76,7 @@ func TestSharesAvailableEmptyRoot(t *testing.T) {
 	defer cancel()
 
 	getter, _ := GetterWithRandSquare(t, 16)
-	avail := TestAvailability(getter)
+	avail := AvailabilityTest(getter)
 
 	eh := headertest.RandExtendedHeaderWithRoot(t, share.EmptyRoot())
 	err := avail.SharesAvailable(ctx, eh)
@@ -83,7 +88,7 @@ func TestSharesAvailable(t *testing.T) {
 	defer cancel()
 
 	getter, dah := GetterWithRandSquare(t, 16)
-	avail := TestAvailability(getter)
+	avail := AvailabilityTest(getter)
 	err := avail.SharesAvailable(ctx, dah)
 	assert.NoError(t, err)
 }
@@ -97,7 +102,7 @@ func TestSharesAvailableFailed(t *testing.T) {
 	eh := headertest.RandExtendedHeaderWithRoot(t, dah)
 
 	getter, _ := GetterWithRandSquare(t, 16)
-	avail := TestAvailability(getter)
+	avail := AvailabilityTest(getter)
 	err := avail.SharesAvailable(ctx, eh)
 	assert.Error(t, err)
 }
@@ -240,4 +245,49 @@ func BenchmarkService_GetSharesByNamespace(b *testing.B) {
 			}
 		})
 	}
+}
+
+// GetterWithRandSquare provides a share.Getter filled with 'n' NMT trees of 'n' random shares,
+// essentially storing a whole square.
+func GetterWithRandSquare(t *testing.T, n int) (share.Getter, *header.ExtendedHeader) {
+	bServ := ipld.NewMemBlockservice()
+	getter := getters.NewIPLDGetter(bServ)
+	root := availability_test.RandFillBS(t, n, bServ)
+	eh := headertest.RandExtendedHeader(t)
+	eh.DAH = root
+
+	return getter, eh
+}
+
+// EmptyGetter provides an unfilled share.Getter with corresponding blockservice.BlockService than
+// can be filled by the test.
+func EmptyGetter() (share.Getter, blockservice.BlockService) {
+	bServ := ipld.NewMemBlockservice()
+	getter := getters.NewIPLDGetter(bServ)
+	return getter, bServ
+}
+
+// RandNode creates a Light Node filled with a random block of the given size.
+func RandNode(dn *availability_test.TestDagNet, squareSize int) (*availability_test.TestNode, *share.Root) {
+	nd := Node(dn)
+	return nd, availability_test.RandFillBS(dn.T, squareSize, nd.BlockService)
+}
+
+// Node creates a new empty Light Node.
+func Node(dn *availability_test.TestDagNet) *availability_test.TestNode {
+	nd := dn.NewTestNode()
+	nd.Getter = getters.NewIPLDGetter(nd.BlockService)
+	nd.Availability = AvailabilityTest(nd.Getter)
+	return nd
+}
+
+func AvailabilityTest(getter share.Getter) *light.ShareAvailability {
+	ds := datastore.NewMapDatastore()
+	return light.NewShareAvailability(getter, ds)
+}
+
+func SubNetNode(sn *availability_test.SubNet) *availability_test.TestNode {
+	nd := Node(sn.TestDagNet)
+	sn.AddNode(nd)
+	return nd
 }

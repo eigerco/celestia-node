@@ -1,16 +1,19 @@
-package core
+//go:build bridge_full
+
+package core_test
 
 import (
 	"context"
 	"testing"
 	"time"
 
+	"github.com/celestiaorg/celestia-app/test/util/testnode"
+	"github.com/celestiaorg/celestia-node/core"
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	ds "github.com/ipfs/go-datastore"
 	ds_sync "github.com/ipfs/go-datastore/sync"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/celestiaorg/celestia-app/test/util/testnode"
 
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/share/eds"
@@ -20,14 +23,14 @@ func TestCoreExchange_RequestHeaders(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
-	fetcher, _ := createCoreFetcher(t, DefaultTestConfig())
+	fetcher, _ := createCoreFetcher(t, testing2.DefaultTestConfig())
 
 	// generate 10 blocks
 	generateBlocks(t, fetcher)
 
 	store := createStore(t)
 
-	ce := NewExchange(fetcher, store, header.MakeExtendedHeader)
+	ce := core.NewExchange(fetcher, store, header.MakeExtendedHeader)
 
 	// initialize store with genesis block
 	genHeight := int64(1)
@@ -50,13 +53,13 @@ func TestCoreExchange_RequestHeaders(t *testing.T) {
 	assert.Equal(t, expectedLastHeightInRange, headers[len(headers)-1].Height())
 }
 
-func createCoreFetcher(t *testing.T, cfg *testnode.Config) (*BlockFetcher, testnode.Context) {
-	cctx := StartTestNodeWithConfig(t, cfg)
+func createCoreFetcher(t *testing.T, cfg *testnode.Config) (*core.BlockFetcher, testnode.Context) {
+	cctx := testing2.StartTestNodeWithConfig(t, cfg)
 	// wait for height 2 in order to be able to start submitting txs (this prevents
 	// flakiness with accessing account state)
 	_, err := cctx.WaitForHeightWithTimeout(2, time.Second*2) // TODO @renaynay: configure?
 	require.NoError(t, err)
-	return NewBlockFetcher(cctx.Client), cctx
+	return core.NewBlockFetcher(cctx.Client), cctx
 }
 
 func createStore(t *testing.T) *eds.Store {
@@ -68,7 +71,7 @@ func createStore(t *testing.T) *eds.Store {
 	return store
 }
 
-func generateBlocks(t *testing.T, fetcher *BlockFetcher) {
+func generateBlocks(t *testing.T, fetcher *core.BlockFetcher) {
 	sub, err := fetcher.SubscribeNewBlockEvent(context.Background())
 	require.NoError(t, err)
 

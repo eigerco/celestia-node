@@ -3,6 +3,7 @@ package p2p
 import (
 	"context"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"os"
 
 	"github.com/libp2p/go-libp2p"
@@ -22,8 +23,6 @@ import (
 	webtransport "github.com/libp2p/go-libp2p/p2p/transport/webtransport"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/fx"
-
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 var enableQUIC bool

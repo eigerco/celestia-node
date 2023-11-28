@@ -1,3 +1,5 @@
+//go:build metrics
+
 package node
 
 import (
@@ -7,6 +9,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder"
 )
 
 var meter = otel.Meter("node")
@@ -54,11 +58,11 @@ func WithMetrics() error {
 
 		// Observe build info with labels
 		labels := metric.WithAttributes(
-			attribute.String("build_time", buildTime),
-			attribute.String("last_commit", lastCommit),
-			attribute.String("semantic_version", semanticVersion),
-			attribute.String("system_version", systemVersion),
-			attribute.String("golang_version", golangVersion),
+			attribute.String("build_time", nodebuilder.buildTime),
+			attribute.String("last_commit", nodebuilder.lastCommit),
+			attribute.String("semantic_version", nodebuilder.semanticVersion),
+			attribute.String("system_version", nodebuilder.systemVersion),
+			attribute.String("golang_version", nodebuilder.golangVersion),
 		)
 
 		observer.ObserveFloat64(buildInfoGauge, 1, labels)

@@ -1,13 +1,13 @@
 package fraud
 
 import (
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	logging "github.com/ipfs/go-log/v2"
 	"go.uber.org/fx"
 
 	"github.com/celestiaorg/go-fraud"
 
 	"github.com/celestiaorg/celestia-node/header"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 var log = logging.Logger("module/fraud")

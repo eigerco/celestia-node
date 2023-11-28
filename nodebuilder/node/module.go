@@ -1,3 +1,5 @@
+//go:build !wasm
+
 package node
 
 import (
@@ -9,8 +11,8 @@ func ConstructModule(tp Type) fx.Option {
 	return fx.Module(
 		"node",
 		fx.Provide(func(secret jwt.Signer) Module {
-			return newModule(tp, secret)
+			return NewModule(tp, secret)
 		}),
-		fx.Provide(secret),
+		fx.Provide(Secret),
 	)
 }

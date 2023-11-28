@@ -3,14 +3,12 @@ package p2p
 import (
 	"context"
 	"fmt"
-
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/ipfs/go-datastore"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	"github.com/libp2p/go-libp2p/core/protocol"
 	"github.com/libp2p/go-libp2p/core/routing"
 	"go.uber.org/fx"
-
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 // contentRouting constructs nil content routing,

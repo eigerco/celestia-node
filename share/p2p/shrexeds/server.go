@@ -1,3 +1,5 @@
+//go:build bridge_full
+
 package shrexeds
 
 import (

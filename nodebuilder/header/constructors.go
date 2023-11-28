@@ -105,7 +105,7 @@ func newInitStore[H libhead.Header[H]](
 	}
 
 	if MetricsEnabled {
-		err = libhead.WithMetrics[H](s)
+		//err = libhead.WithMetrics[H](s)
 		if err != nil {
 			return nil, err
 		}

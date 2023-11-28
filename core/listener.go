@@ -1,3 +1,5 @@
+//go:build bridge_full
+
 package core
 
 import (
@@ -6,15 +8,14 @@ import (
 	"fmt"
 	"time"
 
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
-	"github.com/tendermint/tendermint/types"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-
 	libhead "github.com/celestiaorg/go-header"
 	"github.com/celestiaorg/nmt"
+	pubsub "github.com/libp2p/go-libp2p-pubsub"
+	"github.com/tendermint/tendermint/types"
 
 	"github.com/celestiaorg/celestia-node/header"
+	"github.com/celestiaorg/celestia-node/otel"
+	"github.com/celestiaorg/celestia-node/otel/attribute"
 	"github.com/celestiaorg/celestia-node/share/eds"
 	"github.com/celestiaorg/celestia-node/share/ipld"
 	"github.com/celestiaorg/celestia-node/share/p2p/shrexsub"
@@ -155,7 +156,7 @@ func (cl *Listener) handleNewSignedBlock(ctx context.Context, b types.EventDataS
 	adder := ipld.NewProofsAdder(int(b.Data.SquareSize))
 	defer adder.Purge()
 
-	eds, err := extendBlock(b.Data, b.Header.Version.App, nmt.NodeVisitor(adder.VisitFn()))
+	eds, err := ExtendBlock(b.Data, b.Header.Version.App, nmt.NodeVisitor(adder.VisitFn()))
 	if err != nil {
 		return fmt.Errorf("extending block data: %w", err)
 	}

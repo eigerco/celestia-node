@@ -8,15 +8,14 @@ import (
 	"sync/atomic"
 
 	"github.com/ipfs/boxo/blockservice"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
 
 	"github.com/celestiaorg/rsmt2d"
 
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/utils"
+	"github.com/celestiaorg/celestia-node/otel/attribute"
+	"github.com/celestiaorg/celestia-node/otel/trace"
 	"github.com/celestiaorg/celestia-node/share"
-	"github.com/celestiaorg/celestia-node/share/eds"
 	"github.com/celestiaorg/celestia-node/share/eds/byzantine"
 	"github.com/celestiaorg/celestia-node/share/ipld"
 )
@@ -27,14 +26,14 @@ var _ share.Getter = (*IPLDGetter)(nil)
 // handled by the provided blockservice. A blockservice session will be created for retrieval if the
 // passed context is wrapped with WithSession.
 type IPLDGetter struct {
-	rtrv  *eds.Retriever
+	//rtrv  *eds.Retriever
 	bServ blockservice.BlockService
 }
 
 // NewIPLDGetter creates a new share.Getter that retrieves shares from the bitswap network.
 func NewIPLDGetter(bServ blockservice.BlockService) *IPLDGetter {
 	return &IPLDGetter{
-		rtrv:  eds.NewRetriever(bServ),
+		//rtrv:  eds.NewRetriever(bServ),
 		bServ: bServ,
 	}
 }
@@ -83,11 +82,11 @@ func (ig *IPLDGetter) GetEDS(
 	}()
 
 	// rtrv.Retrieve calls shares.GetShares until enough shares are retrieved to reconstruct the EDS
-	eds, err = ig.rtrv.Retrieve(ctx, header.DAH)
-	if errors.Is(err, ipld.ErrNodeNotFound) {
-		// convert error to satisfy getter interface contract
-		err = share.ErrNotFound
-	}
+	//eds, err = ig.rtrv.Retrieve(ctx, header.DAH)
+	//if errors.Is(err, ipld.ErrNodeNotFound) {
+	//	// convert error to satisfy getter interface contract
+	//	err = share.ErrNotFound
+	//}
 	var errByz *byzantine.ErrByzantine
 	if errors.As(err, &errByz) {
 		return nil, err
@@ -115,15 +114,15 @@ func (ig *IPLDGetter) GetSharesByNamespace(
 	}
 
 	// wrap the blockservice in a session if it has been signaled in the context.
-	blockGetter := getGetter(ctx, ig.bServ)
-	shares, err = eds.CollectSharesByNamespace(ctx, blockGetter, header.DAH, namespace)
-	if errors.Is(err, ipld.ErrNodeNotFound) {
-		// convert error to satisfy getter interface contract
-		err = share.ErrNotFound
-	}
-	if err != nil {
-		return nil, fmt.Errorf("getter/ipld: failed to retrieve shares by namespace: %w", err)
-	}
+	//blockGetter := getGetter(ctx, ig.bServ)
+	//shares, err = eds.CollectSharesByNamespace(ctx, blockGetter, header.DAH, namespace)
+	//if errors.Is(err, ipld.ErrNodeNotFound) {
+	//	// convert error to satisfy getter interface contract
+	//	err = share.ErrNotFound
+	//}
+	//if err != nil {
+	//	return nil, fmt.Errorf("getter/ipld: failed to retrieve shares by namespace: %w", err)
+	//}
 	return shares, nil
 }
 

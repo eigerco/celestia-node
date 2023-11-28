@@ -1,3 +1,5 @@
+//go:build tracing
+
 package utils
 
 import (

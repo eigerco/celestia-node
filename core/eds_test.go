@@ -14,7 +14,7 @@ import (
 )
 
 // TestTrulyEmptySquare ensures that a truly empty square (square size 1 and no
-// txs) will be recognized as empty and return nil from `extendBlock` so that
+// txs) will be recognized as empty and return nil from `ExtendBlock` so that
 // we do not redundantly store empty EDSes.
 func TestTrulyEmptySquare(t *testing.T) {
 	data := types.Data{
@@ -22,7 +22,7 @@ func TestTrulyEmptySquare(t *testing.T) {
 		SquareSize: 1,
 	}
 
-	eds, err := extendBlock(data, appconsts.LatestVersion)
+	eds, err := ExtendBlock(data, appconsts.LatestVersion)
 	require.NoError(t, err)
 	assert.Nil(t, eds)
 }
@@ -38,7 +38,7 @@ func TestEmptySquareWithZeroTxs(t *testing.T) {
 		Txs: []types.Tx{},
 	}
 
-	eds, err := extendBlock(data, appconsts.LatestVersion)
+	eds, err := ExtendBlock(data, appconsts.LatestVersion)
 	require.Nil(t, eds)
 	require.NoError(t, err)
 
