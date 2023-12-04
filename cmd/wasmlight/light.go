@@ -1,13 +1,13 @@
-///go:build light && wasm
+//go:build light && wasm
+// +build light,wasm
 
 package main
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
+	"syscall/js"
 
 	"github.com/celestiaorg/celestia-app/app"
 	"github.com/celestiaorg/celestia-app/app/encoding"
@@ -17,58 +17,81 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
-// NOTE: We should always ensure that the added Flags below are parsed somewhere, like in the
-// PersistentPreRun func on parent command.
+var (
+	nd     *nodebuilder.Node
+	cancel context.CancelFunc
+)
 
 func main() {
-	if err := Start(); err != nil {
-		panic(err)
+	appendLog := js.Global().Get("appendLog")
+
+	log := func(msg string, level string) {
+		appendLog.Invoke(msg, level)
+	}
+
+	ctx, stop := context.WithCancel(context.Background())
+	cancel = stop
+
+	js.Global().Set("startNode", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		go Start(ctx, log)
+		return nil
+	}))
+
+	js.Global().Set("stopNode", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		go Stop(ctx, log)
+		return nil
+	}))
+
+	select {
+	case <-ctx.Done():
+		log("Node exited", "warn")
+		return
 	}
 }
 
-// Start constructs a CLI command to start Celestia Node daemon of any type with the given flags.
-func Start() error {
-	ctx := context.Background()
-
-	// override config with all modifiers passed on start
-	//cfg := NodeConfig(ctx)
-
-	//storePath := StorePath(ctx)
-	//keysPath := filepath.Join(".celestia-light-arabica-10", "keys")
-
-	// construct ring
-	// TODO @renaynay: Include option for setting custom `userInput` parameter with
-	//  implementation of https://github.com/celestiaorg/celestia-node/issues/415.
+func Start(ctx context.Context, log func(msg string, level string)) error {
 	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
 	ring, err := keyring.New(app.Name, keyring.BackendMemory, "", os.Stdin, encConf.Codec)
 	if err != nil {
+		log(fmt.Sprintf("Failed to create keyring: %s", err), "error")
 		return err
 	}
 
-	store, err := nodebuilder.OpenStore(".celestia-light-arabica-10", ring) // TODO What shall we do with the store thing???
+	store, err := nodebuilder.OpenStore(".celestia-light-arabica-10", ring)
 	if err != nil {
+		log(fmt.Sprintf("Failed to open store: %s", err), "error")
 		return err
 	}
-	defer func() {
-		err = errors.Join(err, store.Close())
-	}()
+	defer store.Close()
 
-	nd, err := nodebuilder.New(node.Light, p2p.Arabica, store) // TODO, NodeOptions(ctx)...)
+	nd, err = nodebuilder.New(node.Light, p2p.Arabica, store)
 	if err != nil {
+		log(fmt.Sprintf("Failed to create new node: %s", err), "error")
 		return err
 	}
 
-	ctx, cancel := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
-	defer cancel()
-	err = nd.Start(ctx)
-	if err != nil {
+	if err := nd.Start(ctx); err != nil {
+		log(fmt.Sprintf("Failed to start node: %s", err), "error")
 		return err
 	}
 
+	log("Node started successfully", "info")
 	<-ctx.Done()
-	cancel() // ensure we stop reading more signals for start context
+	return nil
+}
 
-	ctx, cancel = signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
-	defer cancel()
-	return nd.Stop(ctx)
+func Stop(ctx context.Context, log func(msg string, level string)) error {
+	if nd != nil {
+		if err := nd.Stop(ctx); err != nil {
+			log(fmt.Sprintf("Failed to stop node: %s", err), "error")
+			return err
+		}
+		log("Node stopped successfully", "info")
+	} else {
+		log("No node instance found to stop", "warn")
+	}
+	if cancel != nil {
+		cancel()
+	}
+	return nil
 }
