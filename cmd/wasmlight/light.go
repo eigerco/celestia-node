@@ -23,6 +23,14 @@ var (
 )
 
 func main() {
+	if err := os.Setenv("CELESTIA_HOME", "test"); err != nil {
+		panic(err)
+		return
+	}
+	if err := os.Setenv("HOME", "test"); err != nil {
+		panic(err)
+		return
+	}
 	appendLog := js.Global().Get("appendLog")
 
 	log := func(msg string, level string) {
@@ -33,11 +41,13 @@ func main() {
 	cancel = stop
 
 	js.Global().Set("startNode", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		fmt.Println("attempting to start node")
 		go Start(ctx, log)
 		return nil
 	}))
 
 	js.Global().Set("stopNode", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		fmt.Println("attempting to stop node")
 		go Stop(ctx, log)
 		return nil
 	}))
