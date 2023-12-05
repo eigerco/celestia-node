@@ -1,3 +1,5 @@
+//go:build aix || darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris || zos
+
 package p2p
 
 import (

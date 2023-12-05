@@ -1,4 +1,4 @@
-//go:build aix || darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris || zos
+//go:build wasm
 
 package keystore
 
@@ -26,12 +26,8 @@ type fsKeystore struct {
 // NewFSKeystore creates a new Keystore over OS filesystem.
 // The path must point to a directory. It is created automatically if necessary.
 func NewFSKeystore(path string, ring keyring.Keyring) (Keystore, error) {
-	err := os.Mkdir(path, 0755)
-	if err != nil && !os.IsExist(err) {
-		return nil, fmt.Errorf("keystore: failed to make a dir: %w", err)
-	}
 	return &fsKeystore{
-		path: path,
+		path: "",
 		ring: ring,
 	}, nil
 }
