@@ -31,7 +31,7 @@ func KeyringSigner(accName, backend string, ks keystore.Keystore, net p2p.Networ
 		// use default key
 		keyInfo, err := ring.Key(DefaultAccountName)
 		if err != nil {
-			log.Errorw("could not access key in keyring", "name", DefaultAccountName)
+			log.Errorw("could not access key in keyring", "name", DefaultAccountName, "err", err)
 			return nil, err
 		}
 		info = keyInfo

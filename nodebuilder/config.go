@@ -1,12 +1,10 @@
 package nodebuilder
 
 import (
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-	"io"
-	"os"
-
 	"github.com/BurntSushi/toml"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/imdario/mergo"
+	"io"
 
 	"github.com/celestiaorg/celestia-node/libs/fslock"
 	"github.com/celestiaorg/celestia-node/nodebuilder/core"
@@ -57,7 +55,7 @@ func DefaultConfig(tp node.Type) *Config {
 
 // SaveConfig saves Config 'cfg' under the given 'path'.
 func SaveConfig(path string, cfg *Config) error {
-	f, err := os.Create(path)
+	f, err := fs.Create(path)
 	if err != nil {
 		return err
 	}
@@ -68,7 +66,7 @@ func SaveConfig(path string, cfg *Config) error {
 
 // LoadConfig loads Config from the given 'path'.
 func LoadConfig(path string) (*Config, error) {
-	f, err := os.Open(path)
+	f, err := fs.Open(path)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +97,7 @@ func RemoveConfig(path string) (err error) {
 
 // removeConfig removes Config from the given 'path'.
 func removeConfig(path string) error {
-	return os.Remove(path)
+	return fs.Remove(path)
 }
 
 // UpdateConfig loads the node's config and applies new values
