@@ -2,6 +2,7 @@ package nodebuilder
 
 import (
 	"context"
+
 	nodemodule "github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"go.uber.org/fx"
 
@@ -11,15 +12,22 @@ import (
 )
 
 func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store Store) (fx.Option, error) {
-	log.Infow("Accessing keyring...")
+	log.Infow("Accessing keyring @ construct module...")
+
 	ks, err := store.Keystore()
 	if err != nil {
 		fx.Error(err)
 	}
+
+	log.Infow("Keystore created @ construct module...")
+
 	signer, err := KeyringSigner("", "memory", ks, network) // TODO hardcoded must be changed
 	if err != nil {
 		fx.Error(err)
 	}
+
+	log.Infow("Keystore signer retrieved @ construct module...")
+
 	//shareModule, err := share.ConstructModule(tp, &cfg.Share)
 	//if err != nil {
 	//	return nil, err
@@ -28,10 +36,16 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 	if err != nil {
 		return nil, err
 	}
+
+	log.Infow("Keystore core module discovered @ construct module...")
+
 	p2pModule, err := p2p.ConstructModule(tp, &cfg.P2P)
 	if err != nil {
 		return nil, err
 	}
+
+	log.Infow("Keystore P2P module @ construct module...")
+
 	baseComponents := fx.Options(
 		fx.Supply(tp),
 		fx.Supply(network),
@@ -58,6 +72,8 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 		//blob.ConstructModule(),
 		//nodemodule.ConstructModule(tp), admin
 	)
+
+	log.Infow("Keystore base components constructed @ construct module...")
 
 	return fx.Module(
 		"node",

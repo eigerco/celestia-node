@@ -17,6 +17,7 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	logging "github.com/ipfs/go-log/v2"
 )
 
 var (
@@ -25,6 +26,10 @@ var (
 )
 
 func main() {
+	logging.SetupLogging(logging.Config{
+		Stderr: true,
+	})
+
 	if err := os.Setenv("CELESTIA_HOME", "test"); err != nil {
 		panic(err)
 		return
@@ -75,10 +80,15 @@ func start(ctx context.Context, log func(msg string, level string), configStr st
 	}
 
 	basePath := ".celestia-light-arabica-10"
+
+	log(fmt.Sprintf("Saving config to %s", strings.Join([]string{basePath, "config.toml"}, "/")), "debug")
+
 	if err := nodebuilder.SaveConfig(strings.Join([]string{basePath, "config.toml"}, "/"), cfg); err != nil {
 		log(fmt.Sprintf("unable to save config %s", err), "error")
 		return
 	}
+
+	log("Starting node", "info")
 
 	store, err := nodebuilder.OpenStore(basePath, ring)
 	if err != nil {
@@ -87,22 +97,33 @@ func start(ctx context.Context, log func(msg string, level string), configStr st
 	}
 	defer store.Close()
 
+	log("Store opened successfully!", "debug")
+
 	nd, err = nodebuilder.New(node.Light, p2p.Arabica, store)
 	if err != nil {
 		log(fmt.Sprintf("Failed to create new node: %s", err), "error")
 		return
 	}
+
+	log("New node created successfully!", "debug")
+
 	if err := nd.Start(ctx); err != nil {
 		log(fmt.Sprintf("Failed to start node: %s", err), "error")
 		return
 	}
 
-	log("Node started successfully", "info")
+	log("Node started successfully!", "info")
+
 	<-ctx.Done()
 	return
 }
 
 func stop(ctx context.Context, log func(msg string, level string)) error {
+	if nd == nil {
+		log("Node is not running", "warn")
+		return nil
+	}
+
 	if err := nd.Stop(ctx); err != nil {
 		log(fmt.Sprintf("Failed to stop node: %s", err), "error")
 		return err

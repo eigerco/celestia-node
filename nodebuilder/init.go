@@ -2,9 +2,10 @@ package nodebuilder
 
 import (
 	"fmt"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"os"
 	"path/filepath"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -61,7 +62,7 @@ func Init(cfg Config, path string, tp node.Type) error {
 	}
 	log.Infow("Saved config", "path", cfgPath)
 
-	log.Infow("Accessing keyring...")
+	log.Infow("Accessing keyring @ nodebuilder.Init() ...")
 	err = generateKeys(cfg, ksPath)
 	if err != nil {
 		log.Errorw("generating account keys", "err", err)

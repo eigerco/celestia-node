@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"strings"
 	"time"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 
 	"github.com/cristalhq/jwt"
 	"github.com/ipfs/boxo/blockservice"
@@ -86,6 +87,9 @@ func NewWithConfig(tp node.Type, network p2p.Network, store Store, cfg *Config, 
 	if err != nil {
 		return nil, err
 	}
+
+	log.Infow("Module construction complete @ node.NewWithConfig()...")
+
 	opts := append([]fx.Option{mod}, options...)
 	return newNode(opts...)
 }
@@ -163,6 +167,9 @@ func (n *Node) Stop(ctx context.Context) error {
 // Light, unless we decide to give package users the ability to create custom node types themselves.
 func newNode(opts ...fx.Option) (*Node, error) {
 	node := new(Node)
+
+	log.Infow("Node memory footprint initialized @ node.newNode()...")
+
 	app := fx.New(
 		fx.WithLogger(func() fxevent.Logger {
 			zl := &fxevent.ZapLogger{Logger: fxLog.Desugar()}
@@ -172,9 +179,13 @@ func newNode(opts ...fx.Option) (*Node, error) {
 		fx.Populate(node),
 		fx.Options(opts...),
 	)
+
 	if err := app.Err(); err != nil {
+		log.Errorf("error creating %s Node: %s", node.Type, err)
 		return nil, err
 	}
+
+	log.Infow("Node created @ node.newNode()...")
 
 	node.start, node.stop = app.Start, app.Stop
 	return node, nil
