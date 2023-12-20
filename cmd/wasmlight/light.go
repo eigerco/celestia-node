@@ -61,6 +61,14 @@ func main() {
 		return nil
 	}))
 
+	go func() {
+		log("Starting up P2P connectivity tester...", "info")
+		if err := startPeer(ctx, log); err != nil {
+			log(fmt.Sprintf("Failed to start peer: %s", err), "error")
+			return
+		}
+	}()
+
 	select {
 	case <-ctx.Done():
 		log("Node exited", "warn")

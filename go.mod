@@ -79,6 +79,7 @@ require (
 require (
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/hashicorp/go-metrics v0.5.1 // indirect
+	github.com/hashicorp/golang-lru/arc/v2 v2.0.5 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.21.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.21.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.21.0 // indirect
@@ -174,7 +175,6 @@ require (
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
-	github.com/hashicorp/golang-lru/arc/v2 v2.0.5 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/huin/goupnp v1.3.0 // indirect
@@ -256,8 +256,8 @@ require (
 	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/pyroscope-io/godeltaprof v0.1.2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
-	github.com/quic-go/qtls-go1-20 v0.3.4 // indirect
-	github.com/quic-go/quic-go v0.39.3 // indirect
+	github.com/quic-go/qtls-go1-20 v0.4.1 // indirect
+	github.com/quic-go/quic-go v0.40.1 // indirect
 	github.com/quic-go/webtransport-go v0.6.0 // indirect
 	github.com/rakyll/statik v0.1.7 // indirect
 	github.com/raulk/go-watchdog v1.3.0 // indirect
@@ -327,7 +327,7 @@ replace (
 	github.com/ipfs/boxo => ./third_party/boxo
 	github.com/ipfs/go-merkledag => ./third_party/go-merkledag
 	//github.com/lib/pq => ../pq
-	github.com/libp2p/go-libp2p => github.com/0x19/go-libp2p v0.32.0
+	github.com/libp2p/go-libp2p => ./third_party/eiger-go-libp2p
 	github.com/libp2p/go-libp2p-kad-dht => ./third_party/go-libp2p-kad-dht
 	github.com/libp2p/go-libp2p-pubsub => github.com/0x19/go-libp2p-pubsub v0.9.3-wasm
 	github.com/libp2p/go-libp2p-routing-helpers => ./third_party/go-libp2p-routing-helpers
