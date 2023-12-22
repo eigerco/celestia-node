@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 	"syscall/js"
 
 	"github.com/BurntSushi/toml"
@@ -19,6 +18,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	logging "github.com/ipfs/go-log/v2"
 )
+
+const basePath = ".celestia-light-arabica-10"
 
 var (
 	nd     *nodebuilder.Node
@@ -47,16 +48,38 @@ func main() {
 	var ctx context.Context
 	ctx, cancel = context.WithCancel(context.Background())
 
-	js.Global().Set("startNode", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+	js.Global().Set("initNode", js.FuncOf(func(this js.Value, args []js.Value) any {
 		configStr := args[0].String()
+		return js.Global().Get("Promise").New(js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			resolve := args[0]
+			reject := args[1]
 
-		fmt.Println("attempting to start node")
-		go start(ctx, log, configStr)
+			go func() {
+				cfg := nodebuilder.Config{}
+				_, err := toml.Decode(configStr, &cfg)
+				if err != nil {
+					log(fmt.Sprintf("Failed to decode config: %s", err), "error")
+					reject.Invoke(err)
+					return
+				}
+				if err := nodebuilder.Init(cfg, basePath, node.Light); err != nil {
+					log(fmt.Sprintf("Failed to init: %s", err), "error")
+					reject.Invoke(err)
+					return
+				}
+				resolve.Invoke(js.Null())
+			}()
+
+			return nil
+		}))
+	}))
+
+	js.Global().Set("startNode", js.FuncOf(func(this js.Value, args []js.Value) any {
+		go start(ctx, log)
 		return nil
 	}))
 
-	js.Global().Set("stopNode", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		fmt.Println("attempting to stop node")
+	js.Global().Set("stopNode", js.FuncOf(func(this js.Value, args []js.Value) any {
 		go stop(ctx, log)
 		return nil
 	}))
@@ -76,23 +99,11 @@ func main() {
 	}
 }
 
-func start(ctx context.Context, log func(msg string, level string), configStr string) {
-	cfg := &nodebuilder.Config{}
-	toml.Decode(configStr, cfg)
-
+func start(ctx context.Context, log func(msg string, level string)) {
 	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
 	ring, err := keyring.New(app.Name, keyring.BackendMemory, "", os.Stdin, encConf.Codec)
 	if err != nil {
 		log(fmt.Sprintf("Failed to create keyring: %s", err), "error")
-		return
-	}
-
-	basePath := ".celestia-light-arabica-10"
-
-	log(fmt.Sprintf("Saving config to %s", strings.Join([]string{basePath, "config.toml"}, "/")), "debug")
-
-	if err := nodebuilder.SaveConfig(strings.Join([]string{basePath, "config.toml"}, "/"), cfg); err != nil {
-		log(fmt.Sprintf("unable to save config %s", err), "error")
 		return
 	}
 

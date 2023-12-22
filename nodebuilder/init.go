@@ -136,8 +136,8 @@ func IsInit(path string) bool {
 		return false
 	}
 
-	if utils.Exists(keysPath(path)) &&
-		utils.Exists(dataPath(path)) {
+	if utils.Exists(fs, keysPath(path)) &&
+		utils.Exists(fs, dataPath(path)) {
 		return true
 	}
 
@@ -154,7 +154,7 @@ func initRoot(path string) error {
 	}
 
 	// check for writing permissions
-	f, err := os.Create(filepath.Join(path, ".check"))
+	f, err := fs.Create(filepath.Join(path, ".check"))
 	if err != nil {
 		return err
 	}
@@ -164,12 +164,12 @@ func initRoot(path string) error {
 		return err
 	}
 
-	return os.Remove(f.Name())
+	return fs.Remove(f.Name())
 }
 
 // resetDir removes all files from the given directory and reinitializes it
 func resetDir(path string) error {
-	err := os.RemoveAll(path)
+	err := fs.RemoveAll(path)
 	if err != nil {
 		return err
 	}
@@ -178,10 +178,10 @@ func resetDir(path string) error {
 
 // initDir creates a dir if not exist
 func initDir(path string) error {
-	if utils.Exists(path) {
+	if utils.Exists(fs, path) {
 		return nil
 	}
-	return os.Mkdir(path, perms)
+	return fs.Mkdir(path, perms)
 }
 
 // generateKeys will construct a keyring from the given keystore path and check
@@ -195,7 +195,7 @@ func generateKeys(cfg Config, ksPath string) error {
 	//		" the `file` keyring backend.")
 	//}
 	//ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, ksPath, os.Stdin, encConf.Codec)
-	ring, err := keyring.New(app.Name, "memory", ksPath, os.Stdin, encConf.Codec) // FIXME hardcoded memory for now
+	ring, err := keyring.New(app.Name, keyring.BackendMemory, ksPath, os.Stdin, encConf.Codec) // FIXME hardcoded memory for now
 	if err != nil {
 		return err
 	}
