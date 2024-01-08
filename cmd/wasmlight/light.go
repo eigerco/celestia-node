@@ -12,14 +12,18 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/celestiaorg/celestia-app/app"
 	"github.com/celestiaorg/celestia-app/app/encoding"
+	logging "github.com/ipfs/go-log/v2"
+
+	"github.com/celestiaorg/celestia-node/libs/keystore"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	logging "github.com/ipfs/go-log/v2"
 )
 
-const basePath = ".celestia-light-arabica-10"
+const (
+	basePath        = ".celestia-light-arabica-10"
+	keyringPassword = "testpassword" //TODO
+)
 
 var (
 	nd     *nodebuilder.Node
@@ -62,7 +66,15 @@ func main() {
 					reject.Invoke(err)
 					return
 				}
-				if err := nodebuilder.Init(cfg, basePath, node.Light); err != nil {
+
+				encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
+				ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
+				if err != nil {
+					log(fmt.Sprintf("Failed to open keyring: %s", err), "error")
+					reject.Invoke(err)
+					return
+				}
+				if err := nodebuilder.InitWasm(ring, cfg, basePath); err != nil {
 					log(fmt.Sprintf("Failed to init: %s", err), "error")
 					reject.Invoke(err)
 					return
@@ -101,10 +113,9 @@ func main() {
 
 func start(ctx context.Context, log func(msg string, level string)) {
 	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
-	ring, err := keyring.New(app.Name, keyring.BackendMemory, "", os.Stdin, encConf.Codec)
+	ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
 	if err != nil {
-		log(fmt.Sprintf("Failed to create keyring: %s", err), "error")
-		return
+		log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
 	}
 
 	log("Starting node", "info")
