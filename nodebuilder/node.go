@@ -19,8 +19,6 @@ import (
 	"github.com/libp2p/go-libp2p/core/routing"
 	"github.com/libp2p/go-libp2p/p2p/net/conngater"
 	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
-	"go.uber.org/zap/zapcore"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 )
@@ -171,11 +169,11 @@ func newNode(opts ...fx.Option) (*Node, error) {
 	log.Infow("Node memory footprint initialized @ node.newNode()...")
 
 	app := fx.New(
-		fx.WithLogger(func() fxevent.Logger {
-			zl := &fxevent.ZapLogger{Logger: fxLog.Desugar()}
+		/* 		fx.WithLogger(func() fxevent.Logger {
+			zl := &fxevent.ZapLogger{Logger: log.Desugar()}
 			zl.UseLogLevel(zapcore.DebugLevel)
 			return zl
-		}),
+		}), */
 		fx.Populate(node),
 		fx.Options(opts...),
 	)

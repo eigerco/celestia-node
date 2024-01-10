@@ -12,6 +12,7 @@ import (
 // Listen returns invoke function that starts listening for inbound connections with libp2p.Host.
 func Listen(listen []string) func(h hst.Host) (err error) {
 	return func(h hst.Host) (err error) {
+		fmt.Println("PRIOR LISTEN MULTIADDR", listen, enableQUIC)
 		maListen := make([]ma.Multiaddr, 0, len(listen))
 		for _, addr := range listen {
 			maddr, err := ma.NewMultiaddr(addr)
@@ -31,6 +32,7 @@ func Listen(listen []string) func(h hst.Host) (err error) {
 			maListen = append(maListen, maddr)
 		}
 
+		fmt.Println("AFTER LISTEN MULTIADDR CONFIGURATION", enableQUIC)
 		return h.Network().Listen(maListen...)
 	}
 }

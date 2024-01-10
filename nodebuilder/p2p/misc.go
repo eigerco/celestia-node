@@ -2,8 +2,10 @@ package p2p
 
 import (
 	"context"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"fmt"
 	"time"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 
 	"github.com/ipfs/go-datastore"
 	connmgri "github.com/libp2p/go-libp2p/core/connmgr"
@@ -44,6 +46,7 @@ func defaultConnManagerConfig(tp node.Type) connManagerConfig {
 
 // connectionManager provides a constructor for ConnectionManager.
 func connectionManager(cfg Config, bpeers Bootstrappers) (connmgri.ConnManager, error) {
+	fmt.Println("CONNECTION MANAGER LOADING...")
 	fpeers, err := cfg.mutualPeers()
 	if err != nil {
 		return nil, err
@@ -63,15 +66,24 @@ func connectionManager(cfg Config, bpeers Bootstrappers) (connmgri.ConnManager, 
 		cm.Protect(info.ID, "protected-bootstrap")
 	}
 
+	fmt.Println("CONNECTION MANAGER LOADED")
+
 	return cm, nil
 }
 
 // connectionGater constructs a BasicConnectionGater.
 func connectionGater(ds datastore.Batching) (*conngater.BasicConnectionGater, error) {
-	return conngater.NewBasicConnectionGater(ds)
+	fmt.Println("CONNECTION GATER LOADING....")
+	toReturn, err := conngater.NewBasicConnectionGater(ds)
+	fmt.Println("AM I HERE?")
+	fmt.Println("CONNECTION GATER LOADED")
+	return toReturn, err
 }
 
 // peerStore constructs an on-disk PeerStore.
 func peerStore(ctx context.Context, ds datastore.Batching) (peerstore.Peerstore, error) {
-	return pstoreds.NewPeerstore(ctx, ds, pstoreds.DefaultOpts())
+	fmt.Println("PEERSTORE LOADING....")
+	toReturn, err := pstoreds.NewPeerstore(ctx, ds, pstoreds.DefaultOpts())
+	fmt.Println("PEERSTORE LOADED")
+	return toReturn, err
 }

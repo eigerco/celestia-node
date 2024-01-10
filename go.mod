@@ -341,5 +341,5 @@ replace (
 	github.com/tendermint/tendermint => ./third_party/celestia-core
 	github.com/tendermint/tm-db => ./third_party/tm-db
 	//github.com/tendermint/tendermint => ../celestia-core
-	go.uber.org/fx => github.com/0x19/uber-fx v1.20.1
+	go.uber.org/fx => ./third_party/uber-fx //v1.20.1
 )

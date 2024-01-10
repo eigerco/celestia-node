@@ -35,6 +35,11 @@ func main() {
 		Stderr: true,
 	})
 
+	if err := os.Setenv("CELESTIA_ENABLE_QUIC", "true"); err != nil {
+		panic(err)
+		return
+	}
+
 	if err := os.Setenv("CELESTIA_HOME", "test"); err != nil {
 		panic(err)
 		return
@@ -96,13 +101,13 @@ func main() {
 		return nil
 	}))
 
-	go func() {
+	/* 	go func() {
 		log("Starting up P2P connectivity tester...", "info")
 		if err := startPeer(ctx, log); err != nil {
 			log(fmt.Sprintf("Failed to start peer: %s", err), "error")
 			return
 		}
-	}()
+	}() */
 
 	select {
 	case <-ctx.Done():
