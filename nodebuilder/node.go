@@ -159,35 +159,5 @@ func (n *Node) Stop(ctx context.Context) error {
 	return nil
 }
 
-// newNode creates a new Node from given DI options.
-// DI options allow initializing the Node with a customized set of components and services.
-// NOTE: newNode is currently meant to be used privately to create various custom Node types e.g.
-// Light, unless we decide to give package users the ability to create custom node types themselves.
-func newNode(opts ...fx.Option) (*Node, error) {
-	node := new(Node)
-
-	log.Infow("Node memory footprint initialized @ node.newNode()...")
-
-	app := fx.New(
-		/* 		fx.WithLogger(func() fxevent.Logger {
-			zl := &fxevent.ZapLogger{Logger: log.Desugar()}
-			zl.UseLogLevel(zapcore.DebugLevel)
-			return zl
-		}), */
-		fx.Populate(node),
-		fx.Options(opts...),
-	)
-
-	if err := app.Err(); err != nil {
-		log.Errorf("error creating %s Node: %s", node.Type, err)
-		return nil, err
-	}
-
-	log.Infow("Node created @ node.newNode()...")
-
-	node.start, node.stop = app.Start, app.Stop
-	return node, nil
-}
-
 // lifecycleFunc defines a type for common lifecycle funcs.
 type lifecycleFunc func(context.Context) error
