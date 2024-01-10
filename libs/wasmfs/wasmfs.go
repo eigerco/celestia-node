@@ -175,6 +175,9 @@ func (f *File) getBytes() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if !jsObj.Truthy() {
+		return nil, nil
+	}
 	dlen := jsObj.Length()
 	data := make([]byte, dlen)
 	js.CopyBytesToGo(data, jsObj)
