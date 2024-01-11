@@ -128,7 +128,7 @@ require (
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
-	github.com/dustin/go-humanize v1.0.1-0.20200219035652-afde56e7acac // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0
 	github.com/elastic/gosigar v0.14.2 // indirect
 	github.com/etclabscore/go-jsonschema-walk v0.0.6 // indirect
@@ -155,7 +155,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/google/btree v1.1.2 // indirect
-	github.com/google/flatbuffers v1.12.1 // indirect
+	github.com/google/flatbuffers v2.0.8+incompatible // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gopacket v1.1.19 // indirect
 	github.com/google/orderedcode v0.0.1 // indirect
@@ -310,13 +310,12 @@ replace (
 	github.com/bgentry/speakeasy => github.com/0x19/speakeasy v0.1.0-wasm
 	github.com/celestiaorg/celestia-app => ./third_party/celestia-app
 	github.com/celestiaorg/go-fraud => ./third_party/go-fraud
-	//github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
 	github.com/celestiaorg/go-header => ./third_party/go-header
 	github.com/chzyer/readline => github.com/0x19/readline v1.5.1-wasm
 	//github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.18.1-sdk-v0.46.14
 	//github.com/cosmos/cosmos-sdk => github.com/0x19/cosmos-sdk v1.18.1-sdk-v0.46.14-wasm2
 	github.com/cosmos/cosmos-sdk => ./third_party/cosmos-sdk
-	github.com/cosmos/iavl => ./third_party/iavl
+	//github.com/cosmos/iavl => ./third_party/iavl
 	//github.com/cosmos/cosmos-sdk => ../cosmos-sdk
 	github.com/cosmos/ibc-go/v6 => github.com/0x19/ibc-go/v6 v6.2.0-wasm
 	//github.com/ethereum/go-ethereum => ../go-ethereum
@@ -338,8 +337,5 @@ replace (
 	// broken goleveldb needs to be replaced for the cosmos-sdk and celestia-app
 	// github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	github.com/syndtr/goleveldb => github.com/0x19/goleveldb v1.0.1
-	github.com/tendermint/tendermint => ./third_party/celestia-core
-	github.com/tendermint/tm-db => ./third_party/tm-db
-	//github.com/tendermint/tendermint => ../celestia-core
-	go.uber.org/fx => ./third_party/uber-fx //v1.20.1
+	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
 )

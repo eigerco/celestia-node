@@ -1,6 +1,3 @@
-[submodule "third_party/celestia-core"]
-	path = third_party/celestia-core
-	url = git@github.com:0x19/celestia-core.git
 [submodule "third_party/boxo"]
 	path = third_party/boxo
 	url = git@github.com:0x19/boxo.git
@@ -22,24 +19,15 @@
 [submodule "third_party/celestia-app"]
 	path = third_party/celestia-app
 	url = git@github.com:danielvladco/celestia-app.git
-[submodule "third_party/tm-db"]
-	path = third_party/tm-db
-	url = git@github.com:danielvladco/tm-db.git
 [submodule "third_party/cosmos-sdk"]
 	path = third_party/cosmos-sdk
 	url = git@github.com:0x19/cosmos-sdk.git
 [submodule "third_party/go-header"]
 	path = third_party/go-header
 	url = git@github.com:danielvladco/go-header.git
-[submodule "third_party/iavl"]
-	path = third_party/iavl
-	url = git@github.com:danielvladco/iavl.git
 [submodule "third_party/go-libp2p"]
 	path = third_party/go-libp2p
 	url = git@github.com:Jorropo/go-libp2p.git
 [submodule "third_party/eiger-go-libp2p"]
 	path = third_party/eiger-go-libp2p
 	url = git@github.com:eigerco/go-libp2p.git
-[submodule "third_party/uber-fx"]
-	path = third_party/uber-fx
-	url = https://github.com/0x19/uber-fx.git
