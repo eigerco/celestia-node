@@ -1,9 +1,8 @@
-//go:build !wasm
-
 package node
 
 import (
 	"context"
+
 	"github.com/cristalhq/jwt"
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	logging "github.com/ipfs/go-log/v2"
