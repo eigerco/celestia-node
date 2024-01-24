@@ -1,15 +1,18 @@
-package keystore
+package keystore_test
 
 import (
 	"testing"
 
+	"github.com/celestiaorg/celestia-app/app"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/celestiaorg/celestia-node/libs/keystore"
 )
 
 func TestMapKeystore(t *testing.T) {
-	kstore := NewMapKeystore()
-	err := kstore.Put("test", PrivKey{Body: []byte("test_private_key")})
+	kstore := keystore.NewMapKeystore(app.ModuleEncodingRegisters...)
+	err := kstore.Put("test", keystore.PrivKey{Body: []byte("test_private_key")})
 	require.NoError(t, err)
 
 	key, err := kstore.Get("test")

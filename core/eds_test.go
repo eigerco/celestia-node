@@ -1,4 +1,4 @@
-package core
+package core_test
 
 import (
 	"testing"
@@ -10,6 +10,7 @@ import (
 	"github.com/celestiaorg/celestia-app/app"
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 
+	"github.com/celestiaorg/celestia-node/core"
 	"github.com/celestiaorg/celestia-node/share"
 )
 
@@ -22,7 +23,7 @@ func TestTrulyEmptySquare(t *testing.T) {
 		SquareSize: 1,
 	}
 
-	eds, err := ExtendBlock(data, appconsts.LatestVersion)
+	eds, err := core.ExtendBlock(data, appconsts.LatestVersion)
 	require.NoError(t, err)
 	assert.Nil(t, eds)
 }
@@ -38,7 +39,7 @@ func TestEmptySquareWithZeroTxs(t *testing.T) {
 		Txs: []types.Tx{},
 	}
 
-	eds, err := ExtendBlock(data, appconsts.LatestVersion)
+	eds, err := core.ExtendBlock(data, appconsts.LatestVersion)
 	require.Nil(t, eds)
 	require.NoError(t, err)
 

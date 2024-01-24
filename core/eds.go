@@ -2,10 +2,8 @@ package core
 
 import (
 	"fmt"
-
 	"github.com/tendermint/tendermint/types"
 
-	"github.com/celestiaorg/celestia-app/app"
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	"github.com/celestiaorg/celestia-app/pkg/shares"
 	"github.com/celestiaorg/celestia-app/pkg/square"
@@ -18,7 +16,7 @@ import (
 // ExtendedDataSquare (EDS). If there are no transactions in the block,
 // nil is returned in place of the eds.
 func ExtendBlock(data types.Data, appVersion uint64, options ...nmt.Option) (*rsmt2d.ExtendedDataSquare, error) {
-	if app.IsEmptyBlock(data, appVersion) {
+	if len(data.Txs) == 0 {
 		return nil, nil
 	}
 

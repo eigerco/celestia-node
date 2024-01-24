@@ -1,8 +1,7 @@
-package p2p
+package p2p_test
 
 import (
 	"context"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"testing"
 
 	"github.com/ipfs/go-datastore"
@@ -10,22 +9,29 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 
+	"github.com/celestiaorg/celestia-node/libs/codec"
 	"github.com/celestiaorg/celestia-node/libs/keystore"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 )
 
 func testModule(tp node.Type) fx.Option {
-	cfg := DefaultConfig(tp)
+	cfg := p2p.DefaultConfig(tp)
+	constructMod, err := p2p.ConstructModule(tp, &cfg)
+	if err != nil {
+		panic(err)
+	}
 	// TODO(@Wondertan): Most of these can be deduplicated
 	//  by moving Store into the modnode and introducing there a TestModNode module
 	//  that testers would import
 	return fx.Options(
 		fx.NopLogger,
-		ConstructModule(tp, &cfg),
+		constructMod,
 		fx.Provide(context.Background),
-		fx.Supply(Private),
-		fx.Supply(Bootstrappers{}),
+		fx.Supply(p2p.Private),
+		fx.Supply(p2p.Bootstrappers{}),
 		fx.Supply(tp),
-		fx.Provide(keystore.NewMapKeystore),
+		fx.Provide(keystore.NewMapKeystore(codec.ModuleEncodingRegisters...)),
 		fx.Supply(fx.Annotate(ds_sync.MutexWrap(datastore.NewMapDatastore()), fx.As(new(datastore.Batching)))),
 	)
 }
@@ -59,7 +65,7 @@ func TestModuleBuild_WithMetrics(t *testing.T) {
 
 	for _, tt := range test {
 		t.Run(tt.tp.String(), func(t *testing.T) {
-			app := fxtest.New(t, testModule(tt.tp), WithMetrics())
+			app := fxtest.New(t, testModule(tt.tp), p2p.WithMetrics())
 			app.RequireStart()
 			app.RequireStop()
 		})

@@ -1,8 +1,10 @@
-package nodebuilder
+package nodebuilder_test
 
 import (
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"github.com/celestiaorg/celestia-node/libs/codec"
+	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -15,16 +17,17 @@ import (
 	"github.com/celestiaorg/celestia-app/app/encoding"
 
 	"github.com/celestiaorg/celestia-node/libs/fslock"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 func TestInit(t *testing.T) {
 	dir := t.TempDir()
 	nodes := []node.Type{node.Light, node.Bridge}
-
+	kr := keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec)
 	for _, node := range nodes {
-		cfg := DefaultConfig(node)
-		require.NoError(t, Init(*cfg, dir, node))
-		assert.True(t, IsInit(dir))
+		cfg := nodebuilder.DefaultConfig(node)
+		require.NoError(t, nodebuilder.Init(kr, *cfg, dir, node))
+		assert.True(t, nodebuilder.IsInit(dir))
 	}
 }
 
@@ -33,14 +36,14 @@ func TestInitErrForInvalidPath(t *testing.T) {
 	nodes := []node.Type{node.Light, node.Bridge}
 
 	for _, node := range nodes {
-		cfg := DefaultConfig(node)
-		require.Error(t, Init(*cfg, path, node))
+		cfg := nodebuilder.DefaultConfig(node)
+		require.Error(t, nodebuilder.Init(*cfg, path, node))
 	}
 }
 
 func TestIsInitWithBrokenConfig(t *testing.T) {
 	dir := t.TempDir()
-	f, err := os.Create(configPath(dir))
+	f, err := os.Create(filepath.Join(dir, "config.toml"))
 	require.NoError(t, err)
 	defer f.Close()
 	//nolint:errcheck
@@ -48,12 +51,12 @@ func TestIsInitWithBrokenConfig(t *testing.T) {
 		[P2P]
 		  ListenAddresses = [/ip4/0.0.0.0/tcp/2121]
     `))
-	assert.False(t, IsInit(dir))
+	assert.False(t, nodebuilder.IsInit(dir))
 }
 
 func TestIsInitForNonExistDir(t *testing.T) {
 	path := "/invalid_path"
-	assert.False(t, IsInit(path))
+	assert.False(t, nodebuilder.IsInit(path))
 }
 
 func TestInitErrForLockedDir(t *testing.T) {
@@ -62,17 +65,17 @@ func TestInitErrForLockedDir(t *testing.T) {
 	require.NoError(t, err)
 	defer flock.Unlock() //nolint:errcheck
 	nodes := []node.Type{node.Light, node.Bridge}
-
+	kr := keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec)
 	for _, node := range nodes {
-		cfg := DefaultConfig(node)
-		require.Error(t, Init(*cfg, dir, node))
+		cfg := nodebuilder.DefaultConfig(node)
+		require.Error(t, nodebuilder.Init(kr, *cfg, dir, node))
 	}
 }
 
 // TestInit_generateNewKey tests to ensure new account is generated
 // correctly.
 func TestInit_generateNewKey(t *testing.T) {
-	cfg := DefaultConfig(node.Bridge)
+	cfg := nodebuilder.DefaultConfig(node.Bridge)
 
 	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
 	ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, t.TempDir(), os.Stdin, encConf.Codec)

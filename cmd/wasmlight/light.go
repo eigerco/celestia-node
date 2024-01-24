@@ -10,10 +10,10 @@ import (
 	"syscall/js"
 
 	"github.com/BurntSushi/toml"
-	"github.com/celestiaorg/celestia-app/app"
 	"github.com/celestiaorg/celestia-app/app/encoding"
 	logging "github.com/ipfs/go-log/v2"
 
+	"github.com/celestiaorg/celestia-node/libs/codec"
 	"github.com/celestiaorg/celestia-node/libs/keystore"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -72,7 +72,7 @@ func main() {
 					return
 				}
 
-				encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
+				encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
 				ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
 				if err != nil {
 					log(fmt.Sprintf("Failed to open keyring: %s", err), "error")
@@ -117,7 +117,7 @@ func main() {
 }
 
 func start(ctx context.Context, log func(msg string, level string)) {
-	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
+	encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
 	ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
 	if err != nil {
 		log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
