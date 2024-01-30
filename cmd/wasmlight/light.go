@@ -7,20 +7,19 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"syscall/js"
 
-	"github.com/BurntSushi/toml"
 	"github.com/celestiaorg/celestia-app/app/encoding"
 	logging "github.com/ipfs/go-log/v2"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/peer"
 
 	"github.com/celestiaorg/celestia-node/libs/codec"
 	"github.com/celestiaorg/celestia-node/libs/keystore"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
-	"github.com/celestiaorg/celestia-node/nodebuilder/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-	"github.com/libp2p/go-libp2p/core/host"
-	"github.com/libp2p/go-libp2p/core/peer"
 )
 
 const (
@@ -61,20 +60,19 @@ func main() {
 	ctx, cancel = context.WithCancel(context.Background())
 
 	js.Global().Set("initNode", js.FuncOf(func(this js.Value, args []js.Value) any {
-		configStr := args[0].String()
+		bootstrapAddressesStr := args[0].String()
 		return js.Global().Get("Promise").New(js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			resolve := args[0]
 			reject := args[1]
 
 			go func() {
-				cfg := nodebuilder.Config{
-					Header: header.DefaultConfig(node.Light),
-				}
-				_, err := toml.Decode(configStr, &cfg)
-				if err != nil {
-					log(fmt.Sprintf("Failed to decode config: %s", err), "error")
-					reject.Invoke(err)
-					return
+				cfg := nodebuilder.DefaultConfig(node.Light)
+				bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
+				for _, addr := range bootstrapAddresses {
+					addr := strings.TrimSpace(addr)
+					if len(addr) > 0 {
+						cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
+					}
 				}
 
 				encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
@@ -84,7 +82,7 @@ func main() {
 					reject.Invoke(err)
 					return
 				}
-				if err := nodebuilder.InitWasm(ring, cfg, basePath); err != nil {
+				if err := nodebuilder.InitWasm(ring, *cfg, basePath); err != nil {
 					log(fmt.Sprintf("Failed to init: %s", err), "error")
 					reject.Invoke(err)
 					return

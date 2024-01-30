@@ -15,12 +15,12 @@ func isBootstrapper() bool {
 }
 
 // BootstrappersFor returns address information of bootstrap peers for a given network.
-func BootstrappersFor(net Network) (Bootstrappers, error) {
+func BootstrappersFor(net Network, bootstrapAddresses BootstrapAddresses) (Bootstrappers, error) {
 	bs, err := bootstrappersFor(net)
 	if err != nil {
 		return nil, err
 	}
-
+	bs = append(bs, bootstrapAddresses...)
 	return parseAddrInfos(bs)
 }
 

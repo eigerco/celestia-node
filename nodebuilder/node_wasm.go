@@ -3,9 +3,9 @@
 package nodebuilder
 
 import (
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-
 	"go.uber.org/fx"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 // newNode creates a new Node from given DI options.

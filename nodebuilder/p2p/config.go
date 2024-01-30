@@ -34,7 +34,11 @@ type Config struct {
 
 	// Allowlist for IPColocation PubSub parameter, a list of string CIDRs
 	IPColocationWhitelist []string
+
+	BootstrapAddresses BootstrapAddresses
 }
+
+type BootstrapAddresses []string
 
 // DefaultConfig returns default configuration for P2P subsystem.
 func DefaultConfig(tp node.Type) Config {

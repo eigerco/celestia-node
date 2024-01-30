@@ -58,6 +58,7 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 	baseComponents := fx.Options(
 		fx.Supply(tp),
 		fx.Supply(network),
+		fx.Supply(cfg.P2P.BootstrapAddresses),
 		fx.Provide(p2p.BootstrappersFor),
 		fx.Provide(func(lc fx.Lifecycle) context.Context {
 			return fxutil.WithLifecycle(context.Background(), lc)
