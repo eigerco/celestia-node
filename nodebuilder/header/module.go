@@ -2,6 +2,7 @@ package header
 
 import (
 	"context"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/ipfs/go-datastore"
 	logging "github.com/ipfs/go-log/v2"
@@ -96,6 +97,7 @@ func ConstructModule[H libhead.Header[H]](tp node.Type, cfg *Config) fx.Option {
 			baseComponents,
 			fx.Provide(newP2PExchange[H]),
 			fx.Provide(func(ctx context.Context, ds datastore.Batching) (p2p.PeerIDStore, error) {
+
 				return pidstore.NewPeerIDStore(ctx, ds)
 			}),
 		)

@@ -3,6 +3,7 @@ package header
 import (
 	"encoding/hex"
 	"fmt"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
@@ -36,6 +37,7 @@ type Config struct {
 }
 
 func DefaultConfig(tp node.Type) Config {
+
 	cfg := Config{
 		TrustedHash:  "",
 		TrustedPeers: make([]string, 0),
@@ -79,16 +81,19 @@ func (cfg *Config) trustedPeers(bpeers p2p.Bootstrappers) (infos []peer.AddrInfo
 func (cfg *Config) trustedHash(net p2p.Network) (libhead.Hash, error) {
 	if cfg.TrustedHash == "" {
 		gen, err := p2p.GenesisFor(net)
+		fmt.Printf("IS THERE A TRUSTED HASH? %v - err: %v - net: %+q \n", gen, err, net)
 		if err != nil {
 			return nil, err
 		}
 		return hex.DecodeString(gen)
 	}
+	fmt.Printf("IS THERE A TRUSTED HASH - FROM CFG hash: %v  - net: %+q \n", cfg.TrustedHash, net)
 	return hex.DecodeString(cfg.TrustedHash)
 }
 
 // Validate performs basic validation of the config.
 func (cfg *Config) Validate(tp node.Type) error {
+	fmt.Println("Store information: %+v", cfg.Store)
 	err := cfg.Store.Validate()
 	if err != nil {
 		return fmt.Errorf("module/header: misconfiguration of store: %w", err)

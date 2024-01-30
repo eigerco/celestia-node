@@ -3,8 +3,9 @@ package p2p
 import (
 	"context"
 	"fmt"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"os"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 
 	"github.com/libp2p/go-libp2p"
 	p2pconfig "github.com/libp2p/go-libp2p/config"
@@ -29,7 +30,8 @@ var enableQUIC bool
 
 func init() {
 	_, ok := os.LookupEnv("CELESTIA_ENABLE_QUIC")
-	enableQUIC = ok
+	_ = ok
+	enableQUIC = true
 }
 
 // routedHost constructs a wrapped Host that may fallback to address discovery,
@@ -58,12 +60,12 @@ func host(params hostParams) (HostBase, error) {
 		libp2p.Transport(tcp.NewTCPTransport),
 	}
 
-	if enableQUIC {
-		opts = append(opts,
-			libp2p.Transport(quic.NewTransport),
-			libp2p.Transport(webtransport.New),
-		)
-	}
+	//if enableQUIC {
+	opts = append(opts,
+		libp2p.Transport(quic.NewTransport),
+		libp2p.Transport(webtransport.New),
+	)
+	//}
 
 	if params.Registry != nil {
 		opts = append(opts, libp2p.PrometheusRegisterer(params.Registry))

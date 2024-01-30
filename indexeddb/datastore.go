@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ipfs/go-datastore"
 	ds "github.com/ipfs/go-datastore"
 	"github.com/ipfs/go-datastore/query"
@@ -46,10 +47,15 @@ type DataStore struct {
 }
 
 func (d *DataStore) Get(ctx context.Context, key datastore.Key) (value []byte, err error) {
-	data, _, err := d.kvtx.Get(key.Bytes())
+	data, found, err := d.kvtx.Get(key.Bytes())
 	if err != nil {
 		return nil, err
 	}
+
+	if !found {
+		return nil, datastore.ErrNotFound
+	}
+
 	return data, nil
 }
 
@@ -139,7 +145,7 @@ func (d *DataStore) Delete(ctx context.Context, key datastore.Key) error {
 
 func (d *DataStore) Sync(ctx context.Context, prefix datastore.Key) error {
 	//TODO implement me
-	panic("implement me")
+	panic("implement me datastore")
 }
 
 func (d *DataStore) Close() error {
@@ -147,7 +153,36 @@ func (d *DataStore) Close() error {
 	return nil
 }
 
+// DummyBatch is a dummy implementation of the Batch interface.
+type DummyBatch struct{}
+
+// Put is a dummy implementation that does nothing.
+func (b *DummyBatch) Put(ctx context.Context, key datastore.Key, value []byte) error {
+	fmt.Println("Dummy Put called")
+	return nil
+}
+
+// Delete is a dummy implementation that does nothing.
+func (b *DummyBatch) Delete(ctx context.Context, key datastore.Key) error {
+	fmt.Println("Dummy Delete called")
+	return nil
+}
+
+// Write is a dummy implementation that does nothing.
+func (b *DummyBatch) Write(ctx context.Context, data interface{}) error {
+	fmt.Println("Dummy Write called")
+	return nil
+}
+
+// Commit is a dummy implementation that does nothing but avoids a panic.
+func (b *DummyBatch) Commit(ctx context.Context) error {
+	fmt.Print("Dummy Commit called")
+	return nil
+}
+
 func (d *DataStore) Batch(ctx context.Context) (datastore.Batch, error) {
 	//TODO implement me
-	panic("implement me")
+	//panic("implement me batch")
+	fmt.Println("WARNING BACH DATASTORE NEEDS TO BE IMPLEMENTED!!!")
+	return &DummyBatch{}, nil
 }

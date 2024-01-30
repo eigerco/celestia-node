@@ -9,7 +9,6 @@ import (
 	"time"
 
 	sdkErrors "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/api/tendermint/abci"
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -282,63 +281,66 @@ func (ca *CoreAccessor) Balance(ctx context.Context) (*Balance, error) {
 }
 
 func (ca *CoreAccessor) BalanceForAddress(ctx context.Context, addr Address) (*Balance, error) {
-	head, err := ca.getter.Head(ctx)
-	if err != nil {
-		return nil, err
-	}
-	// construct an ABCI query for the height at head-1 because
-	// the AppHash contained in the head is actually the state root
-	// after applying the transactions contained in the previous block.
-	// TODO @renaynay: once https://github.com/cosmos/cosmos-sdk/pull/12674 is merged, use this method
-	// instead
-	prefixedAccountKey := append(banktypes.CreateAccountBalancesPrefix(addr.Bytes()), []byte(app.BondDenom)...)
-	abciReq := abci.RequestQuery{
-		// TODO @renayay: once https://github.com/cosmos/cosmos-sdk/pull/12674 is merged, use const instead
-		Path:   fmt.Sprintf("store/%s/key", banktypes.StoreKey),
-		Height: int64(head.Height() - 1),
-		Data:   prefixedAccountKey,
-		Prove:  true,
-	}
-	opts := rpcclient.ABCIQueryOptions{
-		Height: abciReq.Height,
-		Prove:  abciReq.Prove,
-	}
-	result, err := ca.rpcCli.ABCIQueryWithOptions(ctx, abciReq.Path, abciReq.Data, opts)
-	if err != nil {
-		return nil, err
-	}
-	if !result.Response.IsOK() {
-		return nil, sdkErrorToGRPCError(result.Response)
-	}
-	// unmarshal balance information
-	value := result.Response.Value
-	// if the value returned is empty, the account balance does not yet exist
-	if len(value) == 0 {
-		log.Errorf("balance for account %s does not exist at block height %d", addr.String(), head.Height()-1)
-		return &Balance{
-			Denom:  app.BondDenom,
-			Amount: sdktypes.NewInt(0),
-		}, nil
-	}
-	coin, ok := sdktypes.NewIntFromString(string(value))
-	if !ok {
-		return nil, fmt.Errorf("cannot convert %s into sdktypes.Int", string(value))
-	}
-	// verify balance
-	err = ca.prt.VerifyValueFromKeys(
-		result.Response.GetProofOps(),
-		head.AppHash,
-		[][]byte{[]byte(banktypes.StoreKey),
-			prefixedAccountKey,
-		}, value)
-	if err != nil {
-		return nil, err
-	}
+	/*
+		head, err := ca.getter.Head(ctx)
+		if err != nil {
+			return nil, err
+		}
+		// construct an ABCI query for the height at head-1 because
+		// the AppHash contained in the head is actually the state root
+		// after applying the transactions contained in the previous block.
+		// TODO @renaynay: once https://github.com/cosmos/cosmos-sdk/pull/12674 is merged, use this method
+		// instead
+		prefixedAccountKey := append(banktypes.CreateAccountBalancesPrefix(addr.Bytes()), []byte(app.BondDenom)...)
+		abciReq := abci.RequestQuery{
+			// TODO @renayay: once https://github.com/cosmos/cosmos-sdk/pull/12674 is merged, use const instead
+			Path:   fmt.Sprintf("store/%s/key", banktypes.StoreKey),
+			Height: int64(head.Height() - 1),
+			Data:   prefixedAccountKey,
+			Prove:  true,
+		}
+		opts := rpcclient.ABCIQueryOptions{
+			Height: abciReq.Height,
+			Prove:  abciReq.Prove,
+		}
+		result, err := ca.rpcCli.ABCIQueryWithOptions(ctx, abciReq.Path, abciReq.Data, opts)
+		if err != nil {
+			return nil, err
+		}
+		if !result.Response.IsOK() {
+			return nil, sdkErrorToGRPCError(result.Response)
+		}
+		// unmarshal balance information
+		value := result.Response.Value
+		// if the value returned is empty, the account balance does not yet exist
+		if len(value) == 0 {
+			log.Errorf("balance for account %s does not exist at block height %d", addr.String(), head.Height()-1)
+			return &Balance{
+				Denom:  app.BondDenom,
+				Amount: sdktypes.NewInt(0),
+			}, nil
+		}
+		coin, ok := sdktypes.NewIntFromString(string(value))
+		if !ok {
+			return nil, fmt.Errorf("cannot convert %s into sdktypes.Int", string(value))
+		}
+		// verify balance
+		err = ca.prt.VerifyValueFromKeys(
+			result.Response.GetProofOps(),
+			head.AppHash,
+			[][]byte{[]byte(banktypes.StoreKey),
+				prefixedAccountKey,
+			}, value)
+		if err != nil {
+			return nil, err
+		}
+	*/
 
-	return &Balance{
-		Denom:  app.BondDenom,
-		Amount: coin,
-	}, nil
+	return &Balance{}, nil
+	//return &Balance{
+	//	Denom:  app.BondDenom,
+	//	Amount: coin,
+	//}, nil
 }
 
 func (ca *CoreAccessor) SubmitTx(ctx context.Context, tx Tx) (*TxResponse, error) {

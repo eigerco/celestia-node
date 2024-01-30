@@ -1,59 +1,43 @@
-//go:build !wasm
+//go:build wasm
 
 package nodebuilder
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/fxutil"
 	"github.com/celestiaorg/celestia-node/nodebuilder/core"
+	"github.com/celestiaorg/celestia-node/nodebuilder/das"
+	"github.com/celestiaorg/celestia-node/nodebuilder/fraud"
 	modhead "github.com/celestiaorg/celestia-node/nodebuilder/header"
 	nodemodule "github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-
+	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 	"go.uber.org/fx"
 )
 
 func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store Store) (fx.Option, error) {
-	log.Infow("Accessing keyring @ construct module...")
-
-	/* 	ks, err := store.Keystore()
-	   	if err != nil {
-	   		fx.Error(err)
-	   	}
-	*/
-	log.Infow("Keystore created @ construct module...")
-
-	/* 	signer, err := KeyringSigner("", "memory", ks, network) // TODO hardcoded must be changed
-	   	if err != nil {
-	   		fx.Error(err)
-	   	}
-	*/
-	log.Infow("Keystore signer retrieved @ construct module...")
-
-	//shareModule, err := share.ConstructModule(tp, &cfg.Share)
-	//if err != nil {
-	//	return nil, err
-	//}
 	coreModule, err := core.ConstructModule(tp, &cfg.Core)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Infow("Keystore core module discovered @ construct module...")
 
 	p2pModule, err := p2p.ConstructModule(tp, &cfg.P2P)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Infow("Keystore P2P module @ construct module...")
-
+	// TODO this should not be here. Instead header should be set when config is loaded.
+	// Apparently, it's not.
 	cfg.Header = modhead.DefaultConfig(tp)
+	cfg.DASer = das.DefaultConfig(tp)
+	//cfg.State = state.DefaultConfig()
+	cfg.Share = share.DefaultConfig(tp)
 
-	fmt.Printf("Got header cfg: %+v", cfg.Header)
+	shareModule, err := share.ConstructModule(tp, &cfg.Share)
+	if err != nil {
+		return nil, err
+	}
 
 	baseComponents := fx.Options(
 		fx.Supply(tp),
@@ -67,22 +51,23 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 		fx.Provide(store.Datastore),
 		fx.Provide(store.Keystore),
 		fx.Supply(nodemodule.StorePath(store.Path())),
-		//fx.Supply(signer),
 		// modules provided by the node
 		p2pModule,
 		//state.ConstructModule(tp, &cfg.State, &cfg.Core),
 		modhead.ConstructModule[*header.ExtendedHeader](tp, &cfg.Header),
-		//shareModule,
+		// TODO Share module is necessary for light node - gets the data from bitswap, is needed for the daser
+		shareModule,
 		//rpc.ConstructModule(tp, &cfg.RPC),
 		//gateway.ConstructModule(tp, &cfg.Gateway), TODO
 		coreModule,
-		//das.ConstructModule(tp, &cfg.DASer),
-		//fraud.ConstructModule(tp),
+		das.ConstructModule(tp, &cfg.DASer),
+		fraud.ConstructModule(tp),
 		//blob.ConstructModule(),
-		//nodemodule.ConstructModule(tp), admin
+		// nodemodule.ConstructModule(tp),
+		// admin,
 	)
 
-	log.Infow("Keystore base components constructed @ construct module...")
+	log.Infow("Node builder base components constructed @ nodebuilder/module_wasm.ConstructModule ...")
 
 	return fx.Module(
 		"node",

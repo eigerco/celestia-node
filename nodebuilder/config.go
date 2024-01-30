@@ -1,13 +1,17 @@
 package nodebuilder
 
 import (
+	"github.com/celestiaorg/celestia-node/nodebuilder/das"
+	"github.com/celestiaorg/celestia-node/nodebuilder/share"
+	"io"
+
 	"github.com/BurntSushi/toml"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/imdario/mergo"
-	"io"
 
 	"github.com/celestiaorg/celestia-node/libs/fslock"
 	"github.com/celestiaorg/celestia-node/nodebuilder/core"
+	"github.com/celestiaorg/celestia-node/nodebuilder/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 )
 
@@ -23,9 +27,9 @@ type Config struct {
 	P2P p2p.Config
 	//RPC   rpc.Config
 	//Gateway gateway.Config TODO
-	//Share  share.Config
-	//Header header.Config
-	//DASer  das.Config `toml:",omitempty"`
+	Share  share.Config
+	Header header.Config
+	DASer  das.Config `toml:",omitempty"`
 }
 
 // DefaultConfig provides a default Config for a given Node Type 'tp'.
@@ -38,15 +42,15 @@ func DefaultConfig(tp node.Type) *Config {
 		P2P: p2p.DefaultConfig(tp),
 		//RPC:   rpc.DefaultConfig(),
 		//Gateway: gateway.DefaultConfig(), TODO
-		//Share:  share.DefaultConfig(tp),
-		//Header: header.DefaultConfig(tp),
+		Share:  share.DefaultConfig(tp),
+		Header: header.DefaultConfig(tp),
 	}
 
 	switch tp {
 	case node.Bridge:
 		return commonConfig
 	case node.Light, node.Full:
-		//commonConfig.DASer = das.DefaultConfig(tp)
+		commonConfig.DASer = das.DefaultConfig(tp)
 		return commonConfig
 	default:
 		panic("node: invalid node type")

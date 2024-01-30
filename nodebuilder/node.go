@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/nodebuilder/das"
+	"github.com/celestiaorg/celestia-node/nodebuilder/fraud"
+	"github.com/celestiaorg/celestia-node/nodebuilder/header"
+	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 	"strings"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-
-	"github.com/cristalhq/jwt"
 	"github.com/ipfs/boxo/blockservice"
 	"github.com/ipfs/boxo/exchange"
 	logging "github.com/ipfs/go-log/v2"
@@ -41,7 +43,7 @@ type Node struct {
 	Network       p2p.Network
 	Bootstrappers p2p.Bootstrappers
 	Config        *Config
-	AdminSigner   jwt.Signer
+	//AdminSigner   jwt.Signer
 
 	// rpc components
 	//RPCServer     *rpc.Server     // not optional TODO disable rpc only for wasm
@@ -56,12 +58,12 @@ type Node struct {
 	// p2p protocols
 	PubSub *pubsub.PubSub
 	// services
-	//ShareServ  share.Module  // not optional TODO disable gateway only for wasm
-	//HeaderServ header.Module // not optional TODO disable gateway only for wasm
+	ShareServ  share.Module
+	HeaderServ header.Module
 	//StateServ  state.Module  // not optional TODO disable gateway only for wasm
-	//FraudServ  fraud.Module  // not optional TODO disable gateway only for wasm
+	FraudServ fraud.Module
 	//BlobServ   blob.Module   // not optional TODO disable gateway only for wasm
-	//DASer      das.Module    // not optional TODO disable gateway only for wasm
+	DASer das.Module
 	//AdminServ  node.Module   // not optional TODO disable gateway only for wasm
 
 	// start and stop control ref internal fx.App lifecycle funcs to be called from Start and Stop

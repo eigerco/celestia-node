@@ -16,8 +16,11 @@ import (
 	"github.com/celestiaorg/celestia-node/libs/codec"
 	"github.com/celestiaorg/celestia-node/libs/keystore"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"github.com/celestiaorg/celestia-node/nodebuilder/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/peer"
 )
 
 const (
@@ -64,7 +67,9 @@ func main() {
 			reject := args[1]
 
 			go func() {
-				cfg := nodebuilder.Config{}
+				cfg := nodebuilder.Config{
+					Header: header.DefaultConfig(node.Light),
+				}
 				_, err := toml.Decode(configStr, &cfg)
 				if err != nil {
 					log(fmt.Sprintf("Failed to decode config: %s", err), "error")
@@ -134,7 +139,7 @@ func start(ctx context.Context, log func(msg string, level string)) {
 
 	log("Store opened successfully!", "debug")
 
-	nd, err = nodebuilder.New(node.Light, p2p.Arabica, store)
+	nd, err = nodebuilder.New(node.Light, p2p.Mainnet, store)
 	if err != nil {
 		log(fmt.Sprintf("Failed to create new node: %s", err), "error")
 		return
@@ -148,6 +153,22 @@ func start(ctx context.Context, log func(msg string, level string)) {
 	}
 
 	log("Node started successfully!", "info")
+
+	addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(nd.Host))
+	if err != nil {
+		log(fmt.Sprintf("Retrieving multiaddress information error: %s", err), "error")
+		return
+	}
+
+	fmt.Println("The p2p host is listening on AAAAA:")
+	for _, addr := range addrs {
+		fmt.Println("* ", addr.String())
+		// Call a JavaScript function and pass the Peer ID
+		js.Global().Call("setPeerID", addr.String())
+	}
+	fmt.Println()
+
+	js.Global().Call("startedNode")
 
 	<-ctx.Done()
 	return

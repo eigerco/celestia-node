@@ -2,8 +2,9 @@ package p2p
 
 import (
 	"fmt"
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"time"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 
 	"github.com/libp2p/go-libp2p/core/peer"
 	ma "github.com/multiformats/go-multiaddr"
@@ -45,6 +46,32 @@ func DefaultConfig(tp node.Type) Config {
 			"/ip6/::/udp/2121/quic-v1",
 			"/ip4/0.0.0.0/tcp/2121",
 			"/ip6/::/tcp/2121",
+		},
+		AnnounceAddresses: []string{},
+		NoAnnounceAddresses: []string{
+			"/ip4/127.0.0.1/udp/2121/quic-v1/webtransport",
+			"/ip4/0.0.0.0/udp/2121/quic-v1/webtransport",
+			"/ip6/::/udp/2121/quic-v1/webtransport",
+			"/ip4/0.0.0.0/udp/2121/quic-v1",
+			"/ip4/127.0.0.1/udp/2121/quic-v1",
+			"/ip6/::/udp/2121/quic-v1",
+			"/ip4/0.0.0.0/tcp/2121",
+			"/ip4/127.0.0.1/tcp/2121",
+			"/ip6/::/tcp/2121",
+		},
+		MutualPeers:               []string{},
+		PeerExchange:              tp == node.Bridge || tp == node.Full,
+		ConnManager:               defaultConnManagerConfig(tp),
+		RoutingTableRefreshPeriod: defaultRoutingRefreshPeriod,
+	}
+}
+
+// DefaultConfig returns default configuration for WASM P2P subsystem.
+func DefaultConfigWasm(tp node.Type) Config {
+	return Config{
+		ListenAddresses: []string{
+			"/ip4/127.0.0.1/udp/2121/quic-v1/webtransport",
+			"/ip4/0.0.0.0/udp/2121/quic-v1/webtransport",
 		},
 		AnnounceAddresses: []string{},
 		NoAnnounceAddresses: []string{

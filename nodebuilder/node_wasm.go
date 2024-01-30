@@ -14,7 +14,7 @@ import (
 // Light, unless we decide to give package users the ability to create custom node types themselves.
 func newNode(opts ...fx.Option) (*Node, error) {
 	toReturn := new(Node)
-	toReturn.Type = node.Light
+	toReturn.Type = node.Light // TODO figure this shit out - should not be here...
 
 	log.Infow("Node memory footprint initialized @ node.newNode()...")
 

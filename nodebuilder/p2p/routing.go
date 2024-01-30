@@ -3,6 +3,7 @@ package p2p
 import (
 	"context"
 	"fmt"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/ipfs/go-datastore"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
@@ -39,7 +40,7 @@ func peerRouting(cfg Config, tp node.Type, params routingParams) (routing.PeerRo
 			dht.Mode(dht.ModeServer),
 		)
 	}
-
+	fmt.Println("Got PARAMS: %+v", params.Ctx)
 	d, err := dht.New(params.Ctx, params.Host, opts...)
 	if err != nil {
 		return nil, err

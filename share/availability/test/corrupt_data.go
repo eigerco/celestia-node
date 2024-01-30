@@ -106,15 +106,15 @@ func (fb FraudulentBlockstore) PutMany(ctx context.Context, blocks []blocks.Bloc
 }
 
 func (fb FraudulentBlockstore) DeleteBlock(context.Context, cid.Cid) error {
-	panic("implement me")
+	panic("implement me fraud delete block")
 }
 
 func (fb FraudulentBlockstore) AllKeysChan(context.Context) (<-chan cid.Cid, error) {
-	panic("implement me")
+	panic("implement me all keys chan")
 }
 
 func (fb FraudulentBlockstore) HashOnRead(bool) {
-	panic("implement me")
+	panic("implement me hash on read")
 }
 
 // MockNode creates a TestNode that uses a FraudulentBlockstore to simulate serving corrupted data.

@@ -17,7 +17,6 @@ require (
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/celestiaorg/rsmt2d v0.11.0
 	github.com/cosmos/cosmos-sdk v0.46.14
-	github.com/cosmos/cosmos-sdk/api v0.1.0
 	github.com/cristalhq/jwt v1.2.0
 	github.com/etclabscore/go-openrpc-reflect v0.0.37
 	github.com/filecoin-project/go-jsonrpc v0.3.1
