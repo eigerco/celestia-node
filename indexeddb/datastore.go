@@ -153,37 +153,6 @@ func (d *DataStore) Close() error {
 	return nil
 }
 
-// DummyBatch is a dummy implementation of the Batch interface.
-type DummyBatch struct{}
-
-// Put is a dummy implementation that does nothing.
-func (b *DummyBatch) Put(ctx context.Context, key datastore.Key, value []byte) error {
-	fmt.Println("Dummy Put called")
-	return nil
-}
-
-// Delete is a dummy implementation that does nothing.
-func (b *DummyBatch) Delete(ctx context.Context, key datastore.Key) error {
-	fmt.Println("Dummy Delete called")
-	return nil
-}
-
-// Write is a dummy implementation that does nothing.
-func (b *DummyBatch) Write(ctx context.Context, data interface{}) error {
-	fmt.Println("Dummy Write called")
-	return nil
-}
-
-// Commit is a dummy implementation that does nothing but avoids a panic.
-func (b *DummyBatch) Commit(ctx context.Context) error {
-	fmt.Print("Dummy Commit called")
-	return nil
-}
-
 func (d *DataStore) Batch(ctx context.Context) (datastore.Batch, error) {
-	//TODO implement me
-	//panic("implement me batch")
-	fmt.Println("WARNING BACH DATASTORE NEEDS TO BE IMPLEMENTED!!!")
-	return &DummyBatch{}, nil
-	//return ds.NewBasicBatch(d), nil
+	return ds.NewBasicBatch(d), nil
 }
