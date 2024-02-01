@@ -1,6 +1,7 @@
 package p2p
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -21,6 +22,7 @@ func BootstrappersFor(net Network, bootstrapAddresses BootstrapAddresses) (Boots
 		return nil, err
 	}
 	bs = append(bs, bootstrapAddresses...)
+	fmt.Printf("Getting boostrap addresses: %+v \n", bs)
 	return parseAddrInfos(bs)
 }
 
@@ -37,20 +39,7 @@ func bootstrappersFor(net Network) ([]string, error) {
 
 // NOTE: Every time we add a new long-running network, its bootstrap peers have to be added here.
 var bootstrapList = map[Network][]string{
-	Mainnet: {
-		"/ip4/216.66.49.7/udp/2121/quic-v1/webtransport/certhash/uEiAbVmYnTLsUkwM8V0YG6Sqe1QxPRce750pw70943XTjug/certhash/uEiCoJ4g_wWQ_-WuUlIWdEuGvxBEK17Id6w8ZD15jmZ8Q6A/p2p/12D3KooWRrbDkASXqomnC8yReewqNYfNE5qa6eyNxQidk7Fiuy7A",
-		//"/ip4/76.76.21.123/tcp/2121/p2p/12D3KooW9z4jLqwodwNRcSa5qgcSgtJ13kN7CYLcwZQjPRYodqWx",
-		//"/ip4/76.76.21.98/udp/2121/quic-v1/webtransport/p2p/12D3KooW9z4jLqwodwNRcSa5qgcSgtJ13kN7CYLcwZQjPRYodqWx",
-		//"/ip4/195.154.68.97/tcp/2121/p2p/12D3KooWSqZaLcn5Guypo2mrHr297YPJnV8KMEMXNjs3qAS8msw8",
-		//"/dns4/da-bridge-2.celestia-bootstrap.net/tcp/2121/p2p/12D3KooWQpuTFELgsUypqp9N4a1rKBccmrmQVY8Em9yhqppTJcXf",
-		//"/dns4/da-bridge-3.celestia-bootstrap.net/tcp/2121/p2p/12D3KooWSGa4huD6ts816navn7KFYiStBiy5LrBQH1HuEahk4TzQ",
-		//"/dns4/da-bridge-4.celestia-bootstrap.net/tcp/2121/p2p/12D3KooWHBXCmXaUNat6ooynXG837JXPsZpSTeSzZx6DpgNatMmR",
-		//"/dns4/da-bridge-5.celestia-bootstrap.net/tcp/2121/p2p/12D3KooWDGTBK1a2Ru1qmnnRwP6Dmc44Zpsxi3xbgFk7ATEPfmEU",
-		//"/dns4/da-bridge-6.celestia-bootstrap.net/tcp/2121/p2p/12D3KooWLTUFyf3QEGqYkHWQS2yCtuUcL78vnKBdXU5gABM1YDeH",
-		//"/ip4/195.154.69.55/tcp/2121/p2p/12D3KooWKZCMcwGCYbL18iuw3YVpAZoyb1VBGbx9Kapsjw3soZgr",
-		//"/dns4/da-full-2.celestia-bootstrap.net/tcp/2121/p2p/12D3KooWE3fmRtHgfk9DCuQFfY3H3JYEnTU3xZozv1Xmo8KWrWbK",
-		//"/dns4/da-full-3.celestia-bootstrap.net/tcp/2121/p2p/12D3KooWK6Ftsd4XsWCsQZgZPNhTrE5urwmkoo5P61tGvnKmNVyv",
-	},
+	Mainnet: {},
 	/* 	Arabica: {
 		"/dns4/da-bridge.celestia-arabica-10.com/tcp/2121/p2p/12D3KooWM3e9MWtyc8GkP8QRt74Riu17QuhGfZMytB2vq5NwkWAu",
 		"/dns4/da-bridge-2.celestia-arabica-10.com/tcp/2121/p2p/12D3KooWKj8mcdiBGxQRe1jqhaMnh2tGoC3rPDmr5UH2q8H4WA9M",

@@ -34,7 +34,7 @@ func ConstructModule(tp node.Type, cfg *Config) (fx.Option, error) {
 		fx.Provide(addrsFactory(cfg.AnnounceAddresses, cfg.NoAnnounceAddresses)),
 		fx.Provide(metrics.NewBandwidthCounter),
 		fx.Provide(newModule),
-		fx.Invoke(Listen(cfg.ListenAddresses)),
+		//fx.Invoke(Listen(cfg.ListenAddresses)),
 		fx.Provide(resourceManager),
 		//fx.Provide(resourceManagerOpt(allowList)),
 	)

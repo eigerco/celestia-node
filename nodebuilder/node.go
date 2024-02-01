@@ -97,7 +97,7 @@ func NewWithConfig(tp node.Type, network p2p.Network, store Store, cfg *Config, 
 // Start launches the Node and all its components and services.
 func (n *Node) Start(ctx context.Context) error {
 	//to := n.Config.Node.StartupTimeout
-	to := time.Second * 20 // TODO hardcoded
+	to := time.Second * 120 // TODO hardcoded
 	ctx, cancel := context.WithTimeout(ctx, to)
 	defer cancel()
 

@@ -12,7 +12,6 @@ import (
 // Listen returns invoke function that starts listening for inbound connections with libp2p.Host.
 func Listen(listen []string) func(h hst.Host) (err error) {
 	return func(h hst.Host) (err error) {
-		fmt.Println("PRIOR LISTEN MULTIADDR", listen, enableQUIC)
 		maListen := make([]ma.Multiaddr, 0, len(listen))
 		for _, addr := range listen {
 			maddr, err := ma.NewMultiaddr(addr)
@@ -20,21 +19,20 @@ func Listen(listen []string) func(h hst.Host) (err error) {
 				return fmt.Errorf("failure to parse config.P2P.ListenAddresses: %s", err)
 			}
 
-			//if !enableQUIC {
-			// TODO(@WonderTan): Remove this check when QUIC is stable
-			if slices.ContainsFunc(maddr.Protocols(), func(p ma.Protocol) bool {
-				return p.Code == ma.P_QUIC_V1 || p.Code == ma.P_WEBTRANSPORT
-			}) {
-				continue
+			if !enableQUIC {
+				// TODO(@WonderTan): Remove this check when QUIC is stable
+				if slices.ContainsFunc(maddr.Protocols(), func(p ma.Protocol) bool {
+					return p.Code == ma.P_QUIC_V1 || p.Code == ma.P_WEBTRANSPORT
+				}) {
+					continue
+				}
 			}
-			//}
 
 			maListen = append(maListen, maddr)
 		}
 
-		fmt.Println("AFTER LISTEN MULTIADDR CONFIGURATION", enableQUIC)
-		//return h.Network().Listen(maListen...)
-		return nil
+		return h.Network().Listen(maListen...)
+		//return nil
 	}
 }
 

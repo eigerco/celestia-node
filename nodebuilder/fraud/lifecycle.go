@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ipfs/go-datastore"
-
 	"github.com/celestiaorg/go-fraud"
 	libhead "github.com/celestiaorg/go-header"
 )
@@ -37,27 +35,31 @@ func (breaker *ServiceBreaker[S, H]) Start(ctx context.Context) error {
 		return nil
 	}
 
-	proofs, err := breaker.FraudServ.Get(ctx, breaker.FraudType)
-	switch {
-	default:
-		return fmt.Errorf("getting proof(%s): %w", breaker.FraudType, err)
-	case err == nil:
-		return &fraud.ErrFraudExists[H]{Proof: proofs}
-	case errors.Is(err, datastore.ErrNotFound):
-	}
+	fmt.Println("CHECKME - BREAKER SERVICE STARTING")
 
-	err = breaker.Service.Start(ctx)
-	if err != nil {
-		return err
-	}
+	//proofs, err := breaker.FraudServ.Get(ctx, breaker.FraudType)
+	//switch {
+	//default:
+	//	return fmt.Errorf("getting proof(%s): %w", breaker.FraudType, err)
+	//case err == nil:
+	//return &fraud.ErrFraudExists[H]{Proof: proofs}
+	//case errors.Is(err, datastore.ErrNotFound):
+	//}
 
-	breaker.sub, err = breaker.FraudServ.Subscribe(breaker.FraudType)
-	if err != nil {
-		return fmt.Errorf("subscribing for proof(%s): %w", breaker.FraudType, err)
-	}
+	//err = breaker.Service.Start(ctx)
+	//if err != nil {
+	//	return err
+	//}
 
-	breaker.ctx, breaker.cancel = context.WithCancel(context.Background())
-	go breaker.awaitProof()
+	//breaker.sub, err = breaker.FraudServ.Subscribe(breaker.FraudType)
+	//if err != nil {
+	//	return fmt.Errorf("subscribing for proof(%s): %w", breaker.FraudType, err)
+	//}
+
+	//breaker.ctx, breaker.cancel = context.WithCancel(context.Background())
+	//go breaker.awaitProof()
+
+	fmt.Println("CHECKME - BREAKER SERVICE STARTED")
 	return nil
 }
 

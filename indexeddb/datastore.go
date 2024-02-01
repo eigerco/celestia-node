@@ -185,4 +185,5 @@ func (d *DataStore) Batch(ctx context.Context) (datastore.Batch, error) {
 	//panic("implement me batch")
 	fmt.Println("WARNING BACH DATASTORE NEEDS TO BE IMPLEMENTED!!!")
 	return &DummyBatch{}, nil
+	//return ds.NewBasicBatch(d), nil
 }

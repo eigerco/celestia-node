@@ -10,13 +10,10 @@ import (
 	"strings"
 	"syscall/js"
 
-	"github.com/celestiaorg/celestia-app/app/encoding"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 
-	"github.com/celestiaorg/celestia-node/libs/codec"
-	"github.com/celestiaorg/celestia-node/libs/keystore"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
@@ -59,43 +56,55 @@ func main() {
 	var ctx context.Context
 	ctx, cancel = context.WithCancel(context.Background())
 
-	js.Global().Set("initNode", js.FuncOf(func(this js.Value, args []js.Value) any {
-		bootstrapAddressesStr := args[0].String()
-		return js.Global().Get("Promise").New(js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-			resolve := args[0]
-			reject := args[1]
+	/*
+		js.Global().Set("initNode", js.FuncOf(func(this js.Value, args []js.Value) any {
+			bootstrapAddressesStr := args[0].String()
+			return js.Global().Get("Promise").New(js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+				resolve := args[0]
+				reject := args[1]
 
-			go func() {
-				cfg := nodebuilder.DefaultConfig(node.Light)
-				bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
-				for _, addr := range bootstrapAddresses {
-					addr := strings.TrimSpace(addr)
-					if len(addr) > 0 {
-						cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
+				go func() {
+					cfg := nodebuilder.DefaultConfig(node.Light)
+					bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
+					for _, addr := range bootstrapAddresses {
+						addr := strings.TrimSpace(addr)
+						if len(addr) > 0 {
+							cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
+						}
 					}
-				}
 
-				encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
-				ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
-				if err != nil {
-					log(fmt.Sprintf("Failed to open keyring: %s", err), "error")
-					reject.Invoke(err)
-					return
-				}
-				if err := nodebuilder.InitWasm(ring, *cfg, basePath); err != nil {
-					log(fmt.Sprintf("Failed to init: %s", err), "error")
-					reject.Invoke(err)
-					return
-				}
-				resolve.Invoke(js.Null())
-			}()
+					encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
+					ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
+					if err != nil {
+						log(fmt.Sprintf("Failed to open keyring: %s", err), "error")
+						reject.Invoke(err)
+						return
+					}
+					if err := nodebuilder.InitWasm(ring, *cfg, basePath); err != nil {
+						log(fmt.Sprintf("Failed to init: %s", err), "error")
+						reject.Invoke(err)
+						return
+					}
+					resolve.Invoke(js.Null())
+				}()
 
-			return nil
+				return nil
+			}))
 		}))
-	}))
+	*/
 
 	js.Global().Set("startNode", js.FuncOf(func(this js.Value, args []js.Value) any {
-		go start(ctx, log)
+		bootstrapAddressesStr := args[0].String()
+		cfg := nodebuilder.DefaultConfig(node.Light)
+		bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
+		for _, addr := range bootstrapAddresses {
+			addr := strings.TrimSpace(addr)
+			if len(addr) > 0 {
+				cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
+			}
+		}
+
+		go start(ctx, cfg, log)
 		return nil
 	}))
 
@@ -119,16 +128,16 @@ func main() {
 	}
 }
 
-func start(ctx context.Context, log func(msg string, level string)) {
-	encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
-	ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
-	if err != nil {
-		log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
-	}
+func start(ctx context.Context, cfg *nodebuilder.Config, log func(msg string, level string)) {
+	//encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
+	//ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
+	//if err != nil {
+	//	log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
+	//}
 
 	log("Starting node", "info")
 
-	store, err := nodebuilder.OpenStore(basePath, ring)
+	store, err := nodebuilder.OpenStore(basePath, nil)
 	if err != nil {
 		log(fmt.Sprintf("Failed to open store: %s", err), "error")
 		return
@@ -137,7 +146,7 @@ func start(ctx context.Context, log func(msg string, level string)) {
 
 	log("Store opened successfully!", "debug")
 
-	nd, err = nodebuilder.New(node.Light, p2p.Mainnet, store)
+	nd, err = nodebuilder.NewWithConfig(node.Light, p2p.Mainnet, store, cfg)
 	if err != nil {
 		log(fmt.Sprintf("Failed to create new node: %s", err), "error")
 		return

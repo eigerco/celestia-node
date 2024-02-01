@@ -4,15 +4,38 @@ package peers
 
 import (
 	"context"
+	"fmt"
 	"github.com/celestiaorg/celestia-node/share/p2p/shrexsub"
+	pubsub "github.com/libp2p/go-libp2p-pubsub"
+	"github.com/libp2p/go-libp2p/core/peer"
 	"time"
 )
 
 type metrics struct {
 }
 
-func (m metrics) validationObserver(validate shrexsub.ValidatorFn) shrexsub.ValidatorFn {
-	return validate
+func (m metrics) validationObserver(validator shrexsub.ValidatorFn) shrexsub.ValidatorFn {
+	return func(ctx context.Context, id peer.ID, n shrexsub.Notification) pubsub.ValidationResult {
+		res := validator(ctx, id, n)
+
+		var resStr string
+		switch res {
+		case pubsub.ValidationAccept:
+			resStr = validationAccept
+		case pubsub.ValidationReject:
+			resStr = validationReject
+		case pubsub.ValidationIgnore:
+			resStr = validationIgnore
+		default:
+			resStr = "unknown"
+		}
+
+		if ctx.Err() != nil {
+			ctx = context.Background()
+		}
+		fmt.Printf("Got the RESOLUTION STRING: %s \n", resStr)
+		return res
+	}
 }
 
 func (m metrics) observeGetPeer(ctx context.Context, source peerSource, size int, time time.Duration) {

@@ -154,7 +154,7 @@ func (d *Discovery) Advertise(ctx context.Context) {
 	defer timer.Stop()
 	for {
 		_, err := d.disc.Advertise(ctx, d.tag)
-		d.metrics.observeAdvertise(ctx, err)
+		//d.metrics.observeAdvertise(ctx, err)
 		if err != nil {
 			if ctx.Err() != nil {
 				return
@@ -314,7 +314,7 @@ func (d *Discovery) discover(ctx context.Context) bool {
 		}
 
 		isEnoughPeers := d.set.Size() >= d.set.Limit()
-		d.metrics.observeFindPeers(ctx, isEnoughPeers)
+		//d.metrics.observeFindPeers(ctx, isEnoughPeers)
 		log.Debugw("discovery finished", "discovered_wanted", isEnoughPeers)
 		return isEnoughPeers
 	}
@@ -326,11 +326,11 @@ func (d *Discovery) handleDiscoveredPeer(ctx context.Context, peer peer.AddrInfo
 	logger := log.With("peer", peer.ID.String())
 	switch {
 	case peer.ID == d.host.ID():
-		d.metrics.observeHandlePeer(ctx, handlePeerSkipSelf)
+		//d.metrics.observeHandlePeer(ctx, handlePeerSkipSelf)
 		logger.Debug("skip handle: self discovery")
 		return false
 	case d.set.Size() >= d.set.Limit():
-		d.metrics.observeHandlePeer(ctx, handlePeerEnoughPeers)
+		//d.metrics.observeHandlePeer(ctx, handlePeerEnoughPeers)
 		logger.Debug("skip handle: enough peers found")
 		return false
 	}
@@ -341,12 +341,12 @@ func (d *Discovery) handleDiscoveredPeer(ctx context.Context, peer peer.AddrInfo
 	case network.NotConnected:
 		err := d.connector.Connect(ctx, peer)
 		if errors.Is(err, errBackoffNotEnded) {
-			d.metrics.observeHandlePeer(ctx, handlePeerBackoff)
+			//d.metrics.observeHandlePeer(ctx, handlePeerBackoff)
 			logger.Debug("skip handle: backoff")
 			return false
 		}
 		if err != nil {
-			d.metrics.observeHandlePeer(ctx, handlePeerConnErr)
+			//d.metrics.observeHandlePeer(ctx, handlePeerConnErr)
 			logger.Debugw("unable to connect", "err", err)
 			return false
 		}
@@ -355,12 +355,12 @@ func (d *Discovery) handleDiscoveredPeer(ctx context.Context, peer peer.AddrInfo
 	}
 
 	if !d.set.Add(peer.ID) {
-		d.metrics.observeHandlePeer(ctx, handlePeerInSet)
+		//d.metrics.observeHandlePeer(ctx, handlePeerInSet)
 		logger.Debug("peer is already in discovery set")
 		return false
 	}
 	d.onUpdatedPeers(peer.ID, true)
-	d.metrics.observeHandlePeer(ctx, handlePeerConnected)
+	//d.metrics.observeHandlePeer(ctx, handlePeerConnected)
 	logger.Debug("added peer to set")
 
 	// Tag to protect peer from being killed by ConnManager

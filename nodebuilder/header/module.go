@@ -97,7 +97,6 @@ func ConstructModule[H libhead.Header[H]](tp node.Type, cfg *Config) fx.Option {
 			baseComponents,
 			fx.Provide(newP2PExchange[H]),
 			fx.Provide(func(ctx context.Context, ds datastore.Batching) (p2p.PeerIDStore, error) {
-
 				return pidstore.NewPeerIDStore(ctx, ds)
 			}),
 		)
