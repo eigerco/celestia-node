@@ -4,6 +4,9 @@ package nodebuilder
 
 import (
 	"context"
+
+	"go.uber.org/fx"
+
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/fxutil"
 	"github.com/celestiaorg/celestia-node/nodebuilder/core"
@@ -13,7 +16,6 @@ import (
 	nodemodule "github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	"github.com/celestiaorg/celestia-node/nodebuilder/share"
-	"go.uber.org/fx"
 )
 
 func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store Store) (fx.Option, error) {
@@ -43,7 +45,7 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 		fx.Supply(tp),
 		fx.Supply(network),
 		fx.Supply(cfg.P2P.BootstrapAddresses),
-		fx.Provide(p2p.BootstrappersFor),
+		fx.Provide(BootstrappersFor),
 		fx.Provide(func(lc fx.Lifecycle) context.Context {
 			return fxutil.WithLifecycle(context.Background(), lc)
 		}),
@@ -74,4 +76,17 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 		"node",
 		baseComponents,
 	), nil
+}
+
+func BootstrappersFor(network p2p.Network, bootstrapAddresses p2p.BootstrapAddresses) (p2p.Bootstrappers, error) {
+	networkBootstrappers, err := p2p.BootstrappersFor(network)
+	if err != nil {
+		return nil, err
+	}
+	addressBootstrappers, err := p2p.BootstrappersAddresses(bootstrapAddresses)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(networkBootstrappers, addressBootstrappers...), nil
 }

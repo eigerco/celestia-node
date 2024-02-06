@@ -1,7 +1,6 @@
 package p2p
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -16,13 +15,11 @@ func isBootstrapper() bool {
 }
 
 // BootstrappersFor returns address information of bootstrap peers for a given network.
-func BootstrappersFor(net Network, bootstrapAddresses BootstrapAddresses) (Bootstrappers, error) {
+func BootstrappersFor(net Network) (Bootstrappers, error) {
 	bs, err := bootstrappersFor(net)
 	if err != nil {
 		return nil, err
 	}
-	bs = append(bs, bootstrapAddresses...)
-	fmt.Printf("Getting boostrap addresses: %+v \n", bs)
 	return parseAddrInfos(bs)
 }
 

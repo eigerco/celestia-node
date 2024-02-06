@@ -1,4 +1,4 @@
-//go:build !js || !wasm
+//go:build js && wasm
 
 package p2p
 
@@ -16,8 +16,6 @@ const defaultRoutingRefreshPeriod = time.Minute
 
 // Config combines all configuration fields for P2P subsystem.
 type Config struct {
-	// ListenAddresses - Addresses to listen to on local NIC.
-	ListenAddresses []string
 	// AnnounceAddresses - Addresses to be announced/advertised for peers to connect to
 	AnnounceAddresses []string
 	// NoAnnounceAddresses - Addresses the P2P subsystem may know about, but that should not be
@@ -36,46 +34,20 @@ type Config struct {
 
 	// Allowlist for IPColocation PubSub parameter, a list of string CIDRs
 	IPColocationWhitelist []string
+
+	BootstrapAddresses BootstrapAddresses
+}
+
+type BootstrapAddresses []string
+
+func BootstrappersAddresses(bootstrapAddresses BootstrapAddresses) (Bootstrappers, error) {
+	return parseAddrInfos(bootstrapAddresses)
 }
 
 // DefaultConfig returns default configuration for P2P subsystem.
 func DefaultConfig(tp node.Type) Config {
 	return Config{
-		ListenAddresses: []string{
-			"/ip4/0.0.0.0/udp/2121/quic-v1/webtransport",
-			"/ip6/::/udp/2121/quic-v1/webtransport",
-			"/ip4/0.0.0.0/udp/2121/quic-v1",
-			"/ip6/::/udp/2121/quic-v1",
-			"/ip4/0.0.0.0/tcp/2121",
-			"/ip6/::/tcp/2121",
-		},
-		AnnounceAddresses: []string{},
-		NoAnnounceAddresses: []string{
-			"/ip4/127.0.0.1/udp/2121/quic-v1/webtransport",
-			"/ip4/0.0.0.0/udp/2121/quic-v1/webtransport",
-			"/ip6/::/udp/2121/quic-v1/webtransport",
-			"/ip4/0.0.0.0/udp/2121/quic-v1",
-			"/ip4/127.0.0.1/udp/2121/quic-v1",
-			"/ip6/::/udp/2121/quic-v1",
-			"/ip4/0.0.0.0/tcp/2121",
-			"/ip4/127.0.0.1/tcp/2121",
-			"/ip6/::/tcp/2121",
-		},
-		MutualPeers:               []string{},
-		PeerExchange:              tp == node.Bridge || tp == node.Full,
-		ConnManager:               defaultConnManagerConfig(tp),
-		RoutingTableRefreshPeriod: defaultRoutingRefreshPeriod,
-	}
-}
-
-// DefaultConfig returns default configuration for WASM P2P subsystem.
-func DefaultConfigWasm(tp node.Type) Config {
-	return Config{
-		ListenAddresses: []string{
-			"/ip4/127.0.0.1/udp/2121/quic-v1/webtransport",
-			"/ip4/0.0.0.0/udp/2121/quic-v1/webtransport",
-		},
-		AnnounceAddresses: []string{},
+		//AnnounceAddresses: []string{},
 		NoAnnounceAddresses: []string{
 			"/ip4/127.0.0.1/udp/2121/quic-v1/webtransport",
 			"/ip4/0.0.0.0/udp/2121/quic-v1/webtransport",
