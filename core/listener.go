@@ -1,4 +1,4 @@
-//go:build bridge_full
+//go:build !wasm || !js
 
 package core
 
@@ -12,16 +12,13 @@ import (
 	"github.com/celestiaorg/nmt"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/tendermint/tendermint/types"
+	"go.opentelemetry.io/otel/attribute"
 
 	"github.com/celestiaorg/celestia-node/header"
-	"github.com/celestiaorg/celestia-node/otel"
-	"github.com/celestiaorg/celestia-node/otel/attribute"
 	"github.com/celestiaorg/celestia-node/share/eds"
 	"github.com/celestiaorg/celestia-node/share/ipld"
 	"github.com/celestiaorg/celestia-node/share/p2p/shrexsub"
 )
-
-var tracer = otel.Tracer("core/listener")
 
 // Listener is responsible for listening to Core for
 // new block events and converting new Core blocks into

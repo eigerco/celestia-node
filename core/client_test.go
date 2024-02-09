@@ -1,13 +1,14 @@
-package core
+package core_test
 
 import (
 	"context"
-	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/types"
+
+	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 )
 
 func TestRemoteClient_Status(t *testing.T) {

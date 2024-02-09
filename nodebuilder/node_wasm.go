@@ -3,10 +3,58 @@
 package nodebuilder
 
 import (
+	"github.com/celestiaorg/celestia-node/nodebuilder/das"
+	"github.com/celestiaorg/celestia-node/nodebuilder/fraud"
+	"github.com/celestiaorg/celestia-node/nodebuilder/header"
+	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
+	"github.com/celestiaorg/celestia-node/nodebuilder/share"
+	"github.com/ipfs/boxo/blockservice"
+	"github.com/ipfs/boxo/exchange"
+	pubsub "github.com/libp2p/go-libp2p-pubsub"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/routing"
+	"github.com/libp2p/go-libp2p/p2p/net/conngater"
 	"go.uber.org/fx"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
+
+// Node represents the core structure of a Celestia node. It keeps references to all
+// Celestia-specific components and services in one place and provides flexibility to run a
+// Celestia light node. Only the light node is supported for wasm for now.
+type Node struct {
+	fx.In `ignore-unexported:"true"`
+
+	Type          node.Type
+	Network       p2p.Network
+	Bootstrappers p2p.Bootstrappers
+	Config        *Config
+	//AdminSigner   jwt.Signer
+
+	// rpc components
+	//RPCServer     *rpc.Server     // not optional TODO disable rpc only for wasm
+	//GatewayServer *gateway.Server `optional:"true"` TODO disable gateway only for wasm
+
+	// p2p components
+	Host         host.Host
+	ConnGater    *conngater.BasicConnectionGater
+	Routing      routing.PeerRouting
+	DataExchange exchange.Interface
+	BlockService blockservice.BlockService
+	// p2p protocols
+	PubSub *pubsub.PubSub
+	// services
+	ShareServ  share.Module
+	HeaderServ header.Module
+	//StateServ  state.Module  // not optional TODO disable gateway only for wasm
+	FraudServ fraud.Module
+	//BlobServ   blob.Module   // not optional TODO disable gateway only for wasm
+	DASer das.Module
+	//AdminServ  node.Module   // not optional TODO disable gateway only for wasm
+
+	// start and stop control ref internal fx.App lifecycle funcs to be called from Start and Stop
+	start, stop lifecycleFunc
+}
 
 // newNode creates a new Node from given DI options.
 // DI options allow initializing the Node with a customized set of components and services.

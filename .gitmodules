@@ -16,9 +16,6 @@
 [submodule "third_party/go-libp2p-routing-helpers"]
 	path = third_party/go-libp2p-routing-helpers
 	url = git@github.com:danielvladco/go-libp2p-routing-helpers.git
-[submodule "third_party/cosmos-sdk"]
-	path = third_party/cosmos-sdk
-	url = git@github.com:0x19/cosmos-sdk.git
 [submodule "third_party/go-header"]
 	path = third_party/go-header
 	url = git@github.com:danielvladco/go-header.git

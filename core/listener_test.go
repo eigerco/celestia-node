@@ -1,6 +1,6 @@
-//go:build bridge_full
+//go:build !wasm || !js
 
-package core
+package core_test
 
 import (
 	"bytes"

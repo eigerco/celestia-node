@@ -1,5 +1,4 @@
-//go:build light && wasm
-// +build light,wasm
+//go:build wasm && js
 
 package main
 

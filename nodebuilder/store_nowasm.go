@@ -1,4 +1,4 @@
-//go:build (aix || darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris || zos) && go1.9
+//go:build !wasm || !js
 
 package nodebuilder
 

@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/otel/attribute"
-	"github.com/celestiaorg/celestia-node/otel/trace"
-
 	"github.com/celestiaorg/rsmt2d"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/utils"

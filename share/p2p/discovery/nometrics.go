@@ -1,4 +1,4 @@
-//go:build !metrics
+//go:build nometrics
 
 package discovery
 

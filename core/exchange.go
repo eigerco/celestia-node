@@ -1,4 +1,4 @@
-//go:build bridge_full
+//go:build !wasm || !js
 
 package core
 
@@ -7,11 +7,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/celestiaorg/celestia-node/share"
-	"github.com/celestiaorg/rsmt2d"
-	"github.com/filecoin-project/dagstore"
 	"time"
 
+	"github.com/celestiaorg/celestia-node/share"
+	"github.com/celestiaorg/rsmt2d"
 	"golang.org/x/sync/errgroup"
 
 	libhead "github.com/celestiaorg/go-header"

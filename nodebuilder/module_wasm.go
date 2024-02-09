@@ -19,15 +19,8 @@ import (
 )
 
 func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store Store) (fx.Option, error) {
-	coreModule, err := core.ConstructModule(tp, &cfg.Core)
-	if err != nil {
-		return nil, err
-	}
-
-	p2pModule, err := p2p.ConstructModule(tp, &cfg.P2P)
-	if err != nil {
-		return nil, err
-	}
+	coreModule := core.ConstructModule(tp, &cfg.Core)
+	p2pModule := p2p.ConstructModule(tp, &cfg.P2P)
 
 	// TODO this should not be here. Instead header should be set when config is loaded.
 	// Apparently, it's not.
@@ -36,10 +29,7 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 	//cfg.State = state.DefaultConfig()
 	cfg.Share = share.DefaultConfig(tp)
 
-	shareModule, err := share.ConstructModule(tp, &cfg.Share)
-	if err != nil {
-		return nil, err
-	}
+	shareModule := share.ConstructModule(tp, &cfg.Share)
 
 	baseComponents := fx.Options(
 		fx.Supply(tp),

@@ -1,33 +1,28 @@
+//go:build !wasm
+
 package nodebuilder
 
 import (
-	"context"
-	"errors"
-	"fmt"
+	"github.com/celestiaorg/celestia-node/api/gateway"
+	"github.com/celestiaorg/celestia-node/api/rpc"
+	"github.com/celestiaorg/celestia-node/nodebuilder/blob"
 	"github.com/celestiaorg/celestia-node/nodebuilder/das"
 	"github.com/celestiaorg/celestia-node/nodebuilder/fraud"
 	"github.com/celestiaorg/celestia-node/nodebuilder/header"
-	"github.com/celestiaorg/celestia-node/nodebuilder/share"
-	"strings"
-	"time"
-
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"github.com/celestiaorg/celestia-node/nodebuilder/share"
+	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 	"github.com/ipfs/boxo/blockservice"
 	"github.com/ipfs/boxo/exchange"
-	logging "github.com/ipfs/go-log/v2"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/host"
-	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/routing"
 	"github.com/libp2p/go-libp2p/p2p/net/conngater"
 	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-)
-
-var (
-	log   = logging.Logger("node")
-	fxLog = logging.Logger("fx")
 )
 
 // Node represents the core structure of a Celestia node. It keeps references to all
@@ -46,8 +41,8 @@ type Node struct {
 	//AdminSigner   jwt.Signer
 
 	// rpc components
-	//RPCServer     *rpc.Server     // not optional TODO disable rpc only for wasm
-	//GatewayServer *gateway.Server `optional:"true"` TODO disable gateway only for wasm
+	RPCServer     *rpc.Server
+	GatewayServer *gateway.Server `optional:"true"`
 
 	// p2p components
 	Host         host.Host
@@ -60,106 +55,37 @@ type Node struct {
 	// services
 	ShareServ  share.Module
 	HeaderServ header.Module
-	//StateServ  state.Module  // not optional TODO disable gateway only for wasm
-	FraudServ fraud.Module
-	//BlobServ   blob.Module   // not optional TODO disable gateway only for wasm
-	DASer das.Module
-	//AdminServ  node.Module   // not optional TODO disable gateway only for wasm
+	StateServ  state.Module
+	FraudServ  fraud.Module
+	BlobServ   blob.Module
+	DASer      das.Module
+	AdminServ  node.Module
 
 	// start and stop control ref internal fx.App lifecycle funcs to be called from Start and Stop
 	start, stop lifecycleFunc
 }
 
-// New assembles a new Node with the given type 'tp' over Store 'store'.
-func New(tp node.Type, network p2p.Network, store Store, options ...fx.Option) (*Node, error) {
-	cfg, err := store.Config()
-	if err != nil {
+// newNode creates a new Node from given DI options.
+// DI options allow initializing the Node with a customized set of components and services.
+// NOTE: newNode is currently meant to be used privately to create various custom Node types e.g.
+// Light, unless we decide to give package users the ability to create custom node types themselves.
+func newNode(opts ...fx.Option) (*Node, error) {
+	toReturn := new(Node)
+
+	app := fx.New(
+		fx.WithLogger(func() fxevent.Logger {
+			zl := &fxevent.ZapLogger{Logger: log.Desugar()}
+			zl.UseLogLevel(zapcore.DebugLevel)
+			return zl
+		}),
+		fx.Populate(toReturn),
+		fx.Options(opts...),
+	)
+
+	if err := app.Err(); err != nil {
 		return nil, err
 	}
 
-	return NewWithConfig(tp, network, store, cfg, options...)
+	toReturn.start, toReturn.stop = app.Start, app.Stop
+	return toReturn, nil
 }
-
-// NewWithConfig assembles a new Node with the given type 'tp' over Store 'store' and a custom
-// config.
-func NewWithConfig(tp node.Type, network p2p.Network, store Store, cfg *Config, options ...fx.Option) (*Node, error) {
-	mod, err := ConstructModule(tp, network, cfg, store)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Infow("Module construction complete @ node.NewWithConfig()...")
-
-	opts := append([]fx.Option{mod}, options...)
-	return newNode(opts...)
-}
-
-// Start launches the Node and all its components and services.
-func (n *Node) Start(ctx context.Context) error {
-	//to := n.Config.Node.StartupTimeout
-	to := time.Second * 120 // TODO hardcoded
-	ctx, cancel := context.WithTimeout(ctx, to)
-	defer cancel()
-
-	err := n.start(ctx)
-	if err != nil {
-		log.Debugf("error starting %s Node: %s", n.Type, err)
-		if errors.Is(err, context.DeadlineExceeded) {
-			return fmt.Errorf("node: failed to start within timeout(%s): %w", to, err)
-		}
-		return fmt.Errorf("node: failed to start: %w", err)
-	}
-
-	log.Infof("\n\n/_____/  /_____/  /_____/  /_____/  /_____/ \n\nStarted celestia DA node \nnode "+
-		"type: 	%s\nnetwork: 	%s\n\n/_____/  /_____/  /_____/  /_____/  /_____/ \n", strings.ToLower(n.Type.String()),
-		n.Network)
-
-	addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(n.Host))
-	if err != nil {
-		log.Errorw("Retrieving multiaddress information", "err", err)
-		return err
-	}
-	fmt.Println("The p2p host is listening on:")
-	for _, addr := range addrs {
-		fmt.Println("* ", addr.String())
-	}
-	fmt.Println()
-	return nil
-}
-
-// Run is a Start which blocks on the given context 'ctx' until it is canceled.
-// If canceled, the Node is still in the running state and should be gracefully stopped via Stop.
-func (n *Node) Run(ctx context.Context) error {
-	err := n.Start(ctx)
-	if err != nil {
-		return err
-	}
-
-	<-ctx.Done()
-	return ctx.Err()
-}
-
-// Stop shuts down the Node, all its running Modules/Services and returns.
-// Canceling the given context earlier 'ctx' unblocks the Stop and aborts graceful shutdown forcing
-// remaining Modules/Services to close immediately.
-func (n *Node) Stop(ctx context.Context) error {
-	//to := n.Config.Node.ShutdownTimeout
-	to := time.Second * 20 // TODO hardcoded
-	ctx, cancel := context.WithTimeout(ctx, to)
-	defer cancel()
-
-	err := n.stop(ctx)
-	if err != nil {
-		log.Debugf("error stopping %s Node: %s", n.Type, err)
-		if errors.Is(err, context.DeadlineExceeded) {
-			return fmt.Errorf("node: failed to stop within timeout(%s): %w", to, err)
-		}
-		return fmt.Errorf("node: failed to stop: %w", err)
-	}
-
-	log.Debugf("stopped %s Node", n.Type)
-	return nil
-}
-
-// lifecycleFunc defines a type for common lifecycle funcs.
-type lifecycleFunc func(context.Context) error

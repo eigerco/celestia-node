@@ -1,8 +1,9 @@
-//go:build !wasm || !js
+//go:build wasm && js
 
 package p2p
 
 import (
+	"fmt"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/libp2p/go-libp2p/core/metrics"
@@ -36,19 +37,12 @@ func ConstructModule(tp node.Type, cfg *Config) fx.Option {
 		fx.Provide(addrsFactory(cfg.AnnounceAddresses, cfg.NoAnnounceAddresses)),
 		fx.Provide(metrics.NewBandwidthCounter),
 		fx.Provide(newModule),
-		fx.Invoke(Listen(cfg.ListenAddresses)),
 		fx.Provide(resourceManager),
-		fx.Provide(resourceManagerOpt(allowList)),
 	)
 
 	switch tp {
 	case node.Full, node.Bridge:
-		return fx.Module(
-			"p2p",
-			baseComponents,
-			fx.Provide(blockstoreFromEDSStore),
-			fx.Provide(infiniteResources),
-		)
+		panic(fmt.Sprintf("node type %q not supported for wasm", tp))
 	case node.Light:
 		return fx.Module(
 			"p2p",

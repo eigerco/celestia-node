@@ -1,5 +1,3 @@
-//go:build bridge_full
-
 package getters
 
 import (

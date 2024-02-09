@@ -6,14 +6,14 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/fx"
+
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/fxutil"
 	"github.com/celestiaorg/celestia-node/nodebuilder/core"
 	modhead "github.com/celestiaorg/celestia-node/nodebuilder/header"
 	nodemodule "github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-
-	"go.uber.org/fx"
 )
 
 func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store Store) (fx.Option, error) {

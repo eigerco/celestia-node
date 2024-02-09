@@ -1,3 +1,5 @@
+//go:build nometrics
+
 package getters
 
 import "context"

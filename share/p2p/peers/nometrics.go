@@ -1,14 +1,15 @@
-//go:build !metrics
+//go:build nometrics
 
 package peers
 
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/celestiaorg/celestia-node/share/p2p/shrexsub"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/peer"
-	"time"
 )
 
 type metrics struct {

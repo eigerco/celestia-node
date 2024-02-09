@@ -1,4 +1,4 @@
-//go:build bridge_full
+//go:build !wasm || !js
 
 package core_test
 

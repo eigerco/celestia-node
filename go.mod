@@ -69,8 +69,10 @@ require (
 	github.com/pyroscope-io/otel-profiling-go v0.4.0
 	go.opentelemetry.io/otel v1.21.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.44.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.21.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.21.0
 	go.opentelemetry.io/otel/metric v1.21.0
+	go.opentelemetry.io/otel/sdk v1.21.0
 	go.opentelemetry.io/otel/trace v1.21.0
 	go.opentelemetry.io/proto/otlp v1.0.0
 )
@@ -120,8 +122,6 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.21.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.21.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.21.0 // indirect
 	go.uber.org/mock v0.3.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
@@ -357,6 +357,7 @@ replace (
 	github.com/chzyer/readline => github.com/0x19/readline v1.5.1-wasm
 	github.com/cosmos/cosmos-sdk => github.com/0x19/cosmos-sdk v1.18.1-sdk-v0.46.14-wasm2
 	github.com/cosmos/ibc-go/v6 => github.com/0x19/ibc-go/v6 v6.2.0-wasm
+	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20230824094345-537c012aa403
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/hashicorp/go-metrics => github.com/0x19/hashicorp-go-metrics v0.5.1-wasm
 	github.com/ipfs/boxo => ./third_party/boxo

@@ -7,14 +7,13 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/ipfs/boxo/blockservice"
-
 	"github.com/celestiaorg/rsmt2d"
+	"github.com/ipfs/boxo/blockservice"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/utils"
-	"github.com/celestiaorg/celestia-node/otel/attribute"
-	"github.com/celestiaorg/celestia-node/otel/trace"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/celestia-node/share/eds/byzantine"
 	"github.com/celestiaorg/celestia-node/share/ipld"
