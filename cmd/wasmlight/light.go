@@ -5,6 +5,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/celestiaorg/celestia-app/app/encoding"
+	"github.com/celestiaorg/celestia-node/libs/codec"
+	"github.com/celestiaorg/celestia-node/libs/keystore"
 	"os"
 	"strings"
 	"syscall/js"
@@ -95,6 +98,7 @@ func main() {
 	js.Global().Set("startNode", js.FuncOf(func(this js.Value, args []js.Value) any {
 		bootstrapAddressesStr := args[0].String()
 		cfg := nodebuilder.DefaultConfig(node.Light)
+
 		bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
 		for _, addr := range bootstrapAddresses {
 			addr := strings.TrimSpace(addr)
@@ -128,15 +132,22 @@ func main() {
 }
 
 func start(ctx context.Context, cfg *nodebuilder.Config, log func(msg string, level string)) {
-	//encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
-	//ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
-	//if err != nil {
-	//	log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
-	//}
+	encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
+	ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
+	if err != nil {
+		log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
+	}
+
+	if !nodebuilder.IsInit(basePath) {
+		if err := nodebuilder.InitWasm(ring, *cfg, basePath); err != nil {
+			log(fmt.Sprintf("Failed to init: %s", err), "error")
+			return
+		}
+	}
 
 	log("Starting node", "info")
 
-	store, err := nodebuilder.OpenStore(basePath, nil)
+	store, err := nodebuilder.OpenStore(basePath, ring)
 	if err != nil {
 		log(fmt.Sprintf("Failed to open store: %s", err), "error")
 		return
