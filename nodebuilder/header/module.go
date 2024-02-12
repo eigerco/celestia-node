@@ -16,7 +16,6 @@ import (
 
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/pidstore"
-	modfraud "github.com/celestiaorg/celestia-node/nodebuilder/fraud"
 	modp2p "github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 )
 
@@ -38,15 +37,15 @@ func ConstructModule[H libhead.Header[H]](tp node.Type, cfg *Config) fx.Option {
 			newSyncer[H],
 			fx.OnStart(func(
 				ctx context.Context,
-				breaker *modfraud.ServiceBreaker[*sync.Syncer[H], H],
+				syncer *sync.Syncer[H],
 			) error {
-				return breaker.Start(ctx)
+				return syncer.Start(ctx)
 			}),
 			fx.OnStop(func(
 				ctx context.Context,
-				breaker *modfraud.ServiceBreaker[*sync.Syncer[H], H],
+				syncer *sync.Syncer[H],
 			) error {
-				return breaker.Stop(ctx)
+				return syncer.Stop(ctx)
 			}),
 		)),
 		fx.Provide(fx.Annotate(

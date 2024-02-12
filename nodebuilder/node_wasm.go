@@ -3,7 +3,6 @@
 package nodebuilder
 
 import (
-	"github.com/celestiaorg/celestia-node/nodebuilder/das"
 	"github.com/celestiaorg/celestia-node/nodebuilder/fraud"
 	"github.com/celestiaorg/celestia-node/nodebuilder/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
@@ -46,11 +45,8 @@ type Node struct {
 	// services
 	ShareServ  share.Module
 	HeaderServ header.Module
-	//StateServ  state.Module  // not optional TODO disable gateway only for wasm
-	FraudServ fraud.Module
-	//BlobServ   blob.Module   // not optional TODO disable gateway only for wasm
-	DASer das.Module
-	//AdminServ  node.Module   // not optional TODO disable gateway only for wasm
+	FraudServ  fraud.Module
+	//DASer das.Module
 
 	// start and stop control ref internal fx.App lifecycle funcs to be called from Start and Stop
 	start, stop lifecycleFunc
