@@ -28,11 +28,11 @@ func (c *Client) WithMetrics() error {
 	return nil
 }
 
-//func (srv *Server) WithMetrics() error {
-//	metrics, err := p2p.InitServerMetrics("nd")
-//	if err != nil {
-//		return fmt.Errorf("shrex/nd: init Metrics: %w", err)
-//	}
-//	srv.metrics = metrics
-//	return nil
-//}
+func (srv *Server) WithMetrics() error {
+	metrics, err := p2p.InitServerMetrics("nd")
+	if err != nil {
+		return fmt.Errorf("shrex/nd: init Metrics: %w", err)
+	}
+	srv.metrics = metrics
+	return nil
+}

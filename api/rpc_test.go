@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	testing2 "github.com/celestiaorg/celestia-node/nodebuilder/testing"
 	"reflect"
 	"strconv"
 	"testing"
@@ -309,7 +310,7 @@ func setupNodeWithAuthedRPC(t *testing.T, auth jwt.Signer) (*nodebuilder.Node, *
 		srv.RegisterAuthedService("blob", mockAPI.Blob, &blob.API{})
 	})
 	// fx.Replace does not work here, but fx.Decorate does
-	nd := nodebuilder.TestNode(t, node.Full, invokeRPC, fx.Decorate(func() (jwt.Signer, error) {
+	nd := testing2.TestNode(t, node.Full, invokeRPC, fx.Decorate(func() (jwt.Signer, error) {
 		return auth, nil
 	}))
 	// start node

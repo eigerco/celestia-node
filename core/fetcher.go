@@ -11,11 +11,11 @@ import (
 	libhead "github.com/celestiaorg/go-header"
 )
 
-const newBlockSubscriber = "NewBlock/Events"
+const NewBlockSubscriber = "NewBlock/Events"
 
 var (
 	log                     = logging.Logger("core")
-	newDataSignedBlockQuery = types.QueryForEvent(types.EventSignedBlock).String()
+	NewDataSignedBlockQuery = types.QueryForEvent(types.EventSignedBlock).String()
 )
 
 type BlockFetcher struct {
@@ -134,7 +134,7 @@ func (f *BlockFetcher) SubscribeNewBlockEvent(ctx context.Context) (<-chan types
 	f.cancel = cancel
 	f.doneCh = make(chan struct{})
 
-	eventChan, err := f.client.Subscribe(ctx, newBlockSubscriber, newDataSignedBlockQuery)
+	eventChan, err := f.client.Subscribe(ctx, NewBlockSubscriber, NewDataSignedBlockQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func (f *BlockFetcher) UnsubscribeNewBlockEvent(ctx context.Context) error {
 	case <-ctx.Done():
 		return fmt.Errorf("fetcher: unsubscribe from new block events: %w", ctx.Err())
 	}
-	return f.client.Unsubscribe(ctx, newBlockSubscriber, newDataSignedBlockQuery)
+	return f.client.Unsubscribe(ctx, NewBlockSubscriber, NewDataSignedBlockQuery)
 }
 
 // IsSyncing returns the sync status of the Core connection: true for

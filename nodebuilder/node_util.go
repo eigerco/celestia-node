@@ -34,10 +34,7 @@ func New(tp node.Type, network p2p.Network, store Store, options ...fx.Option) (
 // NewWithConfig assembles a new Node with the given type 'tp' over Store 'store' and a custom
 // config.
 func NewWithConfig(tp node.Type, network p2p.Network, store Store, cfg *Config, options ...fx.Option) (*Node, error) {
-	mod, err := ConstructModule(tp, network, cfg, store)
-	if err != nil {
-		return nil, err
-	}
+	mod := ConstructModule(tp, network, cfg, store)
 
 	log.Infow("Module construction complete @ node.NewWithConfig()...")
 

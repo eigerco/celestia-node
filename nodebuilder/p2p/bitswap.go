@@ -13,6 +13,8 @@ import (
 	hst "github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/protocol"
 	"go.uber.org/fx"
+
+	"github.com/celestiaorg/celestia-node/share/eds"
 )
 
 const (
@@ -46,6 +48,16 @@ func blockstoreFromDatastore(ctx context.Context, ds datastore.Batching) (blocks
 		blockstore.CacheOpts{
 			HasBloomFilterSize:   defaultBloomFilterSize,
 			HasBloomFilterHashes: defaultBloomFilterHashes,
+			HasTwoQueueCacheSize: defaultARCCacheSize,
+		},
+	)
+}
+
+func blockstoreFromEDSStore(ctx context.Context, store *eds.Store) (blockstore.Blockstore, error) {
+	return blockstore.CachedBlockstore(
+		ctx,
+		store.Blockstore(),
+		blockstore.CacheOpts{
 			HasTwoQueueCacheSize: defaultARCCacheSize,
 		},
 	)

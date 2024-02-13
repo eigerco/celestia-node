@@ -2,7 +2,10 @@ package nodebuilder
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-app/app/encoding"
+	"github.com/celestiaorg/celestia-node/libs/codec"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"strconv"
 	"testing"
 	"time"
@@ -28,7 +31,7 @@ func TestRepo(t *testing.T) {
 	}{
 		{tp: node.Bridge}, {tp: node.Light}, {tp: node.Full},
 	}
-
+	kr := keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec)
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			dir := t.TempDir()
@@ -36,7 +39,7 @@ func TestRepo(t *testing.T) {
 			_, err := OpenStore(dir, nil)
 			assert.ErrorIs(t, err, ErrNotInited)
 
-			err = Init(*DefaultConfig(tt.tp), dir, tt.tp)
+			err = Init(kr, *DefaultConfig(tt.tp), dir, tt.tp)
 			require.NoError(t, err)
 
 			store, err := OpenStore(dir, nil)
@@ -67,10 +70,11 @@ func BenchmarkStore(b *testing.B) {
 	ctx, cancel := context.WithCancel(context.Background())
 	b.Cleanup(cancel)
 
+	kr := keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec)
 	// BenchmarkStore/bench_read_128-10         	      14	  78970661 ns/op (~70ms)
 	b.Run("bench put 128", func(b *testing.B) {
 		dir := b.TempDir()
-		err := Init(*DefaultConfig(node.Full), dir, node.Full)
+		err := Init(kr, *DefaultConfig(node.Full), dir, node.Full)
 		require.NoError(b, err)
 
 		store := newStore(ctx, b, eds.DefaultParameters(), dir)
@@ -123,9 +127,9 @@ func TestStoreRestart(t *testing.T) {
 	)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	t.Cleanup(cancel)
-
+	kr := keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec)
 	dir := t.TempDir()
-	err := Init(*DefaultConfig(node.Full), dir, node.Full)
+	err := Init(kr, *DefaultConfig(node.Full), dir, node.Full)
 	require.NoError(t, err)
 
 	store := newStore(ctx, t, eds.DefaultParameters(), dir)

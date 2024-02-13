@@ -86,7 +86,7 @@ func UpdateConfig(tp node.Type, path string) (err error) {
 		return err
 	}
 
-	cfg, err = updateConfig(cfg, newCfg)
+	cfg, err = MergeConfig(cfg, newCfg)
 	if err != nil {
 		return err
 	}
@@ -99,9 +99,9 @@ func UpdateConfig(tp node.Type, path string) (err error) {
 	return SaveConfig(cfgPath, cfg)
 }
 
-// updateConfig merges new values from the new config into the old
+// MergeConfig merges new values from the new config into the old
 // config, returning the updated old config.
-func updateConfig(oldCfg *Config, newCfg *Config) (*Config, error) {
+func MergeConfig(oldCfg *Config, newCfg *Config) (*Config, error) {
 	err := mergo.Merge(oldCfg, newCfg, mergo.WithOverrideEmptySlice)
 	return oldCfg, err
 }

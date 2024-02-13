@@ -5,6 +5,7 @@ package core_test
 import (
 	"bytes"
 	"context"
+	"github.com/celestiaorg/celestia-node/core"
 	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	"testing"
 	"time"
@@ -69,7 +70,7 @@ func TestListener(t *testing.T) {
 
 	err = cl.Stop(ctx)
 	require.NoError(t, err)
-	require.Nil(t, cl.cancel)
+	require.Nil(t, cl.Cancel)
 }
 
 // TestListenerWithNonEmptyBlocks ensures that non-empty blocks are actually
@@ -124,7 +125,7 @@ func TestListenerWithNonEmptyBlocks(t *testing.T) {
 
 	err = cl.Stop(ctx)
 	require.NoError(t, err)
-	require.Nil(t, cl.cancel)
+	require.Nil(t, cl.Cancel)
 }
 
 func createMocknetWithTwoPubsubEndpoints(ctx context.Context, t *testing.T) (*pubsub.PubSub, *pubsub.PubSub) {
@@ -165,11 +166,11 @@ func createMocknetWithTwoPubsubEndpoints(ctx context.Context, t *testing.T) (*pu
 func createListener(
 	ctx context.Context,
 	t *testing.T,
-	fetcher *BlockFetcher,
+	fetcher *core.BlockFetcher,
 	ps *pubsub.PubSub,
 	edsSub *shrexsub.PubSub,
 	store *eds.Store,
-) *Listener {
+) *core.Listener {
 	p2pSub, err := p2p.NewSubscriber[*header.ExtendedHeader](ps, header.MsgID, p2p.WithSubscriberNetworkID(networkID))
 	require.NoError(t, err)
 	err = p2pSub.Start(ctx)
@@ -178,7 +179,7 @@ func createListener(
 		require.NoError(t, p2pSub.Stop(ctx))
 	})
 
-	return NewListener(p2pSub, fetcher, edsSub.Broadcast, header.MakeExtendedHeader, store, nodep2p.BlockTime)
+	return core.NewListener(p2pSub, fetcher, edsSub.Broadcast, header.MakeExtendedHeader, store, nodep2p.BlockTime)
 }
 
 func createEdsPubSub(ctx context.Context, t *testing.T) *shrexsub.PubSub {

@@ -1,8 +1,7 @@
-package nodebuilder_test
+package nodebuilder
 
 import (
 	"github.com/celestiaorg/celestia-node/libs/codec"
-	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"os"
 	"path/filepath"
 	"testing"
@@ -25,19 +24,20 @@ func TestInit(t *testing.T) {
 	nodes := []node.Type{node.Light, node.Bridge}
 	kr := keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec)
 	for _, node := range nodes {
-		cfg := nodebuilder.DefaultConfig(node)
-		require.NoError(t, nodebuilder.Init(kr, *cfg, dir, node))
-		assert.True(t, nodebuilder.IsInit(dir))
+		cfg := DefaultConfig(node)
+		require.NoError(t, Init(kr, *cfg, dir, node))
+		assert.True(t, IsInit(dir))
 	}
 }
 
 func TestInitErrForInvalidPath(t *testing.T) {
 	path := "/invalid_path"
 	nodes := []node.Type{node.Light, node.Bridge}
+	kr := keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec)
 
 	for _, node := range nodes {
-		cfg := nodebuilder.DefaultConfig(node)
-		require.Error(t, nodebuilder.Init(*cfg, path, node))
+		cfg := DefaultConfig(node)
+		require.Error(t, Init(kr, *cfg, path, node))
 	}
 }
 
@@ -51,12 +51,12 @@ func TestIsInitWithBrokenConfig(t *testing.T) {
 		[P2P]
 		  ListenAddresses = [/ip4/0.0.0.0/tcp/2121]
     `))
-	assert.False(t, nodebuilder.IsInit(dir))
+	assert.False(t, IsInit(dir))
 }
 
 func TestIsInitForNonExistDir(t *testing.T) {
 	path := "/invalid_path"
-	assert.False(t, nodebuilder.IsInit(path))
+	assert.False(t, IsInit(path))
 }
 
 func TestInitErrForLockedDir(t *testing.T) {
@@ -67,15 +67,15 @@ func TestInitErrForLockedDir(t *testing.T) {
 	nodes := []node.Type{node.Light, node.Bridge}
 	kr := keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec)
 	for _, node := range nodes {
-		cfg := nodebuilder.DefaultConfig(node)
-		require.Error(t, nodebuilder.Init(kr, *cfg, dir, node))
+		cfg := DefaultConfig(node)
+		require.Error(t, Init(kr, *cfg, dir, node))
 	}
 }
 
 // TestInit_generateNewKey tests to ensure new account is generated
 // correctly.
 func TestInit_generateNewKey(t *testing.T) {
-	cfg := nodebuilder.DefaultConfig(node.Bridge)
+	cfg := DefaultConfig(node.Bridge)
 
 	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
 	ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, t.TempDir(), os.Stdin, encConf.Codec)

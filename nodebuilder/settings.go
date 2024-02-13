@@ -3,14 +3,26 @@
 package nodebuilder
 
 import (
+	"context"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/header"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
+
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder/das"
+	"github.com/celestiaorg/celestia-node/nodebuilder/share"
+	"github.com/celestiaorg/go-fraud"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
+	sdk "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/trace"
 	"time"
 
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/pyroscope-io/client/pyroscope"
 	otelpyroscope "github.com/pyroscope-io/otel-profiling-go"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"

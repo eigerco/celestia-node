@@ -1,8 +1,11 @@
-package nodebuilder
+package nodebuilder_test
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	testing2 "github.com/celestiaorg/celestia-node/nodebuilder/testing"
+	"github.com/ethereum/go-ethereum/log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -29,7 +32,7 @@ func TestLifecycle(t *testing.T) {
 
 	for i, tt := range test {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			node := TestNode(t, tt.tp)
+			node := testing2.TestNode(t, tt.tp)
 			require.NotNil(t, node)
 			require.NotNil(t, node.Config)
 			require.NotNil(t, node.Host)
@@ -67,10 +70,10 @@ func TestLifecycle_WithMetrics(t *testing.T) {
 
 	for i, tt := range test {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			node := TestNode(
+			node := testing2.TestNode(
 				t,
 				tt.tp,
-				WithMetrics(
+				nodebuilder.WithMetrics(
 					[]otlpmetrichttp.Option{
 						otlpmetrichttp.WithEndpoint(otelCollectorURL),
 						otlpmetrichttp.WithInsecure(),
@@ -139,7 +142,7 @@ func TestEmptyBlockExists(t *testing.T) {
 	}
 	for i, tt := range test {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			node := TestNode(t, tt.tp)
+			node := testing2.TestNode(t, tt.tp)
 			err := node.Start(ctx)
 			require.NoError(t, err)
 

@@ -130,8 +130,12 @@ var edsStoreStress = &cobra.Command{
 			StatLogFreq: logFreq,
 			OpTimeout:   time.Duration(putTimeout) * time.Second,
 		}
-
-		err = nodebuilder.Init(*nodebuilder.DefaultConfig(node.Full), path, node.Full)
+		nbcfg := nodebuilder.DefaultConfig(node.Full)
+		ring, err := nodebuilder.InitKeyring(nbcfg, path)
+		if err != nil {
+			return err
+		}
+		err = nodebuilder.Init(ring, *nbcfg, path, node.Full)
 		if err != nil {
 			return err
 		}

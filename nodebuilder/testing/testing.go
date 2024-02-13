@@ -1,9 +1,8 @@
-//go:build testing
-
-package nodebuilder
+package testing
 
 import (
 	testing2 "github.com/celestiaorg/celestia-node/core/testing"
+	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"testing"
 
@@ -24,19 +23,19 @@ import (
 )
 
 // MockStore provides mock in memory Store for testing purposes.
-func MockStore(t *testing.T, cfg *Config) Store {
+func MockStore(t *testing.T, cfg *nodebuilder.Config) nodebuilder.Store {
 	t.Helper()
-	store := NewMemStore()
+	store := nodebuilder.NewMemStore()
 	err := store.PutConfig(cfg)
 	require.NoError(t, err)
 	return store
 }
 
-func TestNode(t *testing.T, tp node.Type, opts ...fx.Option) *Node {
-	return TestNodeWithConfig(t, tp, DefaultConfig(tp), opts...)
+func TestNode(t *testing.T, tp node.Type, opts ...fx.Option) *nodebuilder.Node {
+	return TestNodeWithConfig(t, tp, nodebuilder.DefaultConfig(tp), opts...)
 }
 
-func TestNodeWithConfig(t *testing.T, tp node.Type, cfg *Config, opts ...fx.Option) *Node {
+func TestNodeWithConfig(t *testing.T, tp node.Type, cfg *nodebuilder.Config, opts ...fx.Option) *nodebuilder.Node {
 	// avoids port conflicts
 	cfg.RPC.Port = "0"
 	cfg.Header.TrustedPeers = []string{"/ip4/1.2.3.4/tcp/12345/p2p/12D3KooWNaJ1y1Yio3fFJEXCZyd1Cat3jmrPdgkYCrHfKD3Ce21p"}
@@ -63,7 +62,7 @@ func TestNodeWithConfig(t *testing.T, tp node.Type, cfg *Config, opts ...fx.Opti
 		)
 	}
 
-	nd, err := New(tp, p2p.Private, store, opts...)
+	nd, err := nodebuilder.New(tp, p2p.Private, store, opts...)
 	require.NoError(t, err)
 	return nd
 }

@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/filecoin-project/dagstore"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/share"

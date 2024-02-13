@@ -17,12 +17,12 @@ type module struct {
 	signer jwt.Signer
 }
 
-/* func NewModule(tp Type, signer jwt.Signer) Module {
+func NewModule(tp Type, signer jwt.Signer) Module {
 	return &module{
 		tp:     tp,
 		signer: signer,
 	}
-} */
+}
 
 // Info contains information related to the administrative
 // node.

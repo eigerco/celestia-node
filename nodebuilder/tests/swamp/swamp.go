@@ -6,6 +6,7 @@ import (
 	"fmt"
 	testing2 "github.com/celestiaorg/celestia-node/core/testing"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	testing3 "github.com/celestiaorg/celestia-node/nodebuilder/testing"
 	"net"
 	"sync"
 	"testing"
@@ -204,7 +205,7 @@ func (s *Swamp) DefaultTestConfig(tp node.Type) *nodebuilder.Config {
 // and a mockstore to the NewNodeWithStore method
 func (s *Swamp) NewBridgeNode(options ...fx.Option) *nodebuilder.Node {
 	cfg := s.DefaultTestConfig(node.Bridge)
-	store := nodebuilder.MockStore(s.t, cfg)
+	store := testing3.MockStore(s.t, cfg)
 
 	return s.NewNodeWithStore(node.Bridge, store, options...)
 }
@@ -220,7 +221,7 @@ func (s *Swamp) NewFullNode(options ...fx.Option) *nodebuilder.Node {
 	for _, bootstrapper := range s.Bootstrappers {
 		cfg.Header.TrustedPeers = append(cfg.Header.TrustedPeers, bootstrapper.String())
 	}
-	store := nodebuilder.MockStore(s.t, cfg)
+	store := testing3.MockStore(s.t, cfg)
 
 	return s.NewNodeWithStore(node.Full, store, options...)
 }
@@ -237,13 +238,13 @@ func (s *Swamp) NewLightNode(options ...fx.Option) *nodebuilder.Node {
 		cfg.Header.TrustedPeers = append(cfg.Header.TrustedPeers, bootstrapper.String())
 	}
 
-	store := nodebuilder.MockStore(s.t, cfg)
+	store := testing3.MockStore(s.t, cfg)
 
 	return s.NewNodeWithStore(node.Light, store, options...)
 }
 
 func (s *Swamp) NewNodeWithConfig(nodeType node.Type, cfg *nodebuilder.Config, options ...fx.Option) *nodebuilder.Node {
-	store := nodebuilder.MockStore(s.t, cfg)
+	store := testing3.MockStore(s.t, cfg)
 	// add all bootstrappers in suite as trusted peers
 	for _, bootstrapper := range s.Bootstrappers {
 		cfg.Header.TrustedPeers = append(cfg.Header.TrustedPeers, bootstrapper.String())

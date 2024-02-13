@@ -38,7 +38,7 @@ type Listener struct {
 
 	listenerTimeout time.Duration
 
-	cancel context.CancelFunc
+	Cancel context.CancelFunc
 }
 
 func NewListener(
@@ -61,12 +61,12 @@ func NewListener(
 
 // Start kicks off the Listener listener loop.
 func (cl *Listener) Start(context.Context) error {
-	if cl.cancel != nil {
+	if cl.Cancel != nil {
 		return fmt.Errorf("listener: already started")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	cl.cancel = cancel
+	cl.Cancel = cancel
 
 	sub, err := cl.fetcher.SubscribeNewBlockEvent(ctx)
 	if err != nil {
@@ -78,8 +78,8 @@ func (cl *Listener) Start(context.Context) error {
 
 // Stop stops the listener loop.
 func (cl *Listener) Stop(context.Context) error {
-	cl.cancel()
-	cl.cancel = nil
+	cl.Cancel()
+	cl.Cancel = nil
 	return nil
 }
 

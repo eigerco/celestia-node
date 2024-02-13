@@ -2,6 +2,7 @@ package core_test
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/core"
 	"testing"
 	"time"
 
@@ -26,7 +27,7 @@ func TestRemoteClient_StartBlockSubscription_And_GetBlock(t *testing.T) {
 	t.Cleanup(cancel)
 
 	client := testing2.StartTestNode(t).Client
-	eventChan, err := client.Subscribe(ctx, newBlockSubscriber, newDataSignedBlockQuery)
+	eventChan, err := client.Subscribe(ctx, core.NewBlockSubscriber, core.NewDataSignedBlockQuery)
 	require.NoError(t, err)
 
 	for i := 1; i <= 3; i++ {
@@ -41,5 +42,5 @@ func TestRemoteClient_StartBlockSubscription_And_GetBlock(t *testing.T) {
 		}
 	}
 	// unsubscribe to event channel
-	require.NoError(t, client.Unsubscribe(ctx, newBlockSubscriber, newDataSignedBlockQuery))
+	require.NoError(t, client.Unsubscribe(ctx, core.NewBlockSubscriber, core.NewDataSignedBlockQuery))
 }

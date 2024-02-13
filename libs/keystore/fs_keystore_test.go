@@ -1,6 +1,7 @@
 package keystore
 
 import (
+	"github.com/spf13/afero"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,7 +9,7 @@ import (
 )
 
 func TestFSKeystore(t *testing.T) {
-	kstore, err := NewFSKeystore(t.TempDir()+"/keystore", nil)
+	kstore, err := NewFSKeystore(t.TempDir()+"/keystore", nil, afero.NewOsFs())
 	require.NoError(t, err)
 
 	err = kstore.Put("test", PrivKey{Body: []byte("test_private_key")})

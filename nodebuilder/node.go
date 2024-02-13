@@ -12,6 +12,7 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 	"github.com/celestiaorg/celestia-node/nodebuilder/state"
+	"github.com/cristalhq/jwt"
 	"github.com/ipfs/boxo/blockservice"
 	"github.com/ipfs/boxo/exchange"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -38,7 +39,7 @@ type Node struct {
 	Network       p2p.Network
 	Bootstrappers p2p.Bootstrappers
 	Config        *Config
-	//AdminSigner   jwt.Signer
+	AdminSigner   jwt.Signer
 
 	// rpc components
 	RPCServer     *rpc.Server

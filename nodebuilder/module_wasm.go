@@ -18,7 +18,7 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 )
 
-func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store Store) (fx.Option, error) {
+func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store Store) fx.Option {
 	coreModule := core.ConstructModule(tp, &cfg.Core)
 	p2pModule := p2p.ConstructModule(tp, &cfg.P2P)
 
@@ -65,7 +65,7 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 	return fx.Module(
 		"node",
 		baseComponents,
-	), nil
+	)
 }
 
 func BootstrappersFor(network p2p.Network, bootstrapAddresses p2p.BootstrapAddresses) (p2p.Bootstrappers, error) {

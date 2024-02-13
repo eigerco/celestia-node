@@ -1,7 +1,8 @@
-package nodebuilder
+package nodebuilder_test
 
 import (
 	"bytes"
+	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"testing"
 
@@ -21,12 +22,12 @@ func TestConfigWriteRead(t *testing.T) {
 	for _, tp := range tests {
 		t.Run(tp.String(), func(t *testing.T) {
 			buf := bytes.NewBuffer(nil)
-			in := DefaultConfig(tp)
+			in := nodebuilder.DefaultConfig(tp)
 
 			err := in.Encode(buf)
 			require.NoError(t, err)
 
-			var out Config
+			var out nodebuilder.Config
 			err = out.Decode(buf)
 			require.NoError(t, err)
 			assert.EqualValues(t, in, &out)
@@ -38,15 +39,15 @@ func TestConfigWriteRead(t *testing.T) {
 // using a new default config applies the correct values and
 // preserves old custom values.
 func TestUpdateConfig(t *testing.T) {
-	cfg := new(Config)
+	cfg := new(nodebuilder.Config)
 	_, err := toml.Decode(outdatedConfig, cfg)
 	require.NoError(t, err)
 
-	newCfg := DefaultConfig(node.Light)
+	newCfg := nodebuilder.DefaultConfig(node.Light)
 	// ensure this config field is not filled in the outdated config
 	require.NotEqual(t, newCfg.Share.PeerManagerParams, cfg.Share.PeerManagerParams)
 
-	cfg, err = updateConfig(cfg, newCfg)
+	cfg, err = nodebuilder.MergeConfig(cfg, newCfg)
 	require.NoError(t, err)
 	// ensure this config field is now set after updating the config
 	require.Equal(t, newCfg.Share.PeerManagerParams, cfg.Share.PeerManagerParams)

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/celestiaorg/celestia-node/share/lighteds"
 	"io"
 	"net"
 	"time"
@@ -18,6 +17,7 @@ import (
 	"github.com/celestiaorg/rsmt2d"
 
 	"github.com/celestiaorg/celestia-node/share"
+	"github.com/celestiaorg/celestia-node/share/lighteds"
 	"github.com/celestiaorg/celestia-node/share/p2p"
 	pb "github.com/celestiaorg/celestia-node/share/p2p/shrexeds/pb"
 )
@@ -28,7 +28,7 @@ type Client struct {
 	protocolID protocol.ID
 	host       host.Host
 
-	//metrics *p2p.Metrics
+	metrics *p2p.Metrics
 }
 
 // NewClient creates a new ShrEx/EDS client.

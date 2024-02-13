@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	testing2 "github.com/celestiaorg/celestia-node/nodebuilder/testing"
 	"testing"
 	"time"
 
@@ -85,7 +86,7 @@ func TestFraudProofHandling(t *testing.T) {
 	require.NoError(t, err)
 	cfg.Header.TrustedPeers = append(cfg.Header.TrustedPeers, addrs[0].String())
 	cfg.Share.UseShareExchange = false
-	store := nodebuilder.MockStore(t, cfg)
+	store := testing2.MockStore(t, cfg)
 	full := sw.NewNodeWithStore(node.Full, store)
 
 	// 4.
@@ -144,7 +145,7 @@ func TestFraudProofHandling(t *testing.T) {
 	// 7.
 	cfg = nodebuilder.DefaultConfig(node.Light)
 	cfg.Header.TrustedPeers = append(cfg.Header.TrustedPeers, addrs[0].String())
-	lnStore := nodebuilder.MockStore(t, cfg)
+	lnStore := testing2.MockStore(t, cfg)
 	light := sw.NewNodeWithStore(node.Light, lnStore)
 	require.NoError(t, light.Start(ctx))
 	lightClient := getAdminClient(ctx, light, t)

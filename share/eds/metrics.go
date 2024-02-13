@@ -1,4 +1,4 @@
-///go:build !nometrics
+//go:build !nometrics
 
 package eds
 
