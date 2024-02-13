@@ -138,6 +138,13 @@ func start(ctx context.Context, cfg *nodebuilder.Config, log func(msg string, le
 		log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
 	}
 
+	if !nodebuilder.IsInit(basePath) {
+		if err := nodebuilder.InitWasm(ring, *cfg, basePath); err != nil {
+			log(fmt.Sprintf("Failed to init: %s", err), "error")
+			return
+		}
+	}
+
 	log("Starting node", "info")
 
 	store, err := nodebuilder.OpenStore(basePath, ring)
