@@ -137,6 +137,7 @@ func (m *Manager) Start(startCtx context.Context) error {
 
 	validatorFn := m.metrics.validationObserver(m.Validate)
 	err := m.shrexSub.AddValidator(validatorFn)
+
 	if err != nil {
 		return fmt.Errorf("registering validator: %w", err)
 	}

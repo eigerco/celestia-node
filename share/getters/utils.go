@@ -6,12 +6,10 @@ import (
 	"time"
 
 	logging "github.com/ipfs/go-log/v2"
-	"go.opentelemetry.io/otel"
 )
 
 var (
-	tracer = otel.Tracer("share/getters")
-	log    = logging.Logger("share/getters")
+	log = logging.Logger("share/getters")
 
 	errOperationNotSupported = errors.New("operation is not supported")
 )

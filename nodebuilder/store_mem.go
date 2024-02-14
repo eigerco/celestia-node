@@ -6,6 +6,8 @@ import (
 	"github.com/ipfs/go-datastore"
 	ds_sync "github.com/ipfs/go-datastore/sync"
 
+	"github.com/celestiaorg/celestia-app/app/encoding"
+
 	"github.com/celestiaorg/celestia-node/libs/keystore"
 )
 
@@ -18,9 +20,9 @@ type memStore struct {
 
 // NewMemStore creates an in-memory Store for Node.
 // Useful for testing.
-func NewMemStore() Store {
+func NewMemStore(regs []encoding.ModuleRegister) Store {
 	return &memStore{
-		keys: keystore.NewMapKeystore(),
+		keys: keystore.NewMapKeystore(regs),
 		data: ds_sync.MutexWrap(datastore.NewMapDatastore()),
 	}
 }

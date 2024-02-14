@@ -1,3 +1,5 @@
+//go:build !wasm
+
 package fraud
 
 import (
@@ -5,10 +7,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ipfs/go-datastore"
-
 	"github.com/celestiaorg/go-fraud"
 	libhead "github.com/celestiaorg/go-header"
+	"github.com/ipfs/go-datastore"
 )
 
 // service defines minimal interface with service lifecycle methods
@@ -36,6 +37,8 @@ func (breaker *ServiceBreaker[S, H]) Start(ctx context.Context) error {
 	if breaker == nil {
 		return nil
 	}
+
+	fmt.Println("CHECKME - BREAKER SERVICE STARTING")
 
 	proofs, err := breaker.FraudServ.Get(ctx, breaker.FraudType)
 	switch {

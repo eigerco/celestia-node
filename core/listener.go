@@ -8,7 +8,6 @@ import (
 
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/tendermint/tendermint/types"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 
 	libhead "github.com/celestiaorg/go-header"
@@ -21,7 +20,6 @@ import (
 )
 
 var (
-	tracer                 = otel.Tracer("core/listener")
 	retrySubscriptionDelay = 5 * time.Second
 )
 

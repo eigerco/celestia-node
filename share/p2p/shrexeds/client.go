@@ -17,7 +17,7 @@ import (
 	"github.com/celestiaorg/rsmt2d"
 
 	"github.com/celestiaorg/celestia-node/share"
-	"github.com/celestiaorg/celestia-node/share/eds"
+	"github.com/celestiaorg/celestia-node/share/lighteds"
 	"github.com/celestiaorg/celestia-node/share/p2p"
 	pb "github.com/celestiaorg/celestia-node/share/p2p/shrexeds/pb"
 )
@@ -129,7 +129,7 @@ func (c *Client) doRequest(
 		// reset stream deadlines to original values, since read deadline was changed during status read
 		c.setStreamDeadlines(ctx, stream)
 		// use header and ODS bytes to construct EDS and verify it against dataHash
-		eds, err := eds.ReadEDS(ctx, stream, dataHash)
+		eds, err := lighteds.ReadEDS(ctx, stream, dataHash)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read eds from ods bytes: %w", err)
 		}

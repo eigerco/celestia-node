@@ -1,0 +1,30 @@
+[submodule "third_party/boxo"]
+	path = third_party/boxo
+	url = git@github.com:0x19/boxo.git
+[submodule "third_party/go-fraud"]
+	path = third_party/go-fraud
+	url = git@github.com:danielvladco/go-fraud.git
+[submodule "third_party/go-merkledag"]
+	path = third_party/go-merkledag
+	url = git@github.com:danielvladco/go-merkledag.git
+[submodule "third_party/go-libp2p-kad-dht"]
+	path = third_party/go-libp2p-kad-dht
+	url = git@github.com:danielvladco/go-libp2p-kad-dht.git
+[submodule "third_party/opentelemetry-go"]
+	path = third_party/opentelemetry-go
+	url = git@github.com:danielvladco/opentelemetry-go.git
+[submodule "third_party/go-libp2p-routing-helpers"]
+	path = third_party/go-libp2p-routing-helpers
+	url = git@github.com:danielvladco/go-libp2p-routing-helpers.git
+[submodule "third_party/go-header"]
+	path = third_party/go-header
+	url = git@github.com:danielvladco/go-header.git
+[submodule "third_party/go-libp2p"]
+	path = third_party/go-libp2p
+	url = git@github.com:Jorropo/go-libp2p.git
+[submodule "third_party/eiger-go-libp2p"]
+	path = third_party/eiger-go-libp2p
+	url = git@github.com:eigerco/go-libp2p.git
+[submodule "third_party/goleveldb"]
+	path = third_party/goleveldb
+	url = git@github.com:0x19/goleveldb.git

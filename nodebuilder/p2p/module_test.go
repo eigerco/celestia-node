@@ -1,9 +1,12 @@
+//go:build !wasm
+
 package p2p
 
 import (
 	"context"
 	"testing"
 
+	"github.com/celestiaorg/celestia-app/app"
 	"github.com/ipfs/go-datastore"
 	ds_sync "github.com/ipfs/go-datastore/sync"
 	"go.uber.org/fx"
@@ -25,6 +28,7 @@ func testModule(tp node.Type) fx.Option {
 		fx.Supply(Private),
 		fx.Supply(Bootstrappers{}),
 		fx.Supply(tp),
+		fx.Supply(app.ModuleEncodingRegisters),
 		fx.Provide(keystore.NewMapKeystore),
 		fx.Supply(fx.Annotate(ds_sync.MutexWrap(datastore.NewMapDatastore()), fx.As(new(datastore.Batching)))),
 	)

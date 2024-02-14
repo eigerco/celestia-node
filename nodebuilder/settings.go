@@ -1,3 +1,5 @@
+//go:build !wasm
+
 package nodebuilder
 
 import (
@@ -16,7 +18,7 @@ import (
 	sdk "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.11.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 

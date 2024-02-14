@@ -10,6 +10,7 @@ import (
 	"github.com/cristalhq/jwt"
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/mitchellh/go-homedir"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
@@ -71,7 +72,7 @@ func newKeystore(path string) (keystore.Keystore, error) {
 	if err != nil {
 		return nil, err
 	}
-	return keystore.NewFSKeystore(filepath.Join(expanded, "keys"), nil)
+	return keystore.NewFSKeystore(filepath.Join(expanded, "keys"), nil, afero.NewOsFs())
 }
 
 func buildJWTToken(body []byte, permissions []auth.Permission) (string, error) {

@@ -1,7 +1,6 @@
 package eds
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
 	"errors"
@@ -20,6 +19,7 @@ import (
 	"github.com/celestiaorg/celestia-node/libs/utils"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/celestia-node/share/ipld"
+	"github.com/celestiaorg/celestia-node/share/lighteds"
 )
 
 var ErrEmptySquare = errors.New("share: importing empty data")
@@ -222,53 +222,5 @@ func ReadEDS(ctx context.Context, r io.Reader, root share.DataHash) (eds *rsmt2d
 		utils.SetStatusAndEnd(span, err)
 	}()
 
-	carReader, err := car.NewCarReader(r)
-	if err != nil {
-		return nil, fmt.Errorf("share: reading car file: %w", err)
-	}
-
-	// car header includes both row and col roots in header
-	odsWidth := len(carReader.Header.Roots) / 4
-	odsSquareSize := odsWidth * odsWidth
-	shares := make([][]byte, odsSquareSize)
-	// the first quadrant is stored directly after the header,
-	// so we can just read the first odsSquareSize blocks
-	for i := 0; i < odsSquareSize; i++ {
-		block, err := carReader.Next()
-		if err != nil {
-			return nil, fmt.Errorf("share: reading next car entry: %w", err)
-		}
-		// the stored first quadrant shares are wrapped with the namespace twice.
-		// we cut it off here, because it is added again while importing to the tree below
-		shares[i] = share.GetData(block.RawData())
-	}
-
-	// use proofs adder if provided, to cache collected proofs while recomputing the eds
-	var opts []nmt.Option
-	visitor := ipld.ProofsAdderFromCtx(ctx).VisitFn()
-	if visitor != nil {
-		opts = append(opts, nmt.NodeVisitor(visitor))
-	}
-
-	eds, err = rsmt2d.ComputeExtendedDataSquare(
-		shares,
-		share.DefaultRSMT2DCodec(),
-		wrapper.NewConstructor(uint64(odsWidth), opts...),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("share: computing eds: %w", err)
-	}
-
-	newDah, err := share.NewRoot(eds)
-	if err != nil {
-		return nil, err
-	}
-	if !bytes.Equal(newDah.Hash(), root) {
-		return nil, fmt.Errorf(
-			"share: content integrity mismatch: imported root %s doesn't match expected root %s",
-			newDah.Hash(),
-			root,
-		)
-	}
-	return eds, nil
+	return lighteds.ReadEDS(ctx, r, root)
 }

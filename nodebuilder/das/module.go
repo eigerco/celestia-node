@@ -1,13 +1,15 @@
+//go:build !wasm
+
 package das
 
 import (
 	"context"
+	"github.com/celestiaorg/celestia-node/header"
+	modfraud "github.com/celestiaorg/celestia-node/nodebuilder/fraud"
 
 	"go.uber.org/fx"
 
 	"github.com/celestiaorg/celestia-node/das"
-	"github.com/celestiaorg/celestia-node/header"
-	modfraud "github.com/celestiaorg/celestia-node/nodebuilder/fraud"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 

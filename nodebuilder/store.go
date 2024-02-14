@@ -3,15 +3,12 @@ package nodebuilder
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
 	"sync"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/ipfs/go-datastore"
 	"github.com/mitchellh/go-homedir"
-
-	dsbadger "github.com/celestiaorg/go-ds-badger4"
+	"path/filepath"
 
 	"github.com/celestiaorg/celestia-node/libs/fslock"
 	"github.com/celestiaorg/celestia-node/libs/keystore"
@@ -70,7 +67,7 @@ func OpenStore(path string, ring keyring.Keyring) (Store, error) {
 		return nil, ErrNotInited
 	}
 
-	ks, err := keystore.NewFSKeystore(keysPath(path), ring)
+	ks, err := keystore.NewFSKeystore(keysPath(path), ring, fs)
 	if err != nil {
 		return nil, err
 	}
@@ -118,14 +115,10 @@ func (f *fsStore) Datastore() (datastore.Batching, error) {
 		return f.data, nil
 	}
 
-	opts := dsbadger.DefaultOptions // this should be copied
-	opts.GcInterval = time.Minute * 10
-
-	ds, err := dsbadger.NewDatastore(dataPath(f.path), &opts)
+	ds, err := newDataStore(f.path)
 	if err != nil {
-		return nil, fmt.Errorf("node: can't open Badger Datastore: %w", err)
+		return nil, err
 	}
-
 	f.data = ds
 	return ds, nil
 }

@@ -1,3 +1,5 @@
+//go:build !nometrics
+
 package node
 
 import (

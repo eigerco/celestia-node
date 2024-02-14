@@ -6,10 +6,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/nmt"
 	"github.com/celestiaorg/rsmt2d"
-
-	"github.com/celestiaorg/celestia-node/header"
 )
 
 var (
