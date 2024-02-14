@@ -92,18 +92,34 @@ func (cl *Listener) runSubscriber(ctx context.Context, sub <-chan types.EventDat
 			// listener stopped because external context was canceled
 			return
 		}
-		log.Warnw("listener: subscriber error, resubscribing...", "err", err)
 
-		err = cl.fetcher.UnsubscribeNewBlockEvent(ctx)
-		if err != nil {
-			log.Errorw("listener: unsubscribe error", "err", err)
+		log.Warnw("listener: subscriber error, resubscribing...", "err", err)
+		sub = cl.resubscribe(ctx)
+		if sub == nil {
 			return
 		}
+	}
+}
 
-		sub, err = cl.fetcher.SubscribeNewBlockEvent(ctx)
-		if err != nil {
-			log.Errorw("listener: resubscribe error", "err", err)
-			return
+func (cl *Listener) resubscribe(ctx context.Context) <-chan types.EventDataSignedBlock {
+	err := cl.fetcher.UnsubscribeNewBlockEvent(ctx)
+	if err != nil {
+		log.Warnw("listener: unsubscribe", "err", err)
+	}
+
+	ticker := time.NewTicker(retrySubscriptionDelay)
+	defer ticker.Stop()
+	for {
+		sub, err := cl.fetcher.SubscribeNewBlockEvent(ctx)
+		if err == nil {
+			return sub
+		}
+		log.Errorw("listener: resubscribe", "err", err)
+
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-ticker.C:
 		}
 	}
 }

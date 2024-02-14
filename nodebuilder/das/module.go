@@ -36,7 +36,7 @@ func ConstructModule(tp node.Type, cfg *Config) fx.Option {
 	switch tp {
 	case node.Light, node.Full:
 		return fx.Module(
-			"daser",
+			"das",
 			baseComponents,
 			fx.Provide(fx.Annotate(
 				newDASer,
@@ -54,7 +54,7 @@ func ConstructModule(tp node.Type, cfg *Config) fx.Option {
 		)
 	case node.Bridge:
 		return fx.Module(
-			"daser",
+			"das",
 			baseComponents,
 			fx.Provide(newDaserStub),
 		)
