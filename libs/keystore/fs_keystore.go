@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/spf13/afero"
 )
 
 // ErrNotFound is returned when the key does not exist.

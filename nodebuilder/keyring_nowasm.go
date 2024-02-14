@@ -3,9 +3,12 @@
 package nodebuilder
 
 import (
-	kr "github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"os"
 
+	"github.com/celestiaorg/celestia-app/app"
+	"github.com/celestiaorg/celestia-app/app/encoding"
 	apptypes "github.com/celestiaorg/celestia-app/x/blob/types"
+	kr "github.com/cosmos/cosmos-sdk/crypto/keyring"
 
 	"github.com/celestiaorg/celestia-node/libs/keystore"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
@@ -13,14 +16,14 @@ import (
 
 const DefaultAccountName = "my_celes_key"
 
-func InitKeyring(cfg *Config, path string) (keyring.Keyring, error) {
+func InitKeyring(cfg *Config, path string) (kr.Keyring, error) {
 	ksPath := keysPath(path)
 	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
-	if cfg.State.KeyringBackend == keyring.BackendTest {
+	if cfg.State.KeyringBackend == kr.BackendTest {
 		log.Warn("Detected plaintext keyring backend. For elevated security properties, consider using" +
 			" the `file` keyring backend.")
 	}
-	ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, ksPath, os.Stdin, encConf.Codec)
+	ring, err := kr.New(app.Name, cfg.State.KeyringBackend, ksPath, os.Stdin, encConf.Codec)
 	if err != nil {
 		return nil, err
 	}
