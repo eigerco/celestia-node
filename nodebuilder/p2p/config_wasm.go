@@ -12,7 +12,7 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 )
 
-const defaultRoutingRefreshPeriod = time.Minute
+const defaultRoutingRefreshPeriod = 2 * time.Minute
 
 // Config combines all configuration fields for P2P subsystem.
 type Config struct {
@@ -47,7 +47,7 @@ func BootstrappersAddresses(bootstrapAddresses BootstrapAddresses) (Bootstrapper
 // DefaultConfig returns default configuration for P2P subsystem.
 func DefaultConfig(tp node.Type) Config {
 	return Config{
-		//AnnounceAddresses: []string{},
+		AnnounceAddresses: []string{},
 		NoAnnounceAddresses: []string{
 			"/ip4/127.0.0.1/udp/2121/quic-v1/webtransport",
 			"/ip4/0.0.0.0/udp/2121/quic-v1/webtransport",
@@ -61,7 +61,7 @@ func DefaultConfig(tp node.Type) Config {
 		},
 		MutualPeers:               []string{},
 		PeerExchange:              tp == node.Bridge || tp == node.Full,
-		ConnManager:               defaultConnManagerConfig(tp),
+		ConnManager:               defaultConnManagerConfigWasm(tp),
 		RoutingTableRefreshPeriod: defaultRoutingRefreshPeriod,
 	}
 }

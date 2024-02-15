@@ -177,13 +177,10 @@ func start(ctx context.Context, cfg *nodebuilder.Config, log func(msg string, le
 		return
 	}
 
-	fmt.Println("The p2p host is listening on AAAAA:")
 	for _, addr := range addrs {
-		fmt.Println("* ", addr.String())
 		// Call a JavaScript function and pass the Peer ID
 		js.Global().Call("setPeerID", addr.String())
 	}
-	fmt.Println()
 
 	js.Global().Call("startedNode")
 

@@ -134,6 +134,9 @@ func (d *DataStore) Query(ctx context.Context, q query.Query) (_ query.Results, 
 			}
 		}
 	})
+
+	go qrb.Process.CloseAfterChildren()
+
 	return qrb.Results(), nil
 }
 

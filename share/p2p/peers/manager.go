@@ -135,7 +135,6 @@ func (m *Manager) Start(startCtx context.Context) error {
 		return nil
 	}
 
-	fmt.Printf("WHAT THE FUCK: %+v - metrics: %+v - validate: %+v", m, m.metrics, m.Validate)
 	//validatorFn := m.metrics.validationObserver(m.Validate)
 	//err := m.shrexSub.AddValidator(validatorFn)
 

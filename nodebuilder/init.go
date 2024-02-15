@@ -155,7 +155,7 @@ func IsInit(path string) bool {
 		log.Errorw("parsing store path", "path", path, "err", err)
 		return false
 	}
-	log.Errorw("store path ", "path", path)
+
 	_, err = LoadConfig(configPath(path)) // load the Config and implicitly check for its existence
 	if err != nil {
 		log.Errorw("loading config", "path", path, "err", err)

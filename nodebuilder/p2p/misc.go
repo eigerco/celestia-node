@@ -2,7 +2,6 @@ package p2p
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -44,9 +43,22 @@ func defaultConnManagerConfig(tp node.Type) connManagerConfig {
 	}
 }
 
+// defaultConnManagerConfigWasm returns defaults for ConnManagerConfig used in WASM mode.
+func defaultConnManagerConfigWasm(tp node.Type) connManagerConfig {
+	switch tp {
+	case node.Light:
+		return connManagerConfig{
+			Low:         1,
+			High:        10,
+			GracePeriod: time.Minute,
+		}
+	default:
+		panic("unknown wasm (browser) supported node type")
+	}
+}
+
 // connectionManager provides a constructor for ConnectionManager.
 func connectionManager(cfg Config, bpeers Bootstrappers) (connmgri.ConnManager, error) {
-	fmt.Println("CONNECTION MANAGER LOADING...")
 	fpeers, err := cfg.mutualPeers()
 	if err != nil {
 		return nil, err
@@ -66,24 +78,17 @@ func connectionManager(cfg Config, bpeers Bootstrappers) (connmgri.ConnManager, 
 		cm.Protect(info.ID, "protected-bootstrap")
 	}
 
-	fmt.Println("CONNECTION MANAGER LOADED")
-
 	return cm, nil
 }
 
 // connectionGater constructs a BasicConnectionGater.
 func connectionGater(ds datastore.Batching) (*conngater.BasicConnectionGater, error) {
-	fmt.Println("CONNECTION GATER LOADING....")
 	toReturn, err := conngater.NewBasicConnectionGater(ds)
-	fmt.Println("AM I HERE?")
-	fmt.Println("CONNECTION GATER LOADED")
 	return toReturn, err
 }
 
 // peerStore constructs an on-disk PeerStore.
 func peerStore(ctx context.Context, ds datastore.Batching) (peerstore.Peerstore, error) {
-	fmt.Println("PEERSTORE LOADING....")
 	toReturn, err := pstoreds.NewPeerstore(ctx, ds, pstoreds.DefaultOpts())
-	fmt.Println("PEERSTORE LOADED")
 	return toReturn, err
 }

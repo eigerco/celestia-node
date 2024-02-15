@@ -2,8 +2,6 @@ package p2p
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/network"
 	rcmgr "github.com/libp2p/go-libp2p/p2p/host/resource-manager"
@@ -13,9 +11,7 @@ import (
 )
 
 func resourceManager(params resourceManagerParams) (network.ResourceManager, error) {
-	fmt.Println("RESOURCE MANAGER BEFORE")
 	toReturn, err := rcmgr.NewResourceManager(rcmgr.NewFixedLimiter(params.Limits))
-	fmt.Println("RESOURCE MANAGER AFTER")
 	return toReturn, err
 }
 
