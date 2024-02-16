@@ -72,7 +72,7 @@ func IsInit(path string) bool {
 		log.Errorw("parsing store path", "path", path, "err", err)
 		return false
 	}
-	log.Errorw("store path ", "path", path)
+
 	_, err = LoadConfig(configPath(path)) // load the Config and implicitly check for its existence
 	if err != nil {
 		log.Errorw("loading config", "path", path, "err", err)
@@ -139,12 +139,10 @@ func generateKeys(ring keyring.Keyring) error {
 		// at least one key is already present
 		return nil
 	}
-	log.Infow("NO KEY FOUND IN STORE, GENERATING NEW KEY...")
 	keyInfo, mn, err := generateNewKey(ring)
 	if err != nil {
 		return err
 	}
-	log.Info("NEW KEY GENERATED...")
 	addr, err := keyInfo.GetAddress()
 	if err != nil {
 		return err

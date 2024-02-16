@@ -6,9 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"github.com/celestiaorg/go-fraud"
 	libhead "github.com/celestiaorg/go-header"
+	"github.com/ipfs/go-datastore"
 )
 
 // service defines minimal interface with service lifecycle methods
@@ -37,31 +37,28 @@ func (breaker *ServiceBreaker[S, H]) Start(ctx context.Context) error {
 		return nil
 	}
 
-	fmt.Println("CHECKME - BREAKER SERVICE STARTING")
+	proofs, err := breaker.FraudServ.Get(ctx, breaker.FraudType)
+	switch {
+	default:
+		return fmt.Errorf("getting proof(%s): %w", breaker.FraudType, err)
+	case err == nil:
+		return &fraud.ErrFraudExists[H]{Proof: proofs}
+	case errors.Is(err, datastore.ErrNotFound):
+	}
 
-	//proofs, err := breaker.FraudServ.Get(ctx, breaker.FraudType)
-	//switch {
-	//default:
-	//	return fmt.Errorf("getting proof(%s): %w", breaker.FraudType, err)
-	//case err == nil:
-	//return &fraud.ErrFraudExists[H]{Proof: proofs}
-	//case errors.Is(err, datastore.ErrNotFound):
-	//}
+	err = breaker.Service.Start(ctx)
+	if err != nil {
+		return err
+	}
 
-	//err = breaker.Service.Start(ctx)
-	//if err != nil {
-	//	return err
-	//}
+	breaker.sub, err = breaker.FraudServ.Subscribe(breaker.FraudType)
+	if err != nil {
+		return fmt.Errorf("subscribing for proof(%s): %w", breaker.FraudType, err)
+	}
 
-	//breaker.sub, err = breaker.FraudServ.Subscribe(breaker.FraudType)
-	//if err != nil {
-	//	return fmt.Errorf("subscribing for proof(%s): %w", breaker.FraudType, err)
-	//}
+	breaker.ctx, breaker.cancel = context.WithCancel(context.Background())
+	go breaker.awaitProof()
 
-	//breaker.ctx, breaker.cancel = context.WithCancel(context.Background())
-	//go breaker.awaitProof()
-
-	fmt.Println("CHECKME - BREAKER SERVICE STARTED")
 	return nil
 }
 

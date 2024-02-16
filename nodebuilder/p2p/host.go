@@ -3,8 +3,6 @@ package p2p
 import (
 	"context"
 	"fmt"
-	"os"
-
 	"github.com/libp2p/go-libp2p"
 	p2pconfig "github.com/libp2p/go-libp2p/config"
 	"github.com/libp2p/go-libp2p/core/connmgr"
@@ -29,8 +27,8 @@ import (
 var enableQUIC bool
 
 func init() {
-	_, ok := os.LookupEnv("CELESTIA_ENABLE_QUIC")
-	enableQUIC = ok
+	//_, ok := os.LookupEnv("CELESTIA_ENABLE_QUIC")
+	enableQUIC = true
 }
 
 // routedHost constructs a wrapped Host that may fallback to address discovery,

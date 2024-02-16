@@ -38,8 +38,6 @@ func (breaker *ServiceBreaker[S, H]) Start(ctx context.Context) error {
 		return nil
 	}
 
-	fmt.Println("CHECKME - BREAKER SERVICE STARTING")
-
 	proofs, err := breaker.FraudServ.Get(ctx, breaker.FraudType)
 	switch {
 	default:

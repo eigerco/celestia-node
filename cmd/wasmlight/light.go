@@ -36,8 +36,6 @@ func main() {
 		Stderr: true,
 	})
 
-	os.Setenv("CELESTIA_ENABLE_QUIC", "TRUE")
-
 	if err := os.Setenv("CELESTIA_ENABLE_QUIC", "true"); err != nil {
 		panic(err)
 		return
@@ -51,6 +49,7 @@ func main() {
 		panic(err)
 		return
 	}
+
 	appendLog := js.Global().Get("appendLog")
 
 	log := func(msg string, level string) {
@@ -59,43 +58,6 @@ func main() {
 
 	var ctx context.Context
 	ctx, cancel = context.WithCancel(context.Background())
-
-	/*
-		js.Global().Set("initNode", js.FuncOf(func(this js.Value, args []js.Value) any {
-			bootstrapAddressesStr := args[0].String()
-			return js.Global().Get("Promise").New(js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-				resolve := args[0]
-				reject := args[1]
-
-				go func() {
-					cfg := nodebuilder.DefaultConfig(node.Light)
-					bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
-					for _, addr := range bootstrapAddresses {
-						addr := strings.TrimSpace(addr)
-						if len(addr) > 0 {
-							cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
-						}
-					}
-
-					encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
-					ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
-					if err != nil {
-						log(fmt.Sprintf("Failed to open keyring: %s", err), "error")
-						reject.Invoke(err)
-						return
-					}
-					if err := nodebuilder.InitWasm(ring, *cfg, basePath); err != nil {
-						log(fmt.Sprintf("Failed to init: %s", err), "error")
-						reject.Invoke(err)
-						return
-					}
-					resolve.Invoke(js.Null())
-				}()
-
-				return nil
-			}))
-		}))
-	*/
 
 	js.Global().Set("startNode", js.FuncOf(func(this js.Value, args []js.Value) any {
 		bootstrapAddressesStr := args[0].String()
@@ -117,14 +79,6 @@ func main() {
 		go stop(ctx, log)
 		return nil
 	}))
-
-	/* 	go func() {
-		log("Starting up P2P connectivity tester...", "info")
-		if err := startPeer(ctx, log); err != nil {
-			log(fmt.Sprintf("Failed to start peer: %s", err), "error")
-			return
-		}
-	}() */
 
 	select {
 	case <-ctx.Done():
@@ -179,13 +133,11 @@ func start(ctx context.Context, cfg *nodebuilder.Config, log func(msg string, le
 		return
 	}
 
-	fmt.Println("The p2p host is listening on AAAAA:")
+	// Call a JavaScript function and pass the Peer ID
+	// We use this peer ids to display which peer current running node is using.
 	for _, addr := range addrs {
-		fmt.Println("* ", addr.String())
-		// Call a JavaScript function and pass the Peer ID
 		js.Global().Call("setPeerID", addr.String())
 	}
-	fmt.Println()
 
 	js.Global().Call("startedNode")
 

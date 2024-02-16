@@ -4,7 +4,6 @@ package peers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/share/p2p/shrexsub"
@@ -34,7 +33,6 @@ func (m metrics) validationObserver(validator shrexsub.ValidatorFn) shrexsub.Val
 		if ctx.Err() != nil {
 			ctx = context.Background()
 		}
-		fmt.Printf("Got the RESOLUTION STRING: %s \n", resStr)
 		return res
 	}
 }
