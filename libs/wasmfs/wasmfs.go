@@ -21,24 +21,28 @@ import (
 	"github.com/spf13/afero/mem"
 )
 
+const (
+	WasmFsName    = "celestia-wasm-fs"
+	WasmFsId      = "wasm-fs"
+	WasmFsVersion = 1
+)
+
 func New() (afero.Fs, error) {
-	ctx := context.Background()
-	id := "wasmfs"
-	name := "wasmfs"
-	version := 3
-	db, err := indexeddb.GlobalIndexedDB().Open(ctx, name, version, func(d *indexeddb.DatabaseUpdate, oldVersion, newVersion int) error {
-		if !d.ContainsObjectStore(id) {
-			if err := d.CreateObjectStore(id, nil); err != nil {
+	fmt.Printf("Initializing new IndexedDB database: %s - store: %s - version: %d \n", WasmFsName, WasmFsId, WasmFsVersion)
+	db, err := indexeddb.GlobalIndexedDB().Open(context.Background(), WasmFsName, WasmFsVersion, func(d *indexeddb.DatabaseUpdate, oldVersion, newVersion int) error {
+		if !d.ContainsObjectStore(WasmFsId) {
+			if err := d.CreateObjectStore(WasmFsId, nil); err != nil {
 				return err
 			}
 		}
 		return nil
 	})
+
 	if err != nil {
 		return nil, err
 	}
 	return &wasmfs{
-		id: id,
+		id: WasmFsId,
 		db: db,
 	}, nil
 }
@@ -70,28 +74,34 @@ func (w *wasmfs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, 
 	if readOnly {
 		imode = indexeddb.READONLY
 	}
+
 	durTx, err := indexeddb.NewDurableTransaction(w.db, []string{w.id}, imode)
 	if err != nil {
 		return nil, fmt.Errorf("error getting durable transaction %w", err)
 	}
+
 	objStore, err := durTx.GetObjectStore(w.id)
 	if err != nil {
 		return nil, err
 	}
+
 	c, err := objStore.GetAllKeys(name)
 	if err != nil {
 		return nil, err
 	}
+
 	fileExists := c.Length() > 0
 	if fileExists && (flag&os.O_EXCL > 0) {
 		return nil, os.ErrExist
 	}
+
 	if !fileExists && (flag&os.O_CREATE == 0) {
 		return nil, os.ErrNotExist
 	}
 	if err != nil {
 		return nil, err
 	}
+
 	file := &File{
 		objStore: objStore,
 		mu:       &sync.Mutex{},
@@ -112,6 +122,7 @@ func (w *wasmfs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, 
 			return nil, err
 		}
 	}
+
 	return file, nil
 }
 
@@ -143,7 +154,7 @@ func (w *wasmfs) Stat(name string) (os.FileInfo, error) {
 }
 
 func (w *wasmfs) Name() string {
-	return "wasmfs"
+	return WasmFsName
 }
 
 func (w *wasmfs) Chmod(name string, mode os.FileMode) error {

@@ -15,14 +15,16 @@ import (
 	"github.com/paralin/go-indexeddb"
 )
 
+const (
+	WasmKsName    = "celestia-wasm-ks"
+	WasmKsId      = "wasm-ks"
+	WasmKsVersion = 1
+)
+
 func OpenIndexedDB(cdc codec.Codec, password string, opts ...cosmoskeyring.Option) (cosmoskeyring.Keyring, error) {
-	ctx := context.Background()
-	id := "wasmks"
-	name := "wasmks"
-	version := 1
-	db, err := indexeddb.GlobalIndexedDB().Open(ctx, name, version, func(d *indexeddb.DatabaseUpdate, oldVersion, newVersion int) error {
-		if !d.ContainsObjectStore(id) {
-			if err := d.CreateObjectStore(id, nil); err != nil {
+	db, err := indexeddb.GlobalIndexedDB().Open(context.Background(), WasmKsName, WasmKsVersion, func(d *indexeddb.DatabaseUpdate, oldVersion, newVersion int) error {
+		if !d.ContainsObjectStore(WasmKsId) {
+			if err := d.CreateObjectStore(WasmKsId, nil); err != nil {
 				return err
 			}
 		}
@@ -31,11 +33,11 @@ func OpenIndexedDB(cdc codec.Codec, password string, opts ...cosmoskeyring.Optio
 	if err != nil {
 		return nil, err
 	}
-	durTx, err := indexeddb.NewDurableTransaction(db, []string{id}, indexeddb.READWRITE)
+	durTx, err := indexeddb.NewDurableTransaction(db, []string{WasmKsId}, indexeddb.READWRITE)
 	if err != nil {
 		return nil, fmt.Errorf("error getting durable transaction %w", err)
 	}
-	kvtx, err := indexeddb.NewKvtxTx(durTx, id)
+	kvtx, err := indexeddb.NewKvtxTx(durTx, WasmKsId)
 	if err != nil {
 		return nil, err
 	}

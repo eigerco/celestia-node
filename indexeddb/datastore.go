@@ -15,8 +15,13 @@ import (
 	"github.com/paralin/go-indexeddb"
 )
 
+const (
+	WasmDatastoreName    = "celestia-wasm-datastore"
+	WasmDatastoreVersion = 1
+)
+
 func NewDataStore(ctx context.Context, id string) (*DataStore, error) {
-	db, err := indexeddb.GlobalIndexedDB().Open(ctx, "test-db", 3, func(d *indexeddb.DatabaseUpdate, oldVersion, newVersion int) error {
+	db, err := indexeddb.GlobalIndexedDB().Open(ctx, WasmDatastoreName, WasmDatastoreVersion, func(d *indexeddb.DatabaseUpdate, oldVersion, newVersion int) error {
 		if !d.ContainsObjectStore(id) {
 			if err := d.CreateObjectStore(id, nil); err != nil {
 				return err

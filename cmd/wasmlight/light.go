@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	basePath        = ".celestia-light-arabica-10"
+	configPath      = "celestia-mainnet"
 	keyringPassword = "testpassword" //TODO
 )
 
@@ -63,15 +63,9 @@ func main() {
 		bootstrapAddressesStr := args[0].String()
 		cfg := nodebuilder.DefaultConfig(node.Light)
 
-		bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
-		for _, addr := range bootstrapAddresses {
-			addr := strings.TrimSpace(addr)
-			if len(addr) > 0 {
-				cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
-			}
-		}
+		fmt.Println("P2P configuration", cfg.P2P)
 
-		go start(ctx, cfg, log)
+		go start(ctx, bootstrapAddressesStr, cfg, log)
 		return nil
 	}))
 
@@ -87,23 +81,38 @@ func main() {
 	}
 }
 
-func start(ctx context.Context, cfg *nodebuilder.Config, log func(msg string, level string)) {
+func start(ctx context.Context, bootstrapAddressesStr string, cfg *nodebuilder.Config, log func(msg string, level string)) {
+	if !nodebuilder.IsInit(configPath) {
+		encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
+		ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
+		if err != nil {
+			log(fmt.Sprintf("Failed to open keyring: %s", err), "error")
+			return
+		}
+
+		if err := nodebuilder.InitWasm(ring, *cfg, configPath); err != nil {
+			log(fmt.Sprintf("Failed to init: %s", err), "error")
+			return
+		}
+	}
+
+	bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
+	for _, addr := range bootstrapAddresses {
+		addr := strings.TrimSpace(addr)
+		if len(addr) > 0 {
+			cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
+		}
+	}
+
 	encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
 	ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
 	if err != nil {
 		log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
 	}
 
-	if !nodebuilder.IsInit(basePath) {
-		if err := nodebuilder.InitWasm(ring, *cfg, basePath); err != nil {
-			log(fmt.Sprintf("Failed to init: %s", err), "error")
-			return
-		}
-	}
-
 	log("Starting node", "info")
 
-	store, err := nodebuilder.OpenStore(basePath, ring)
+	store, err := nodebuilder.OpenStore(configPath, ring)
 	if err != nil {
 		log(fmt.Sprintf("Failed to open store: %s", err), "error")
 		return

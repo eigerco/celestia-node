@@ -13,6 +13,7 @@ func init() {
 	var err error
 	fs, err = wasmfs.New()
 	if err != nil {
-		panic(err)
+		return
 	}
+	return
 }

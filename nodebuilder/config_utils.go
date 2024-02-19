@@ -1,6 +1,7 @@
 package nodebuilder
 
 import (
+	"bytes"
 	"io"
 
 	"github.com/BurntSushi/toml"
@@ -118,6 +119,19 @@ func (cfg *Config) Encode(w io.Writer) error {
 
 // Decode decodes a Config from a given reader r.
 func (cfg *Config) Decode(r io.Reader) error {
-	_, err := toml.NewDecoder(r).Decode(cfg)
+	// Read the content of the io.Reader into a byte slice
+	body, err := io.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	// Print the body
+	//fmt.Println("Got configuration from IndexedDB", string(body))
+
+	// Create a new reader from the byte slice
+	newReader := bytes.NewReader(body)
+
+	// Use the new reader for the decoder
+	_, err = toml.NewDecoder(newReader).Decode(cfg)
 	return err
 }
