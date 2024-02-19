@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -19,6 +22,11 @@ import (
 // WebtransportBootstrappers holds a map of peer addresses.
 type WebtransportBootstrappers struct {
 	Addrs map[string]string `json:"addrs"`
+}
+
+// Map to store custom ports for specific IP addresses
+var customPorts = map[string]int{
+	"40.85.94.176": 6060, // Eigers custom node exposing docker port under different port
 }
 
 func main() {
@@ -44,7 +52,10 @@ func main() {
 	}
 
 	// Set up HTTP handler for the "/peers" endpoint.
-	http.HandleFunc("/peers", PeerHandler(nodeCli))
+	http.HandleFunc("/bootstrap-peers", BootstrapPeersHandler(nodeCli))
+
+	// Set up HTTP handler for the "/peers" endpoint.
+	http.HandleFunc("/peers", PeersHandler(nodeCli))
 
 	// Start HTTP server.
 	logger.Info("Started bootstrapper server at http://localhost:8096")
@@ -53,12 +64,111 @@ func main() {
 	}
 }
 
-// PeerHandler returns an HTTP handler function that retrieves and serves peer information.
-func PeerHandler(nodeCli *client.Client) func(w http.ResponseWriter, r *http.Request) {
+func BootstrapPeersHandler(nodeCli *client.Client) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		peerInfo, err := nodeCli.P2P.Info(ctx)
+		if err != nil {
+			zap.L().Error("failed to retrieve node peer information", zap.Error(err))
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		// Map to store unique certhashes
+		uniqueCerthashes := make(map[string]bool)
+		uniqueAddrs := make(map[string]string)
+
+		for _, addr := range peerInfo.Addrs {
+			if isWebtransportPeer(addr) {
+				certhashes := extractCerthashes(addr)
+				for _, certhash := range certhashes {
+					// Check if certhash already exists, if so, skip adding it
+					if _, ok := uniqueCerthashes[certhash]; ok {
+						continue
+					}
+					uniqueCerthashes[certhash] = true
+
+					// Replace the port if there is a custom port defined for this IP
+					addrStr := addr.String()
+
+					// Get the original IP address from the multiaddress
+					ip, err := addr.ValueForProtocol(multiaddr.P_IP4)
+					if err != nil {
+						zap.L().Error(
+							"failure to extract IPV4 value of an address",
+							zap.String("addr", addr.String()),
+							zap.Error(err),
+						)
+						continue
+					}
+
+					if customPort, ok := customPorts[ip]; ok {
+						addrStr = replacePort(addrStr, customPort)
+					}
+
+					uniqueAddrs[peerInfo.ID.String()] = fmt.Sprintf("%s/p2p/%s", addrStr, peerInfo.ID.String())
+				}
+			}
+		}
+
+		bootstrappers := WebtransportBootstrappers{
+			Addrs: uniqueAddrs,
+		}
+
+		responseJSON, err := json.Marshal(bootstrappers)
+		if err != nil {
+			zap.L().Error("failed to marshal response to JSON", zap.Error(err))
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(responseJSON)
+	}
+}
+
+// replacePort replaces the existing QUIC UDP port in the multiaddress string with the given custom port
+func replacePort(addrStr string, customPort int) string {
+	// Define the regular expression pattern to match the port number
+	pattern := regexp.MustCompile(`udp/\d+/quic-v1`)
+
+	// Replace the port number with the custom port
+	replaced := pattern.ReplaceAllString(addrStr, "udp/"+strconv.Itoa(customPort)+"/quic-v1")
+
+	return replaced
+}
+
+// Assuming the certhash follows the format "/webtransport/certhash/<certhash>"
+// Extract the certhash value from the protocol string
+func extractCerthashes(addr multiaddr.Multiaddr) []string {
+	var certhashes []string
+
+	// Iterate over each protocol code to extract certhashes
+	for _, protocol := range addr.Protocols() {
+		// Check if the protocol represents a webtransport with certhash
+		if protocol.Name == "webtransport" {
+			// Get the certhash value for the webtransport protocol
+			certhash, err := addr.ValueForProtocol(protocol.Code)
+			if err == nil {
+				certhashes = append(certhashes, certhash)
+			}
+		}
+	}
+
+	return certhashes
+}
+
+// PeerHandler returns an HTTP handler function that retrieves and serves peer information.
+func PeersHandler(nodeCli *client.Client) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		peers, err := nodeCli.P2P.Peers(ctx)
@@ -140,6 +250,12 @@ func isWebtransportPeer(addr multiaddr.Multiaddr) bool {
 	}
 
 	if hasIPv4 && hasUDP && hasWebtransport && hasCerthash {
+
+		if strings.Contains(addr.String(), "127.0.0.1") ||
+			strings.Contains(addr.String(), "172.") {
+			return false
+		}
+
 		zap.L().Info("Discovered WebTransport peer addr info", zap.Any("peer", addr.String()), zap.Any("protocol", addr.Protocols()))
 		return true
 	}

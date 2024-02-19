@@ -22,6 +22,7 @@ import (
 	webtransport "github.com/libp2p/go-libp2p/p2p/transport/webtransport"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/fx"
+	"os"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )

@@ -82,6 +82,14 @@ func main() {
 }
 
 func start(ctx context.Context, bootstrapAddressesStr string, cfg *nodebuilder.Config, log func(msg string, level string)) {
+	bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
+	for _, addr := range bootstrapAddresses {
+		addr := strings.TrimSpace(addr)
+		if len(addr) > 0 {
+			cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
+		}
+	}
+
 	if !nodebuilder.IsInit(configPath) {
 		encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
 		ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
@@ -93,14 +101,6 @@ func start(ctx context.Context, bootstrapAddressesStr string, cfg *nodebuilder.C
 		if err := nodebuilder.InitWasm(ring, *cfg, configPath); err != nil {
 			log(fmt.Sprintf("Failed to init: %s", err), "error")
 			return
-		}
-	}
-
-	bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
-	for _, addr := range bootstrapAddresses {
-		addr := strings.TrimSpace(addr)
-		if len(addr) > 0 {
-			cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
 		}
 	}
 
