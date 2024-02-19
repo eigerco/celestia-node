@@ -1,4 +1,4 @@
-//go:build wasm
+//go:build js && wasm
 
 package p2p
 
@@ -54,6 +54,7 @@ func host(params hostParams) (HostBase, error) {
 		// to clearly define what defaults we rely upon
 		libp2p.DefaultSecurity,
 		libp2p.DefaultMuxers,
+
 		libp2p.Transport(quic.NewTransport),
 		libp2p.Transport(webtransport.New),
 	}
