@@ -1,4 +1,4 @@
-//go:build !nometrics
+//go:build !wasm
 
 package discovery
 
@@ -39,17 +39,6 @@ type metrics struct {
 	advertise        metric.Int64Counter // attributes: failed[bool]
 	peerAdded        metric.Int64Counter
 	peerRemoved      metric.Int64Counter
-}
-
-// WithMetrics turns on metric collection in discoery.
-func (d *Discovery) WithMetrics() error {
-	metrics, err := initMetrics(d)
-	if err != nil {
-		return fmt.Errorf("discovery: init metrics: %w", err)
-	}
-	d.metrics = metrics
-	d.onUpdatedPeers = d.onUpdatedPeers.add(metrics.observeOnPeersUpdate)
-	return nil
 }
 
 func initMetrics(d *Discovery) (*metrics, error) {
@@ -166,4 +155,15 @@ func (m *metrics) observeOnPeersUpdate(_ peer.ID, isAdded bool) {
 		return
 	}
 	m.peerRemoved.Add(ctx, 1)
+}
+
+// WithMetrics turns on metric collection in discoery.
+func (d *Discovery) WithMetrics() error {
+	metrics, err := initMetrics(d)
+	if err != nil {
+		return fmt.Errorf("discovery: init metrics: %w", err)
+	}
+	d.metrics = metrics
+	d.onUpdatedPeers = d.onUpdatedPeers.add(metrics.observeOnPeersUpdate)
+	return nil
 }

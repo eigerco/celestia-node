@@ -3,11 +3,15 @@
 package p2p
 
 import (
+	"context"
+
+	"github.com/ipfs/boxo/blockstore"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/libp2p/go-libp2p/core/metrics"
 	"go.uber.org/fx"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"github.com/celestiaorg/celestia-node/share/eds"
 	"github.com/celestiaorg/celestia-node/share/ipld"
 )
 
@@ -59,4 +63,14 @@ func ConstructModule(tp node.Type, cfg *Config) fx.Option {
 	default:
 		panic("invalid node type")
 	}
+}
+
+func blockstoreFromEDSStore(ctx context.Context, store *eds.Store) (blockstore.Blockstore, error) {
+	return blockstore.CachedBlockstore(
+		ctx,
+		store.Blockstore(),
+		blockstore.CacheOpts{
+			HasTwoQueueCacheSize: defaultARCCacheSize,
+		},
+	)
 }

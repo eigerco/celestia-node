@@ -1,4 +1,4 @@
-//go:build nometrics
+//go:build wasm
 
 package peers
 
@@ -11,24 +11,11 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 )
 
-type metrics struct {
-}
+type metrics struct{}
 
 func (m metrics) validationObserver(validator shrexsub.ValidatorFn) shrexsub.ValidatorFn {
 	return func(ctx context.Context, id peer.ID, n shrexsub.Notification) pubsub.ValidationResult {
 		res := validator(ctx, id, n)
-
-		var resStr string
-		switch res {
-		case pubsub.ValidationAccept:
-			resStr = validationAccept
-		case pubsub.ValidationReject:
-			resStr = validationReject
-		case pubsub.ValidationIgnore:
-			resStr = validationIgnore
-		default:
-			resStr = "unknown"
-		}
 
 		if ctx.Err() != nil {
 			ctx = context.Background()
@@ -90,3 +77,9 @@ const (
 	//			|
 	//  	  synced
 )
+
+// WithMetrics turns on metric collection in peer manager.
+func (m *Manager) WithMetrics() error {
+	m.metrics = &metrics{}
+	return nil
+}

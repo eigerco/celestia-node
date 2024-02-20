@@ -1,5 +1,3 @@
-//go:build !nometrics
-
 package das
 
 import (

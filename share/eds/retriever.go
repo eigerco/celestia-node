@@ -10,7 +10,6 @@ import (
 	"github.com/ipfs/boxo/blockservice"
 	"github.com/ipfs/go-cid"
 	logging "github.com/ipfs/go-log/v2"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -26,8 +25,7 @@ import (
 )
 
 var (
-	log    = logging.Logger("share/eds")
-	tracer = otel.Tracer("share/eds")
+	log = logging.Logger("share/eds")
 )
 
 // Retriever retrieves rsmt2d.ExtendedDataSquares from the IPLD network.

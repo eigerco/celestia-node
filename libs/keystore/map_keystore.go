@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/celestiaorg/celestia-app/app/encoding"
+	"github.com/celestiaorg/celestia-node/libs/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
@@ -16,10 +17,10 @@ type mapKeystore struct {
 }
 
 // NewMapKeystore constructs in-memory Keystore.
-func NewMapKeystore(regs []encoding.ModuleRegister) Keystore {
+func NewMapKeystore() Keystore {
 	return &mapKeystore{
 		keys: make(map[KeyName]PrivKey),
-		ring: keyring.NewInMemory(encoding.MakeConfig(regs...).Codec),
+		ring: keyring.NewInMemory(encoding.MakeConfig(codec.ModuleEncodingRegisters...).Codec),
 	}
 }
 

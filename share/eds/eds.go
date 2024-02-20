@@ -1,6 +1,7 @@
 package eds
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"errors"
@@ -8,9 +9,13 @@ import (
 	"io"
 	"math"
 
+	"github.com/ipfs/boxo/blockservice"
 	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-car"
 	"github.com/ipld/go-car/util"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/celestiaorg/celestia-app/pkg/wrapper"
 	"github.com/celestiaorg/nmt"
@@ -19,7 +24,6 @@ import (
 	"github.com/celestiaorg/celestia-node/libs/utils"
 	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/celestia-node/share/ipld"
-	"github.com/celestiaorg/celestia-node/share/lighteds"
 )
 
 var ErrEmptySquare = errors.New("share: importing empty data")
@@ -222,5 +226,97 @@ func ReadEDS(ctx context.Context, r io.Reader, root share.DataHash) (eds *rsmt2d
 		utils.SetStatusAndEnd(span, err)
 	}()
 
-	return lighteds.ReadEDS(ctx, r, root)
+	carReader, err := car.NewCarReader(r)
+	if err != nil {
+		return nil, fmt.Errorf("share: reading car file: %w", err)
+	}
+
+	// car header includes both row and col roots in header
+	odsWidth := len(carReader.Header.Roots) / 4
+	odsSquareSize := odsWidth * odsWidth
+	shares := make([][]byte, odsSquareSize)
+	// the first quadrant is stored directly after the header,
+	// so we can just read the first odsSquareSize blocks
+	for i := 0; i < odsSquareSize; i++ {
+		block, err := carReader.Next()
+		if err != nil {
+			return nil, fmt.Errorf("share: reading next car entry: %w", err)
+		}
+		// the stored first quadrant shares are wrapped with the namespace twice.
+		// we cut it off here, because it is added again while importing to the tree below
+		shares[i] = share.GetData(block.RawData())
+	}
+
+	// use proofs adder if provided, to cache collected proofs while recomputing the eds
+	var opts []nmt.Option
+	visitor := ipld.ProofsAdderFromCtx(ctx).VisitFn()
+	if visitor != nil {
+		opts = append(opts, nmt.NodeVisitor(visitor))
+	}
+
+	eds, err = rsmt2d.ComputeExtendedDataSquare(
+		shares,
+		share.DefaultRSMT2DCodec(),
+		wrapper.NewConstructor(uint64(odsWidth), opts...),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("share: computing eds: %w", err)
+	}
+
+	newDah, err := share.NewRoot(eds)
+	if err != nil {
+		return nil, err
+	}
+	if !bytes.Equal(newDah.Hash(), root) {
+		return nil, fmt.Errorf(
+			"share: content integrity mismatch: imported root %s doesn't match expected root %s",
+			newDah.Hash(),
+			root,
+		)
+	}
+	return eds, nil
+}
+
+// CollectSharesByNamespace collects NamespaceShares within the given namespace from share.Root.
+func CollectSharesByNamespace(
+	ctx context.Context,
+	bg blockservice.BlockGetter,
+	root *share.Root,
+	namespace share.Namespace,
+) (shares share.NamespacedShares, err error) {
+	ctx, span := tracer.Start(ctx, "collect-shares-by-namespace", trace.WithAttributes(
+		attribute.String("namespace", namespace.String()),
+	))
+	defer func() {
+		utils.SetStatusAndEnd(span, err)
+	}()
+
+	rootCIDs := ipld.FilterRootByNamespace(root, namespace)
+	if len(rootCIDs) == 0 {
+		return nil, nil
+	}
+
+	errGroup, ctx := errgroup.WithContext(ctx)
+	shares = make([]share.NamespacedRow, len(rootCIDs))
+	for i, rootCID := range rootCIDs {
+		// shadow loop variables, to ensure correct values are captured
+		i, rootCID := i, rootCID
+		errGroup.Go(func() error {
+			row, proof, err := ipld.GetSharesByNamespace(ctx, bg, rootCID, namespace, len(root.RowRoots))
+			shares[i] = share.NamespacedRow{
+				Shares: row,
+				Proof:  proof,
+			}
+			if err != nil {
+				return fmt.Errorf("retrieving shares by namespace %s for row %x: %w", namespace.String(), rootCID, err)
+			}
+			return nil
+		})
+	}
+
+	if err := errGroup.Wait(); err != nil {
+		return nil, err
+	}
+
+	return shares, nil
 }

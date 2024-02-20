@@ -1,11 +1,12 @@
-//go:build nometrics
+//go:build wasm
 
 package das
 
 import (
 	"context"
-	"github.com/celestiaorg/celestia-node/header"
 	"time"
+
+	"github.com/celestiaorg/celestia-node/header"
 )
 
 type metrics struct {
@@ -21,4 +22,9 @@ func (m metrics) observeSample(ctx context.Context, h *header.ExtendedHeader, si
 
 func (m metrics) observeGetHeader(ctx context.Context, since time.Duration) {
 
+}
+
+func (d *DASer) InitMetrics() error {
+	d.sampler.metrics = &metrics{}
+	return nil
 }

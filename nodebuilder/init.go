@@ -1,20 +1,15 @@
+//go:build !wasm
+
 package nodebuilder
 
 import (
-	"fmt"
+	"os"
 	"path/filepath"
-
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/celestiaorg/celestia-node/libs/fslock"
 	"github.com/celestiaorg/celestia-node/libs/utils"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
-
-// PrintKeyringInfo whether to print keyring information during init.
-var PrintKeyringInfo = true
 
 // Reset removes all data from the datastore and dagstore directories. It leaves the keystore and
 // config intact.
@@ -79,8 +74,8 @@ func IsInit(path string) bool {
 		return false
 	}
 
-	if utils.Exists(fs, keysPath(path)) &&
-		utils.Exists(fs, dataPath(path)) {
+	if utils.Exists(keysPath(path)) &&
+		utils.Exists(dataPath(path)) {
 		return true
 	}
 
@@ -97,7 +92,7 @@ func initRoot(path string) error {
 	}
 
 	// check for writing permissions
-	f, err := fs.Create(filepath.Join(path, ".check"))
+	f, err := os.Create(filepath.Join(path, ".check"))
 	if err != nil {
 		return err
 	}
@@ -107,12 +102,12 @@ func initRoot(path string) error {
 		return err
 	}
 
-	return fs.Remove(f.Name())
+	return os.Remove(f.Name())
 }
 
 // resetDir removes all files from the given directory and reinitializes it
 func resetDir(path string) error {
-	err := fs.RemoveAll(path)
+	err := os.RemoveAll(path)
 	if err != nil {
 		return err
 	}
@@ -121,42 +116,8 @@ func resetDir(path string) error {
 
 // initDir creates a dir if not exist
 func initDir(path string) error {
-	if utils.Exists(fs, path) {
+	if utils.Exists(path) {
 		return nil
 	}
-	return fs.Mkdir(path, perms)
-}
-
-// generateKeys will construct a keyring from the given keystore path and check
-// if account keys already exist. If not, it will generate a new account key and
-// store it.
-func generateKeys(ring keyring.Keyring) error {
-	keys, err := ring.List()
-	if err != nil {
-		return err
-	}
-	if len(keys) > 0 {
-		// at least one key is already present
-		return nil
-	}
-	keyInfo, mn, err := generateNewKey(ring)
-	if err != nil {
-		return err
-	}
-	addr, err := keyInfo.GetAddress()
-	if err != nil {
-		return err
-	}
-	if PrintKeyringInfo {
-		fmt.Printf("\nNAME: %s\nADDRESS: %s\nMNEMONIC (save this somewhere safe!!!): \n%s\n\n",
-			keyInfo.Name, addr.String(), mn)
-	}
-	return nil
-}
-
-// generateNewKey generates and returns a new key on the given keyring called
-// "my_celes_key".
-func generateNewKey(ring keyring.Keyring) (*keyring.Record, string, error) {
-	return ring.NewMnemonic(DefaultAccountName, keyring.English, sdk.GetConfig().GetFullBIP44Path(),
-		keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	return os.Mkdir(path, perms)
 }

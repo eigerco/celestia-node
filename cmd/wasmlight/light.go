@@ -1,4 +1,4 @@
-//go:build wasm
+//go:build wasm && js
 
 package main
 
@@ -13,23 +13,19 @@ import (
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 
-	"github.com/celestiaorg/celestia-app/app/encoding"
-	"github.com/celestiaorg/celestia-node/libs/codec"
-	"github.com/celestiaorg/celestia-node/libs/keystore"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-)
-
-const (
-	configPath      = "celestia-mainnet"
-	keyringPassword = "testpassword" //TODO
 )
 
 var (
 	nd     *nodebuilder.Node
 	cancel context.CancelFunc
 )
+
+func log(msg string, level string) {
+	js.Global().Get("appendLog").Invoke(msg, level)
+}
 
 func main() {
 	logging.SetupLogging(logging.Config{
@@ -50,27 +46,25 @@ func main() {
 		return
 	}
 
-	appendLog := js.Global().Get("appendLog")
-
-	log := func(msg string, level string) {
-		appendLog.Invoke(msg, level)
-	}
-
 	var ctx context.Context
 	ctx, cancel = context.WithCancel(context.Background())
 
 	js.Global().Set("startNode", js.FuncOf(func(this js.Value, args []js.Value) any {
 		bootstrapAddressesStr := args[0].String()
 		cfg := nodebuilder.DefaultConfig(node.Light)
-
-		fmt.Println("P2P configuration", cfg.P2P)
-
-		go start(ctx, bootstrapAddressesStr, cfg, log)
+		bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
+		for _, addr := range bootstrapAddresses {
+			addr := strings.TrimSpace(addr)
+			if len(addr) > 0 {
+				cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
+			}
+		}
+		go start(ctx, cfg)
 		return nil
 	}))
 
 	js.Global().Set("stopNode", js.FuncOf(func(this js.Value, args []js.Value) any {
-		go stop(ctx, log)
+		go stop(ctx)
 		return nil
 	}))
 
@@ -81,47 +75,23 @@ func main() {
 	}
 }
 
-func start(ctx context.Context, bootstrapAddressesStr string, cfg *nodebuilder.Config, log func(msg string, level string)) {
-	bootstrapAddresses := strings.Split(bootstrapAddressesStr, "\n")
-	for _, addr := range bootstrapAddresses {
-		addr := strings.TrimSpace(addr)
-		if len(addr) > 0 {
-			cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
-		}
-	}
-
-	if !nodebuilder.IsInit(configPath) {
-		encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
-		ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
-		if err != nil {
-			log(fmt.Sprintf("Failed to open keyring: %s", err), "error")
-			return
-		}
-
-		if err := nodebuilder.InitWasm(ring, *cfg, configPath); err != nil {
-			log(fmt.Sprintf("Failed to init: %s", err), "error")
-			return
-		}
-	}
-
-	encConf := encoding.MakeConfig(codec.ModuleEncodingRegisters...)
-	ring, err := keystore.OpenIndexedDB(encConf.Codec, keyringPassword)
+func start(ctx context.Context, cfg *nodebuilder.Config) {
+	store, err := nodebuilder.NewIndexedDBStore(ctx, cfg)
 	if err != nil {
-		log(fmt.Sprintf("Failed to open indexedDB: %s", err), "error")
-	}
-
-	log("Starting node", "info")
-
-	store, err := nodebuilder.OpenStore(configPath, ring)
-	if err != nil {
-		log(fmt.Sprintf("Failed to open store: %s", err), "error")
+		log(fmt.Sprintf("Failed to init indexeddb store: %s", err), "error")
 		return
 	}
 	defer store.Close()
-
 	log("Store opened successfully!", "debug")
 
-	nd, err = nodebuilder.NewWithConfig(node.Light, p2p.Mainnet, store, cfg)
+	ks, _ := store.Keystore() // we know for sure there is no error
+	if err := nodebuilder.GenerateKeys(ks.Keyring()); err != nil {
+		log(fmt.Sprintf("Failed to generate keys: %s", err), "error")
+		return
+	}
+	log("Keys generated successfully!", "debug")
+
+	nd, err = nodebuilder.NewWithConfig(node.Light, p2p.Mainnet, store, cfg, nodebuilder.WithMetrics())
 	if err != nil {
 		log(fmt.Sprintf("Failed to create new node: %s", err), "error")
 		return
@@ -129,6 +99,7 @@ func start(ctx context.Context, bootstrapAddressesStr string, cfg *nodebuilder.C
 
 	log("New node created successfully!", "debug")
 
+	log("Starting node", "info")
 	if err := nd.Start(ctx); err != nil {
 		log(fmt.Sprintf("Failed to start node: %s", err), "error")
 		return
@@ -154,20 +125,20 @@ func start(ctx context.Context, bootstrapAddressesStr string, cfg *nodebuilder.C
 	return
 }
 
-func stop(ctx context.Context, log func(msg string, level string)) error {
+func stop(ctx context.Context) {
 	if nd == nil {
 		log("Node is not running", "warn")
-		return nil
+		return
 	}
 
 	if err := nd.Stop(ctx); err != nil {
 		log(fmt.Sprintf("Failed to stop node: %s", err), "error")
-		return err
+		return
 	}
 
 	log("Node stopped successfully", "info")
 	if cancel != nil {
 		cancel()
 	}
-	return nil
+	return
 }

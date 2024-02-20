@@ -1,3 +1,5 @@
+//go:build !wasm
+
 package shrexnd
 
 import (
@@ -240,6 +242,15 @@ func (srv *Server) observeStatus(ctx context.Context, status pb.StatusCode) {
 	case status == pb.StatusCode_INTERNAL:
 		srv.metrics.ObserveRequests(ctx, 1, p2p.StatusInternalErr)
 	}
+}
+
+func (srv *Server) WithMetrics() error {
+	metrics, err := p2p.InitServerMetrics("nd")
+	if err != nil {
+		return fmt.Errorf("shrex/nd: init Metrics: %w", err)
+	}
+	srv.metrics = metrics
+	return nil
 }
 
 // validateRequest checks correctness of the request

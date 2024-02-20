@@ -1,9 +1,8 @@
-//go:build wasm
+//go:build wasm && js
 
-package keystore
+package krindexeddb
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -15,29 +14,12 @@ import (
 	"github.com/paralin/go-indexeddb"
 )
 
-const (
-	WasmKsName    = "celestia-wasm-ks"
-	WasmKsId      = "wasm-ks"
-	WasmKsVersion = 1
-)
-
-func OpenIndexedDB(cdc codec.Codec, password string, opts ...cosmoskeyring.Option) (cosmoskeyring.Keyring, error) {
-	db, err := indexeddb.GlobalIndexedDB().Open(context.Background(), WasmKsName, WasmKsVersion, func(d *indexeddb.DatabaseUpdate, oldVersion, newVersion int) error {
-		if !d.ContainsObjectStore(WasmKsId) {
-			if err := d.CreateObjectStore(WasmKsId, nil); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	durTx, err := indexeddb.NewDurableTransaction(db, []string{WasmKsId}, indexeddb.READWRITE)
+func NewKeyring(db *indexeddb.Database, id string, cdc codec.Codec, password string, opts ...cosmoskeyring.Option) (cosmoskeyring.Keyring, error) {
+	durTx, err := indexeddb.NewDurableTransaction(db, []string{id}, indexeddb.READWRITE)
 	if err != nil {
 		return nil, fmt.Errorf("error getting durable transaction %w", err)
 	}
-	kvtx, err := indexeddb.NewKvtxTx(durTx, WasmKsId)
+	kvtx, err := indexeddb.NewKvtxTx(durTx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +42,6 @@ func (k *indexeddbKeyring) Get(key string) (keyring.Item, error) {
 	}
 	if !found {
 		return keyring.Item{}, keyring.ErrKeyNotFound
-	} else if err != nil {
-		return keyring.Item{}, err
 	}
 
 	payload, _, err := jose.Decode(string(bytes), k.password)
@@ -76,16 +56,6 @@ func (k *indexeddbKeyring) Get(key string) (keyring.Item, error) {
 }
 
 func (k *indexeddbKeyring) GetMetadata(key string) (keyring.Metadata, error) {
-	//stat, err := k.fs.Stat(filename)
-	//if os.IsNotExist(err) {
-	//	return keyring.Metadata{}, keyring.ErrKeyNotFound
-	//} else if err != nil {
-	//	return keyring.Metadata{}, err
-	//}
-	//
-	//return keyring.Metadata{
-	//	ModificationTime: stat.ModTime(),
-	//}, nil
 	return keyring.Metadata{
 		ModificationTime: time.Time{}, //TODO get the mod time metadata???
 	}, nil
@@ -112,11 +82,10 @@ func (k *indexeddbKeyring) Remove(key string) error {
 	return k.kvtx.Delete([]byte(key))
 }
 
-func (k *indexeddbKeyring) Keys() ([]string, error) {
-	var keys = []string{}
-	k.kvtx.ScanPrefixKeys([]byte(""), func(key []byte) error {
+func (k *indexeddbKeyring) Keys() (keys []string, err error) {
+	err = k.kvtx.ScanPrefixKeys([]byte(""), func(key []byte) error {
 		keys = append(keys, string(key))
 		return nil
 	})
-	return keys, nil
+	return keys, err
 }

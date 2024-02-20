@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/fx"
 
-	"github.com/celestiaorg/celestia-app/app"
 	apptypes "github.com/celestiaorg/celestia-app/x/blob/types"
 	libhead "github.com/celestiaorg/go-header"
 
@@ -26,7 +25,7 @@ import (
 // MockStore provides mock in memory Store for testing purposes.
 func MockStore(t *testing.T, cfg *Config) Store {
 	t.Helper()
-	store := NewMemStore(app.ModuleEncodingRegisters)
+	store := NewMemStore()
 	err := store.PutConfig(cfg)
 	require.NoError(t, err)
 	return store

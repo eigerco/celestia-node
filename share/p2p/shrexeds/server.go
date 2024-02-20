@@ -1,3 +1,5 @@
+//go:build !wasm
+
 package shrexeds
 
 import (
@@ -195,5 +197,14 @@ func (s *Server) writeODS(logger *zap.SugaredLogger, edsReader io.Reader, stream
 		return fmt.Errorf("writing ODS bytes: %w", err)
 	}
 
+	return nil
+}
+
+func (s *Server) WithMetrics() error {
+	metrics, err := p2p.InitServerMetrics("eds")
+	if err != nil {
+		return fmt.Errorf("shrex/eds: init Metrics: %w", err)
+	}
+	s.metrics = metrics
 	return nil
 }

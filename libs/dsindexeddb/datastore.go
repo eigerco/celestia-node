@@ -1,6 +1,6 @@
-//go:build wasm
+//go:build wasm && js
 
-package indexeddb
+package dsindexeddb
 
 import (
 	"context"
@@ -15,29 +15,12 @@ import (
 	"github.com/paralin/go-indexeddb"
 )
 
-const (
-	WasmDatastoreName    = "celestia-wasm-datastore"
-	WasmDatastoreVersion = 1
-)
-
-func NewDataStore(ctx context.Context, id string) (*DataStore, error) {
-	db, err := indexeddb.GlobalIndexedDB().Open(ctx, WasmDatastoreName, WasmDatastoreVersion, func(d *indexeddb.DatabaseUpdate, oldVersion, newVersion int) error {
-		if !d.ContainsObjectStore(id) {
-			if err := d.CreateObjectStore(id, nil); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
+func NewDataStore(db *indexeddb.Database, id string) (*DataStore, error) {
 	durTx, err := indexeddb.NewDurableTransaction(db, []string{id}, indexeddb.READWRITE)
 	if err != nil {
 		return nil, fmt.Errorf("error getting durable transaction %w", err)
 	}
 	dss := &DataStore{
-		id: id,
 		db: db,
 	}
 	dss.kvtx, err = indexeddb.NewKvtxTx(durTx, id)
@@ -48,7 +31,6 @@ func NewDataStore(ctx context.Context, id string) (*DataStore, error) {
 }
 
 type DataStore struct {
-	id   string
 	db   *indexeddb.Database
 	kvtx *indexeddb.Kvtx
 }

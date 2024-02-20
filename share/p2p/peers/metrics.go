@@ -1,4 +1,4 @@
-//go:build !nometrics
+//go:build !wasm
 
 package peers
 
@@ -279,4 +279,14 @@ func (m *Manager) shrexPools() map[poolStatus]int64 {
 
 	shrexPools[poolStatusBlacklisted] = int64(len(m.blacklistedHashes))
 	return shrexPools
+}
+
+// WithMetrics turns on metric collection in peer manager.
+func (m *Manager) WithMetrics() error {
+	metrics, err := initMetrics(m)
+	if err != nil {
+		return fmt.Errorf("peer-manager: init metrics: %w", err)
+	}
+	m.metrics = metrics
+	return nil
 }

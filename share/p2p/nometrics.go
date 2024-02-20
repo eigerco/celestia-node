@@ -1,4 +1,4 @@
-//go:build nometrics
+//go:build wasm
 
 package p2p
 

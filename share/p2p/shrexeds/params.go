@@ -43,12 +43,3 @@ func (c *Client) WithMetrics() error {
 	c.metrics = metrics
 	return nil
 }
-
-func (s *Server) WithMetrics() error {
-	metrics, err := p2p.InitServerMetrics("eds")
-	if err != nil {
-		return fmt.Errorf("shrex/eds: init Metrics: %w", err)
-	}
-	s.metrics = metrics
-	return nil
-}

@@ -1,11 +1,12 @@
-//go:build nometrics
+//go:build wasm
 
 package discovery
 
-import "context"
+import (
+	"context"
+)
 
-type metrics struct {
-}
+type metrics struct{}
 
 func (m metrics) observeAdvertise(ctx context.Context, err error) {
 
@@ -34,3 +35,9 @@ const (
 
 	advertiseFailedKey = "failed"
 )
+
+// WithMetrics turns on metric collection in discoery.
+func (d *Discovery) WithMetrics() error {
+	d.metrics = &metrics{}
+	return nil
+}

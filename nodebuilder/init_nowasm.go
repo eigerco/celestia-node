@@ -63,7 +63,7 @@ func Init(cfg Config, path string, tp node.Type) error {
 	if err != nil {
 		return err
 	}
-	err = generateKeys(ring)
+	err = GenerateKeys(ring)
 	if err != nil {
 		log.Errorw("generating account keys", "err", err)
 		return err

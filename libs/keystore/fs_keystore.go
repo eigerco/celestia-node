@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/spf13/afero"
 )
 
 // ErrNotFound is returned when the key does not exist.
@@ -19,29 +18,27 @@ var ErrNotFound = errors.New("keystore: key not found")
 // fsKeystore implements persistent Keystore over OS filesystem.
 type fsKeystore struct {
 	path string
-	fs   afero.Fs
 
 	ring keyring.Keyring
 }
 
 // NewFSKeystore creates a new Keystore over OS filesystem.
 // The path must point to a directory. It is created automatically if necessary.
-func NewFSKeystore(path string, ring keyring.Keyring, fs afero.Fs) (Keystore, error) {
-	err := fs.Mkdir(path, 0755)
+func NewFSKeystore(path string, ring keyring.Keyring) (Keystore, error) {
+	err := os.Mkdir(path, 0755)
 	if err != nil && !os.IsExist(err) {
 		return nil, fmt.Errorf("keystore: failed to make a dir: %w", err)
 	}
 	return &fsKeystore{
 		path: path,
 		ring: ring,
-		fs:   fs,
 	}, nil
 }
 
 func (f *fsKeystore) Put(n KeyName, pk PrivKey) error {
 	path := f.pathTo(n.Base32())
 
-	_, err := f.fs.Stat(path)
+	_, err := os.Stat(path)
 	if err == nil {
 		return fmt.Errorf("keystore: key '%s' already exists", n)
 	} else if !os.IsNotExist(err) {
@@ -54,7 +51,7 @@ func (f *fsKeystore) Put(n KeyName, pk PrivKey) error {
 	}
 
 	err = os.WriteFile(path, data, 0600)
-	file, err := f.fs.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
@@ -71,7 +68,7 @@ func (f *fsKeystore) Put(n KeyName, pk PrivKey) error {
 func (f *fsKeystore) Get(n KeyName) (PrivKey, error) {
 	path := f.pathTo(n.Base32())
 
-	st, err := f.fs.Stat(path)
+	st, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return PrivKey{}, fmt.Errorf("%w: %s", ErrNotFound, n)
@@ -84,7 +81,7 @@ func (f *fsKeystore) Get(n KeyName) (PrivKey, error) {
 		return PrivKey{}, fmt.Errorf("keystore: permissions of key '%s' are too relaxed: %w", n, err)
 	}
 
-	file, err := f.fs.Open(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return PrivKey{}, fmt.Errorf("keystore: failed to open file key '%s': %w", n, err)
 	}
@@ -105,21 +102,20 @@ func (f *fsKeystore) Get(n KeyName) (PrivKey, error) {
 func (f *fsKeystore) Delete(n KeyName) error {
 	path := f.pathTo(n.Base32())
 
-	_, err := f.fs.Stat(path)
+	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return fmt.Errorf("keystore: key '%s' not found", n)
 	} else if err != nil {
 		return fmt.Errorf("keystore: check before reading key '%s' failed: %w", n, err)
 	}
 
-	err = f.fs.Remove(path)
+	err = os.Remove(path)
 	if err != nil {
 		return fmt.Errorf("keystore: failed to delete key '%s': %w", n, err)
 	}
 	return nil
 }
 
-// FIXME implement using afero for compatibility
 func (f *fsKeystore) List() ([]KeyName, error) {
 	entries, err := fs.ReadDir(os.DirFS(filepath.Dir(f.path)), filepath.Base(f.path))
 	if err != nil {
