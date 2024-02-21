@@ -5,7 +5,6 @@ package nodebuilder
 import (
 	"go.uber.org/fx"
 
-	"github.com/celestiaorg/celestia-node/nodebuilder/das"
 	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 )
 
@@ -16,7 +15,6 @@ func WithMetrics() fx.Option {
 			fx.Invoke(share.WithDiscoveryMetrics),
 		),
 		fx.Options(
-			fx.Invoke(das.WithMetrics),
 			fx.Invoke(share.WithPeerManagerMetrics),
 			fx.Invoke(share.WithShrexClientMetrics),
 			fx.Invoke(share.WithShrexGetterMetrics),
