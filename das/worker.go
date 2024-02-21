@@ -112,7 +112,7 @@ func (w *worker) sample(ctx context.Context, timeout time.Duration, height uint6
 	defer cancel()
 
 	err = w.sampleFn(ctx, h)
-	w.metrics.observeSample(ctx, h, time.Since(start), w.state.jobType, err)
+	//w.metrics.observeSample(ctx, h, time.Since(start), w.state.jobType, err)
 	if err != nil {
 		if !errors.Is(err, context.Canceled) {
 			log.Debugw(
@@ -173,7 +173,7 @@ func (w *worker) getHeader(ctx context.Context, height uint64) (*header.Extended
 		return nil, err
 	}
 
-	w.metrics.observeGetHeader(ctx, time.Since(start))
+	//w.metrics.observeGetHeader(ctx, time.Since(start))
 
 	log.Debugw(
 		"got header from header store",

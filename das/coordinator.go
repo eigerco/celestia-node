@@ -86,7 +86,7 @@ func (sc *samplingCoordinator) run(ctx context.Context, cp checkpoint) {
 				}
 				sc.state.updateHead(head.Height())
 				// run worker without concurrency limit restrictions to reduced delay
-				sc.metrics.observeNewHead(ctx)
+				//sc.metrics.observeNewHead(ctx)
 			}
 		case res := <-sc.resultCh:
 			sc.state.handleResult(res)

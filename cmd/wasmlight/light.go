@@ -57,6 +57,7 @@ func main() {
 			addr := strings.TrimSpace(addr)
 			if len(addr) > 0 {
 				cfg.P2P.BootstrapAddresses = append(cfg.P2P.BootstrapAddresses, addr)
+				cfg.Header.TrustedPeers = append(cfg.P2P.BootstrapAddresses, addr)
 			}
 		}
 		go start(ctx, cfg)

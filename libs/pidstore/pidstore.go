@@ -55,7 +55,7 @@ func (p *PeerIDStore) Load(ctx context.Context) ([]peer.ID, error) {
 		return nil, fmt.Errorf("pidstore: unmarshalling peer IDs: %w", err)
 	}
 
-	log.Infow("Loaded peers from disk", "amount", len(peers))
+	log.Infow("Loaded peers from disk", "amount", len(peers), peers)
 	return peers, nil
 }
 
@@ -67,6 +67,8 @@ func (p *PeerIDStore) Put(ctx context.Context, peers []peer.ID) error {
 	if err != nil {
 		return fmt.Errorf("pidstore: marshal peerlist: %w", err)
 	}
+
+	fmt.Println("PEER STORING", string(bin))
 
 	if err = p.ds.Put(ctx, peersKey, bin); err != nil {
 		return fmt.Errorf("pidstore: error writing to datastore: %w", err)

@@ -3,6 +3,7 @@
 package nodebuilder
 
 import (
+	"github.com/celestiaorg/celestia-node/nodebuilder/das"
 	"github.com/ipfs/boxo/blockservice"
 	"github.com/ipfs/boxo/exchange"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -40,6 +41,7 @@ type Node struct {
 	// services
 	ShareServ  share.Module
 	HeaderServ header.Module
+	DASer      das.Module // not optional
 	FraudServ  fraud.Module
 
 	// start and stop control ref internal fx.App lifecycle funcs to be called from Start and Stop
