@@ -8,17 +8,11 @@ import (
 
 type metrics struct{}
 
-func (m metrics) observeAdvertise(ctx context.Context, err error) {
+func (m metrics) observeAdvertise(ctx context.Context, err error) {}
 
-}
+func (m metrics) observeFindPeers(ctx context.Context, peers bool) {}
 
-func (m metrics) observeFindPeers(ctx context.Context, peers bool) {
-
-}
-
-func (m metrics) observeHandlePeer(ctx context.Context, self interface{}) {
-
-}
+func (m metrics) observeHandlePeer(ctx context.Context, self interface{}) {}
 
 type handlePeerResult string
 

@@ -37,7 +37,6 @@ type Config struct {
 }
 
 func DefaultConfig(tp node.Type) Config {
-
 	cfg := Config{
 		TrustedHash:  "",
 		TrustedPeers: make([]string, 0),

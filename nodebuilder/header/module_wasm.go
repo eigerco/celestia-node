@@ -5,7 +5,6 @@ package header
 import (
 	"context"
 
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/ipfs/go-datastore"
 	logging "github.com/ipfs/go-log/v2"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -18,6 +17,7 @@ import (
 
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/pidstore"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	modp2p "github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 )
 

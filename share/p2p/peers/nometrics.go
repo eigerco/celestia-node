@@ -25,16 +25,11 @@ func (m metrics) validationObserver(validator shrexsub.ValidatorFn) shrexsub.Val
 }
 
 func (m metrics) observeGetPeer(ctx context.Context, source peerSource, size int, time time.Duration) {
-
 }
 
-func (m metrics) observeDoneResult(source peerSource, r result) {
+func (m metrics) observeDoneResult(source peerSource, r result) {}
 
-}
-
-func (m metrics) observeBlacklistPeers(reason blacklistPeerReason, i int) {
-
-}
+func (m metrics) observeBlacklistPeers(reason blacklistPeerReason, i int) {}
 
 type blacklistPeerReason string
 

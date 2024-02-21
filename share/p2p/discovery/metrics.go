@@ -41,6 +41,17 @@ type metrics struct {
 	peerRemoved      metric.Int64Counter
 }
 
+// WithMetrics turns on metric collection in discoery.
+func (d *Discovery) WithMetrics() error {
+	metrics, err := initMetrics(d)
+	if err != nil {
+		return fmt.Errorf("discovery: init metrics: %w", err)
+	}
+	d.metrics = metrics
+	d.onUpdatedPeers = d.onUpdatedPeers.add(metrics.observeOnPeersUpdate)
+	return nil
+}
+
 func initMetrics(d *Discovery) (*metrics, error) {
 	peersAmount, err := meter.Int64ObservableGauge("discovery_amount_of_peers",
 		metric.WithDescription("amount of peers in discovery set"))
@@ -155,15 +166,4 @@ func (m *metrics) observeOnPeersUpdate(_ peer.ID, isAdded bool) {
 		return
 	}
 	m.peerRemoved.Add(ctx, 1)
-}
-
-// WithMetrics turns on metric collection in discoery.
-func (d *Discovery) WithMetrics() error {
-	metrics, err := initMetrics(d)
-	if err != nil {
-		return fmt.Errorf("discovery: init metrics: %w", err)
-	}
-	d.metrics = metrics
-	d.onUpdatedPeers = d.onUpdatedPeers.add(metrics.observeOnPeersUpdate)
-	return nil
 }

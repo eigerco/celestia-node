@@ -3,8 +3,11 @@
 package nodebuilder
 
 import (
+	"bytes"
+	"io"
 	"os"
 
+	"github.com/BurntSushi/toml"
 	"github.com/imdario/mergo"
 
 	"github.com/celestiaorg/celestia-node/libs/fslock"
@@ -18,6 +21,9 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 	"github.com/celestiaorg/celestia-node/nodebuilder/state"
 )
+
+// ConfigLoader defines a function that loads a config from any source.
+type ConfigLoader func() (*Config, error)
 
 // Config is main configuration structure for a Node.
 // It combines configuration units for all Node subsystems.
@@ -149,4 +155,33 @@ func UpdateConfig(tp node.Type, path string) (err error) {
 func updateConfig(oldCfg *Config, newCfg *Config) (*Config, error) {
 	err := mergo.Merge(oldCfg, newCfg, mergo.WithOverrideEmptySlice)
 	return oldCfg, err
+}
+
+// TODO(@Wondertan): We should have a description for each field written into w,
+// 	so users can instantly understand purpose of each field. Ideally, we should have a utility
+// program to parse comments 	from actual sources(*.go files) and generate docs from comments.
+
+// Hint: use 'ast' package.
+// Encode encodes a given Config into w.
+func (cfg *Config) Encode(w io.Writer) error {
+	return toml.NewEncoder(w).Encode(cfg)
+}
+
+// Decode decodes a Config from a given reader r.
+func (cfg *Config) Decode(r io.Reader) error {
+	// Read the content of the io.Reader into a byte slice
+	body, err := io.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	// Print the body
+	//fmt.Println("Got configuration from IndexedDB", string(body))
+
+	// Create a new reader from the byte slice
+	newReader := bytes.NewReader(body)
+
+	// Use the new reader for the decoder
+	_, err = toml.NewDecoder(newReader).Decode(cfg)
+	return err
 }

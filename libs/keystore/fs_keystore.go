@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -51,14 +50,6 @@ func (f *fsKeystore) Put(n KeyName, pk PrivKey) error {
 	}
 
 	err = os.WriteFile(path, data, 0600)
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	if _, err := file.Write(data); err != nil {
-		return err
-	}
 	if err != nil {
 		return fmt.Errorf("keystore: failed to write key '%s': %w", n, err)
 	}
@@ -81,12 +72,7 @@ func (f *fsKeystore) Get(n KeyName) (PrivKey, error) {
 		return PrivKey{}, fmt.Errorf("keystore: permissions of key '%s' are too relaxed: %w", n, err)
 	}
 
-	file, err := os.Open(path)
-	if err != nil {
-		return PrivKey{}, fmt.Errorf("keystore: failed to open file key '%s': %w", n, err)
-	}
-	defer file.Close()
-	data, err := io.ReadAll(file)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return PrivKey{}, fmt.Errorf("keystore: failed read key '%s': %w", n, err)
 	}

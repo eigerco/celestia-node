@@ -5,15 +5,16 @@ package nodebuilder
 import (
 	"context"
 	"fmt"
+	"sync"
+
+	"github.com/ipfs/go-datastore"
+	"github.com/paralin/go-indexeddb"
+
 	"github.com/celestiaorg/celestia-app/app/encoding"
 	"github.com/celestiaorg/celestia-node/libs/codec"
 	"github.com/celestiaorg/celestia-node/libs/dsindexeddb"
-	"github.com/celestiaorg/celestia-node/libs/krindexeddb"
-	"github.com/paralin/go-indexeddb"
-	"sync"
-
 	"github.com/celestiaorg/celestia-node/libs/keystore"
-	"github.com/ipfs/go-datastore"
+	"github.com/celestiaorg/celestia-node/libs/krindexeddb"
 )
 
 const (

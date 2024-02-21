@@ -26,7 +26,6 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 	// Apparently, it's not.
 	cfg.Header = modhead.DefaultConfig(tp)
 	cfg.DASer = das.DefaultConfig(tp)
-	//cfg.State = state.DefaultConfig()
 	cfg.Share = share.DefaultConfig(tp)
 
 	shareModule := share.ConstructModule(tp, &cfg.Share)
@@ -46,18 +45,12 @@ func ConstructModule(tp nodemodule.Type, network p2p.Network, cfg *Config, store
 		fx.Supply(nodemodule.StorePath(store.Path())),
 		// modules provided by the node
 		p2pModule,
-		//state.ConstructModule(tp, &cfg.State, &cfg.Core),
 		modhead.ConstructModule[*header.ExtendedHeader](tp, &cfg.Header),
 		// TODO Share module is necessary for light node - gets the data from bitswap, is needed for the daser
 		shareModule,
-		//rpc.ConstructModule(tp, &cfg.RPC),
-		//gateway.ConstructModule(tp, &cfg.Gateway), TODO
 		coreModule,
 		das.ConstructModule(tp, &cfg.DASer),
 		fraud.ConstructModule(tp),
-		//blob.ConstructModule(),
-		// nodemodule.ConstructModule(tp),
-		// admin,
 	)
 
 	log.Infow("Node builder base components constructed @ nodebuilder/module_wasm.ConstructModule ...")

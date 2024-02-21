@@ -1,14 +1,14 @@
-//go:build wasm
-
 package fraud
 
 import (
 	"context"
 	"errors"
 	"fmt"
+
+	"github.com/ipfs/go-datastore"
+
 	"github.com/celestiaorg/go-fraud"
 	libhead "github.com/celestiaorg/go-header"
-	"github.com/ipfs/go-datastore"
 )
 
 // service defines minimal interface with service lifecycle methods
@@ -58,7 +58,6 @@ func (breaker *ServiceBreaker[S, H]) Start(ctx context.Context) error {
 
 	breaker.ctx, breaker.cancel = context.WithCancel(context.Background())
 	go breaker.awaitProof()
-
 	return nil
 }
 

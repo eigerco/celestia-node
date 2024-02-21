@@ -20,17 +20,13 @@ const (
 	StatusRateLimited status = "rate_limited"
 )
 
-type Metrics struct {
-}
+type Metrics struct{}
 
 // ObserveRequests increments the total number of requests sent with the given status as an
 // attribute.
-func (m *Metrics) ObserveRequests(ctx context.Context, count int64, status status) {
-}
+func (m *Metrics) ObserveRequests(ctx context.Context, count int64, status status) {}
 
-func InitClientMetrics(protocol string) (*Metrics, error) {
-	return &Metrics{}, nil
-}
+func InitClientMetrics(protocol string) (*Metrics, error) { return &Metrics{}, nil }
 
 func InitServerMetrics(protocol string) (*Metrics, error) {
 	return &Metrics{}, nil

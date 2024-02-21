@@ -3,10 +3,6 @@
 package nodebuilder
 
 import (
-	"github.com/celestiaorg/celestia-node/nodebuilder/fraud"
-	"github.com/celestiaorg/celestia-node/nodebuilder/header"
-	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
-	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 	"github.com/ipfs/boxo/blockservice"
 	"github.com/ipfs/boxo/exchange"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -15,7 +11,11 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/net/conngater"
 	"go.uber.org/fx"
 
+	"github.com/celestiaorg/celestia-node/nodebuilder/fraud"
+	"github.com/celestiaorg/celestia-node/nodebuilder/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
+	"github.com/celestiaorg/celestia-node/nodebuilder/share"
 )
 
 // Node represents the core structure of a Celestia node. It keeps references to all
@@ -28,11 +28,6 @@ type Node struct {
 	Network       p2p.Network
 	Bootstrappers p2p.Bootstrappers
 	Config        *Config
-	//AdminSigner   jwt.Signer
-
-	// rpc components
-	//RPCServer     *rpc.Server     // not optional TODO disable rpc only for wasm
-	//GatewayServer *gateway.Server `optional:"true"` TODO disable gateway only for wasm
 
 	// p2p components
 	Host         host.Host
@@ -46,7 +41,6 @@ type Node struct {
 	ShareServ  share.Module
 	HeaderServ header.Module
 	FraudServ  fraud.Module
-	//DASer das.Module
 
 	// start and stop control ref internal fx.App lifecycle funcs to be called from Start and Stop
 	start, stop lifecycleFunc
@@ -63,7 +57,7 @@ func newNode(opts ...fx.Option) (*Node, error) {
 	log.Infow("Node memory footprint initialized @ node.newNode()...")
 
 	app := fx.New(
-		/* 		fx.WithLogger(func() fxevent.Logger {
+		/* 		fx.WithLogger(func() fxevent.Logger { TODO introduce the logger?
 			zl := &fxevent.ZapLogger{Logger: log.Desugar()}
 			zl.UseLogLevel(zapcore.DebugLevel)
 			return zl

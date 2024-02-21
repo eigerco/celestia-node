@@ -3,8 +3,9 @@
 package p2p
 
 import (
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"time"
+
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 )
 
 // defaultConnManagerConfigWasm returns defaults for ConnManagerConfig used in WASM mode.

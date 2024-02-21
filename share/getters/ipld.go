@@ -7,10 +7,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/celestiaorg/rsmt2d"
 	"github.com/ipfs/boxo/blockservice"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/celestiaorg/rsmt2d"
 
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/libs/utils"

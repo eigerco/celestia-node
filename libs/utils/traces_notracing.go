@@ -1,4 +1,4 @@
-//go:build !tracing
+//go:build notracing
 
 package utils
 

@@ -2,9 +2,10 @@ package nodebuilder
 
 import (
 	"errors"
+	"path/filepath"
+
 	"github.com/ipfs/go-datastore"
 	"github.com/mitchellh/go-homedir"
-	"path/filepath"
 
 	"github.com/celestiaorg/celestia-node/libs/keystore"
 )

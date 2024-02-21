@@ -2,6 +2,7 @@ package header
 
 import (
 	"context"
+
 	"github.com/ipfs/go-datastore"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
