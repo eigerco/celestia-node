@@ -12,7 +12,6 @@ require (
 	github.com/benbjohnson/clock v1.3.5
 	github.com/celestiaorg/celestia-app v1.3.0
 	github.com/celestiaorg/go-ds-badger4 v0.0.0-20230712104058-7ede1c814ac5
-	github.com/celestiaorg/go-fraud v0.2.0
 	github.com/celestiaorg/go-header v0.4.1
 	github.com/celestiaorg/go-libp2p-messenger v0.2.0
 	github.com/celestiaorg/nmt v0.20.0
@@ -62,6 +61,7 @@ require (
 )
 
 require (
+	github.com/celestiaorg/go-fraud v0.0.0-00010101000000-000000000000
 	github.com/cosmos/cosmos-sdk/api v0.1.0
 	github.com/filecoin-project/dagstore v0.7.0
 	github.com/paralin/go-indexeddb v1.1.0
@@ -69,14 +69,14 @@ require (
 	github.com/pyroscope-io/client v0.7.2
 	github.com/pyroscope-io/otel-profiling-go v0.4.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.48.0
-	go.opentelemetry.io/otel v1.23.0
+	go.opentelemetry.io/otel v1.23.1
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.44.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.21.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.21.0
-	go.opentelemetry.io/otel/metric v1.23.0
+	go.opentelemetry.io/otel/metric v1.23.1
 	go.opentelemetry.io/otel/sdk v1.21.0
 	go.opentelemetry.io/otel/sdk/metric v1.21.0
-	go.opentelemetry.io/otel/trace v1.23.0
+	go.opentelemetry.io/otel/trace v1.23.1
 	go.opentelemetry.io/proto/otlp v1.0.0
 )
 
