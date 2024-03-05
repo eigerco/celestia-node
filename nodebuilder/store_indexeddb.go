@@ -31,6 +31,7 @@ type indexeddbStore struct {
 	data datastore.Batching
 	cfg  *Config
 	cfgL sync.Mutex
+	db   *indexeddb.Database
 }
 
 // NewIndexedDBStore opens a indexeddb database and initializes the datastore and keyring while keeping the config in-mem
@@ -70,6 +71,7 @@ func NewIndexedDBStore(ctx context.Context, cfg *Config) (Store, error) {
 		cfg:  cfg,
 		keys: keys,
 		data: data,
+		db:   db,
 	}, nil
 }
 
@@ -99,5 +101,6 @@ func (m *indexeddbStore) Path() string {
 }
 
 func (m *indexeddbStore) Close() error {
+	m.db.Close()
 	return nil
 }
