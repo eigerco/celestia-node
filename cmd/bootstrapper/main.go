@@ -31,6 +31,10 @@ var customPorts = map[string]int{
 	"10.0.2.100":     6060, // ...
 }
 
+var customIPs = map[string]string{
+	"10.0.2.100": "40.127.100.171",
+}
+
 func main() {
 	// Initialize logger with development configurations.
 	config := zap.NewDevelopmentConfig()
@@ -112,6 +116,10 @@ func BootstrapPeersHandler(nodeCli *client.Client) func(w http.ResponseWriter, r
 						addrStr = replacePort(addrStr, customPort)
 					}
 
+					if customIP, ok := customIPs[ip]; ok {
+						addrStr = replaceIP(addrStr, customIP)
+					}
+
 					uniqueAddrs[peerInfo.ID.String()] = fmt.Sprintf("%s/p2p/%s", addrStr, peerInfo.ID.String())
 				}
 			}
@@ -141,6 +149,19 @@ func replacePort(addrStr string, customPort int) string {
 
 	// Replace the port number with the custom port
 	replaced := pattern.ReplaceAllString(addrStr, "udp/"+strconv.Itoa(customPort)+"/quic-v1")
+
+	return replaced
+}
+
+// replaceIP replaces the existing IP address in the multiaddress string with the given custom IP
+func replaceIP(addrStr string, customIP string) string {
+	// This pattern matches:
+	// - IPv4 addresses (e.g., 192.168.1.1)
+	// - IPv6 addresses (e.g., [fe80::1])
+	pattern := regexp.MustCompile(`(?:\[/[0-9a-fA-F:]+\]|/[0-9\.]+)`)
+
+	// Replace the IP address with the custom IP
+	replaced := pattern.ReplaceAllString(addrStr, customIP)
 
 	return replaced
 }
