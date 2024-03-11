@@ -28,6 +28,7 @@ type WebtransportBootstrappers struct {
 var customPorts = map[string]int{
 	"40.85.94.176":   6060, // Eiger custom node exposing docker port under different port
 	"40.127.100.171": 6060, // ...
+	"10.0.2.100":     6060, // ...
 }
 
 func main() {
