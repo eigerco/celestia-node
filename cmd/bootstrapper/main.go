@@ -158,10 +158,17 @@ func replaceIP(addrStr string, customIP string) string {
 	// This pattern matches:
 	// - IPv4 addresses (e.g., 192.168.1.1)
 	// - IPv6 addresses (e.g., [fe80::1])
-	pattern := regexp.MustCompile(`(?:\[/[0-9a-fA-F:]+\]|/[0-9\.]+)`)
+	pattern := regexp.MustCompile(`(/ip4/)[0-9\.]+|(/ip6/)\[[0-9a-fA-F:]+\]`)
 
-	// Replace the IP address with the custom IP
-	replaced := pattern.ReplaceAllString(addrStr, customIP)
+	// Replace the IP address with the custom IP, preserving the "/ip4/" or "/ip6/" prefix as necessary
+	replaced := pattern.ReplaceAllStringFunc(addrStr, func(m string) string {
+		if strings.Contains(m, "/ip4/") {
+			return "/ip4/" + customIP
+		} else if strings.Contains(m, "/ip6/") {
+			return "/ip6/[" + customIP + "]"
+		}
+		return m
+	})
 
 	return replaced
 }
