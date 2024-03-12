@@ -15,28 +15,38 @@ import (
 )
 
 func NewKeyring(db *indexeddb.Database, id string, cdc codec.Codec, password string, opts ...cosmoskeyring.Option) (cosmoskeyring.Keyring, error) {
-	durTx, err := indexeddb.NewDurableTransaction(db, []string{id}, indexeddb.READWRITE)
-	if err != nil {
-		return nil, fmt.Errorf("error getting durable transaction %w", err)
-	}
-	kvtx, err := indexeddb.NewKvtxTx(durTx, id)
-	if err != nil {
-		return nil, err
-	}
 	// TODO should we add indexeddb as another backend or keep it as in memory
 	return cosmoskeyring.NewInMemoryWithKeyring(&indexeddbKeyring{
-		kvtx:     kvtx,
+		db:       db,
 		password: password,
+		id:       id,
 	}, cdc, opts...), nil
 }
 
 type indexeddbKeyring struct {
-	kvtx     *indexeddb.Kvtx
 	password string
+	id       string
+	db       *indexeddb.Database
+}
+
+func (k *indexeddbKeyring) kvtx() (*indexeddb.Kvtx, error) {
+	durTx, err := indexeddb.NewDurableTransaction(k.db, []string{k.id}, indexeddb.READWRITE)
+	if err != nil {
+		return nil, fmt.Errorf("error getting durable transaction %w", err)
+	}
+	kvtx, err := indexeddb.NewKvtxTx(durTx, k.id)
+	if err != nil {
+		return nil, err
+	}
+	return kvtx, nil
 }
 
 func (k *indexeddbKeyring) Get(key string) (keyring.Item, error) {
-	bytes, found, err := k.kvtx.Get([]byte(key))
+	kvtx, err := k.kvtx()
+	if err != nil {
+		return keyring.Item{}, err
+	}
+	bytes, found, err := kvtx.Get([]byte(key))
 	if err != nil {
 		return keyring.Item{}, err
 	}
@@ -75,15 +85,27 @@ func (k *indexeddbKeyring) Set(i keyring.Item) error {
 		return err
 	}
 
-	return k.kvtx.Set([]byte(i.Key), []byte(token))
+	kvtx, err := k.kvtx()
+	if err != nil {
+		return err
+	}
+	return kvtx.Set([]byte(i.Key), []byte(token))
 }
 
 func (k *indexeddbKeyring) Remove(key string) error {
-	return k.kvtx.Delete([]byte(key))
+	kvtx, err := k.kvtx()
+	if err != nil {
+		return err
+	}
+	return kvtx.Delete([]byte(key))
 }
 
 func (k *indexeddbKeyring) Keys() (keys []string, err error) {
-	err = k.kvtx.ScanPrefixKeys([]byte(""), func(key []byte) error {
+	kvtx, err := k.kvtx()
+	if err != nil {
+		return nil, err
+	}
+	err = kvtx.ScanPrefixKeys([]byte(""), func(key []byte) error {
 		keys = append(keys, string(key))
 		return nil
 	})

@@ -16,27 +16,36 @@ import (
 )
 
 func NewDataStore(db *indexeddb.Database, id string) (*DataStore, error) {
-	durTx, err := indexeddb.NewDurableTransaction(db, []string{id}, indexeddb.READWRITE)
-	if err != nil {
-		return nil, fmt.Errorf("error getting durable transaction %w", err)
-	}
 	dss := &DataStore{
 		db: db,
-	}
-	dss.kvtx, err = indexeddb.NewKvtxTx(durTx, id)
-	if err != nil {
-		return nil, err
+		id: id,
 	}
 	return dss, nil
 }
 
 type DataStore struct {
-	db   *indexeddb.Database
-	kvtx *indexeddb.Kvtx
+	db *indexeddb.Database
+	id string
+}
+
+func (d *DataStore) kvtx() (*indexeddb.Kvtx, error) {
+	durTx, err := indexeddb.NewDurableTransaction(d.db, []string{d.id}, indexeddb.READWRITE)
+	if err != nil {
+		return nil, fmt.Errorf("error getting durable transaction %w", err)
+	}
+	kvtx, err := indexeddb.NewKvtxTx(durTx, d.id)
+	if err != nil {
+		return nil, err
+	}
+	return kvtx, nil
 }
 
 func (d *DataStore) Get(ctx context.Context, key datastore.Key) (value []byte, err error) {
-	data, found, err := d.kvtx.Get(key.Bytes())
+	kvtx, err := d.kvtx()
+	if err != nil {
+		return nil, err
+	}
+	data, found, err := kvtx.Get(key.Bytes())
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +58,11 @@ func (d *DataStore) Get(ctx context.Context, key datastore.Key) (value []byte, e
 }
 
 func (d *DataStore) Has(ctx context.Context, key datastore.Key) (exists bool, err error) {
-	return d.kvtx.Exists(key.Bytes())
+	kvtx, err := d.kvtx()
+	if err != nil {
+		return false, err
+	}
+	return kvtx.Exists(key.Bytes())
 }
 
 func (d *DataStore) GetSize(ctx context.Context, key datastore.Key) (size int, err error) {
@@ -79,11 +92,15 @@ func (d *DataStore) Query(ctx context.Context, q query.Query) (_ query.Results, 
 		}
 	}
 
+	kvtx, err := d.kvtx()
+	if err != nil {
+		return nil, err
+	}
 	qrb := dsq.NewResultBuilder(q)
 	qrb.Process.Go(func(worker process.Process) {
 		//var closedEarly bool
 		if q.KeysOnly {
-			err = d.kvtx.ScanPrefixKeys(prefixBytes, func(key []byte) error {
+			err = kvtx.ScanPrefixKeys(prefixBytes, func(key []byte) error {
 				select {
 				case qrb.Output <- dsq.Result{
 					Entry: dsq.Entry{
@@ -99,7 +116,7 @@ func (d *DataStore) Query(ctx context.Context, q query.Query) (_ query.Results, 
 				return nil
 			})
 		} else {
-			err = d.kvtx.ScanPrefix(prefixBytes, func(key, val []byte) error {
+			err = kvtx.ScanPrefix(prefixBytes, func(key, val []byte) error {
 				select {
 				case qrb.Output <- dsq.Result{
 					Entry: dsq.Entry{
@@ -128,11 +145,19 @@ func (d *DataStore) Query(ctx context.Context, q query.Query) (_ query.Results, 
 }
 
 func (d *DataStore) Put(ctx context.Context, key datastore.Key, value []byte) error {
-	return d.kvtx.Set(key.Bytes(), value)
+	kvtx, err := d.kvtx()
+	if err != nil {
+		return err
+	}
+	return kvtx.Set(key.Bytes(), value)
 }
 
 func (d *DataStore) Delete(ctx context.Context, key datastore.Key) error {
-	return d.kvtx.Delete(key.Bytes())
+	kvtx, err := d.kvtx()
+	if err != nil {
+		return err
+	}
+	return kvtx.Delete(key.Bytes())
 }
 
 func (d *DataStore) Sync(ctx context.Context, prefix datastore.Key) error {
