@@ -40,6 +40,7 @@ func routedHost(base HostBase, r routing.PeerRouting) hst.Host {
 
 // host returns constructor for Host.
 func host(params hostParams) (HostBase, error) {
+	//panic(fmt.Sprintf("%T", params.PStore))
 	opts := []libp2p.Option{
 		libp2p.NoListenAddrs, // do not listen automatically
 		libp2p.AddrsFactory(params.AddrF),

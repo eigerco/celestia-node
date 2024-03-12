@@ -2,8 +2,6 @@ package header
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/ipfs/go-datastore"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -38,7 +36,6 @@ func newP2PExchange[H libhead.Header[H]](
 	}
 	ids := make([]peer.ID, len(peers))
 	for index, peer := range peers {
-		fmt.Println("PEER EXCHANGE", peer.ID, peer.Addrs)
 		ids[index] = peer.ID
 		host.Peerstore().AddAddrs(peer.ID, peer.Addrs, peerstore.PermanentAddrTTL)
 	}

@@ -50,9 +50,6 @@ func (h *nodeHandler) stopNode(this js.Value, args []js.Value) any {
 }
 
 func (h *nodeHandler) start(cfg *nodebuilder.Config) {
-	if h.node == nil {
-		log("The node has already been started, stop the node if you want to start it again", "warn")
-	}
 	h.ctx, h.cancel = context.WithCancel(context.Background())
 
 	store, err := nodebuilder.NewIndexedDBStore(h.ctx, cfg)

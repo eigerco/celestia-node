@@ -14,8 +14,8 @@ func defaultConnManagerConfigWasm(tp node.Type) connManagerConfig {
 	case node.Light:
 		return connManagerConfig{
 			Low:         1,
-			High:        10,
-			GracePeriod: time.Minute,
+			High:        5,
+			GracePeriod: 1 * time.Minute,
 		}
 	default:
 		panic("unknown wasm (browser) supported node type")
