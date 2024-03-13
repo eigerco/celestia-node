@@ -14,7 +14,7 @@ func defaultConnManagerConfigWasm(tp node.Type) connManagerConfig {
 	case node.Light:
 		return connManagerConfig{
 			Low:         1,
-			High:        5,
+			High:        50,
 			GracePeriod: 1 * time.Minute,
 		}
 	default:

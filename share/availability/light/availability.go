@@ -3,17 +3,18 @@ package light
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/celestiaorg/celestia-node/header"
+	"github.com/celestiaorg/celestia-node/share/getters"
+	ipldFormat "github.com/ipfs/go-ipld-format"
 	"sync"
 
 	"github.com/ipfs/go-datastore"
 	"github.com/ipfs/go-datastore/autobatch"
 	"github.com/ipfs/go-datastore/namespace"
-	ipldFormat "github.com/ipfs/go-ipld-format"
 	logging "github.com/ipfs/go-log/v2"
 
-	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/share"
-	"github.com/celestiaorg/celestia-node/share/getters"
 )
 
 var (
@@ -60,8 +61,8 @@ func NewShareAvailability(
 
 // SharesAvailable randomly samples `params.SampleAmount` amount of Shares committed to the given
 // ExtendedHeader. This way SharesAvailable subjectively verifies that Shares are available.
-func (la *ShareAvailability) SharesAvailable(ctx context.Context, header *header.ExtendedHeader) error {
-	dah := header.DAH
+func (la *ShareAvailability) SharesAvailable(ctx context.Context, head *header.ExtendedHeader) error {
+	dah := head.DAH
 	// short-circuit if the given root is minimum DAH of an empty data square
 	if share.DataHash(dah.Hash()).IsEmptyRoot() {
 		return nil
@@ -85,6 +86,7 @@ func (la *ShareAvailability) SharesAvailable(ctx context.Context, header *header
 			"err", err)
 		panic(err)
 	}
+
 	samples, err := SampleSquare(len(dah.RowRoots), int(la.params.SampleAmount))
 	if err != nil {
 		return err
@@ -95,24 +97,29 @@ func (la *ShareAvailability) SharesAvailable(ctx context.Context, header *header
 	ctx = getters.WithSession(ctx)
 
 	log.Debugw("starting sampling session", "root", dah.String())
+
 	errs := make(chan error, len(samples))
 	for _, s := range samples {
-		go func(s Sample) {
+		go func(head *header.ExtendedHeader, s Sample) {
 			log.Debugw("fetching share", "root", dah.String(), "row", s.Row, "col", s.Col)
-			_, err := la.getter.GetShare(ctx, header, s.Row, s.Col)
+			_, err := la.getter.GetShare(ctx, head, s.Row, s.Col)
 			if err != nil {
 				log.Debugw("error fetching share", "root", dah.String(), "row", s.Row, "col", s.Col)
+			} else {
+				errs <- nil
 			}
+
 			// we don't really care about Share bodies at this point
 			// it also means we now saved the Share in local storage
 			select {
 			case errs <- err:
 			case <-ctx.Done():
 			}
-		}(s)
+		}(head, s)
 	}
 
-	for range samples {
+	for i := 0; i < len(samples); i++ {
+		fmt.Println("Received share, checking for error", head.Height())
 		var err error
 		select {
 		case err = <-errs:

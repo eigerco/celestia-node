@@ -50,7 +50,7 @@ func DefaultParameters() Parameters {
 	return Parameters{
 		SamplingRange:           100,
 		ConcurrencyLimit:        concurrencyLimit,
-		BackgroundStoreInterval: 10 * time.Minute,
+		BackgroundStoreInterval: 1 * time.Minute,
 		SampleFrom:              1,
 		// SampleTimeout = approximate block time (with a bit of wiggle room) * max amount of catchup
 		// workers
