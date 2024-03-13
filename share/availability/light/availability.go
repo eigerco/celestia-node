@@ -3,7 +3,6 @@ package light
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/share/getters"
 	ipldFormat "github.com/ipfs/go-ipld-format"
@@ -119,7 +118,6 @@ func (la *ShareAvailability) SharesAvailable(ctx context.Context, head *header.E
 	}
 
 	for i := 0; i < len(samples); i++ {
-		fmt.Println("Received share, checking for error", head.Height())
 		var err error
 		select {
 		case err = <-errs:

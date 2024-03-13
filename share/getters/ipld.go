@@ -41,7 +41,6 @@ func NewIPLDGetter(bServ blockservice.BlockService) *IPLDGetter {
 
 // GetShare gets a single share at the given EDS coordinates from the bitswap network.
 func (ig *IPLDGetter) GetShare(ctx context.Context, header *header.ExtendedHeader, row, col int) (share.Share, error) {
-	fmt.Println("Obtaining the shares....", header.Height())
 	var err error
 	ctx, span := tracer.Start(ctx, "ipld/get-share", trace.WithAttributes(
 		attribute.Int("row", row),
