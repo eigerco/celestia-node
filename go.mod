@@ -369,7 +369,7 @@ replace (
 	github.com/libp2p/go-libp2p-kad-dht => ./third_party/go-libp2p-kad-dht // TODO remove eventually or disable only tracing
 	github.com/libp2p/go-libp2p-pubsub => github.com/0x19/go-libp2p-pubsub v0.9.3-wasm
 	github.com/libp2p/go-libp2p-routing-helpers => ./third_party/go-libp2p-routing-helpers
-	github.com/paralin/go-indexeddb v1.1.0 => github.com/danielvladco/go-indexeddb v0.0.0-20240220124441-c5f0a94c409e
+	github.com/paralin/go-indexeddb v1.1.0 => github.com/eigerco/go-indexeddb v0.0.0-20240220124441-c5f0a94c409e
 	github.com/pyroscope-io/otel-profiling-go v0.4.0 => github.com/grafana/otel-profiling-go v0.5.1
 	github.com/syndtr/goleveldb => ./third_party/goleveldb
 	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29
