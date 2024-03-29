@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -24,18 +25,15 @@ type WebtransportBootstrappers struct {
 	Addrs map[string]string `json:"addrs"`
 }
 
-// Map to store custom ports for specific IP addresses
-var customPorts = map[string]int{
-	"40.85.94.176":   6060, // Eiger custom node exposing docker port under different port
-	"40.127.100.171": 6060, // ...
-	"10.0.2.100":     6060, // ...
+type Config struct {
+	CustomPorts map[string]int    `json:"custom_ports"`
+	CustomIPs   map[string]string `json:"custom_ips"`
 }
 
-var customIPs = map[string]string{
-	"10.0.2.100": "40.127.100.171",
-}
+var configFlag = flag.String("config", "", "Path to config file that maps ips and ports")
 
 func main() {
+	flag.Parse()
 	// Initialize logger with development configurations.
 	config := zap.NewDevelopmentConfig()
 	config.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
@@ -50,6 +48,14 @@ func main() {
 	addr := os.Getenv("CELESTIA_NODE_IP_ADDR")
 	token := os.Getenv("CELESTIA_NODE_AUTH_TOKEN")
 
+	cfg := &Config{}
+	f, err := os.Open(*configFlag)
+	if err != nil {
+		logger.Fatal("unable to open config file", zap.Error(err))
+	}
+	if err := json.NewDecoder(f).Decode(cfg); err != nil {
+		logger.Fatal("unable to decode config file", zap.Error(err))
+	}
 	// Initialize Celestia client.
 	nodeCli, err := client.NewClient(ctx, addr, token)
 	if err != nil {
@@ -58,7 +64,7 @@ func main() {
 	}
 
 	// Set up HTTP handler for the "/peers" endpoint.
-	http.HandleFunc("/bootstrap-peers", BootstrapPeersHandler(nodeCli))
+	http.HandleFunc("/bootstrap-peers", BootstrapPeersHandler(nodeCli, cfg))
 
 	// Set up HTTP handler for the "/peers" endpoint.
 	http.HandleFunc("/peers", PeersHandler(nodeCli))
@@ -70,7 +76,7 @@ func main() {
 	}
 }
 
-func BootstrapPeersHandler(nodeCli *client.Client) func(w http.ResponseWriter, r *http.Request) {
+func BootstrapPeersHandler(nodeCli *client.Client, cfg *Config) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -112,11 +118,11 @@ func BootstrapPeersHandler(nodeCli *client.Client) func(w http.ResponseWriter, r
 						continue
 					}
 
-					if customPort, ok := customPorts[ip]; ok {
+					if customPort, ok := cfg.CustomPorts[ip]; ok {
 						addrStr = replacePort(addrStr, customPort)
 					}
 
-					if customIP, ok := customIPs[ip]; ok {
+					if customIP, ok := cfg.CustomIPs[ip]; ok {
 						addrStr = replaceIP(addrStr, customIP)
 					}
 
@@ -193,7 +199,7 @@ func extractCerthashes(addr multiaddr.Multiaddr) []string {
 	return certhashes
 }
 
-// PeerHandler returns an HTTP handler function that retrieves and serves peer information.
+// PeersHandler returns an HTTP handler function that retrieves and serves peer information.
 func PeersHandler(nodeCli *client.Client) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
